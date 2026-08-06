@@ -29,13 +29,29 @@
     --grad:linear-gradient(135deg,#2f7de0,#20b6c9);
   }
   *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
   body{
     font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-size:16px;
     background:var(--bg);color:var(--text);line-height:1.5;
     min-height:100vh;
+    touch-action:manipulation;
+    overflow-x:hidden;
   }
   a{color:inherit;text-decoration:none}
   .container{max-width:1240px;margin:0 auto;padding:0 24px}
+
+  /* ---------- Accessibility: focus states + reduced motion ---------- */
+  :focus-visible{outline:2px solid var(--s1);outline-offset:2px;border-radius:4px}
+  button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,[onclick]:focus-visible{
+    outline:2px solid var(--s1);outline-offset:2px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{
+      animation-duration:.01ms!important;animation-iteration-count:1!important;
+      transition-duration:.01ms!important;scroll-behavior:auto!important;
+    }
+  }
 
   /* ---------- Header ---------- */
   header{
@@ -51,7 +67,7 @@
   .nav-links a:hover{color:var(--text)}
   .nav-links a.active{color:var(--text);border-bottom-color:var(--s1)}
   .hamburger{display:none;background:none;border:1px solid var(--line);color:var(--text);font-size:20px;
-    border-radius:9px;width:42px;height:38px;cursor:pointer;margin-left:auto}
+    border-radius:9px;width:44px;height:44px;cursor:pointer;margin-left:auto;align-items:center;justify-content:center}
 
   /* ---------- Sections ---------- */
   .view{display:none;padding:40px 0 80px}
@@ -93,8 +109,8 @@
   }
   .card{position:relative}
   .card:hover{border-color:#3a4a63;transform:translateY(-2px)}
-  .card-x{position:absolute;top:10px;right:10px;width:26px;height:26px;border-radius:8px;border:1px solid var(--line);
-    background:var(--panel-2);color:var(--faint);cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;padding:0}
+  .card-x{position:absolute;top:6px;right:6px;width:36px;height:36px;border-radius:9px;border:1px solid var(--line);
+    background:var(--panel-2);color:var(--faint);cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;padding:0}
   .card-x:hover{color:#fff;background:var(--crit);border-color:var(--crit)}
   .card .icon{
     width:52px;height:52px;border-radius:13px;display:flex;align-items:center;justify-content:center;
@@ -126,8 +142,9 @@
   .tcard-top .ttl{flex:1;min-width:0}
   .tcard-top h3{font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .tcard-top .tag{color:var(--muted);font-size:13px;font-weight:600}
-  .tcard-acts{display:flex;gap:4px}
-  .icon-btn{background:none;border:none;color:var(--faint);cursor:pointer;font-size:16px;padding:5px;border-radius:7px;line-height:1}
+  .tcard-acts{display:flex;gap:8px}
+  .icon-btn{background:none;border:none;color:var(--faint);cursor:pointer;font-size:17px;width:36px;height:36px;
+    display:inline-flex;align-items:center;justify-content:center;border-radius:9px;line-height:1}
   .icon-btn:hover{color:var(--text);background:var(--panel-2)}
   .icon-btn.del:hover{color:var(--crit)}
   .tcard-meta{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin:12px 0 4px}
@@ -195,7 +212,7 @@
   .calc-row .c-name{flex:2}
   .calc-row .c-pct{flex:1;max-width:90px}
   .calc-row .c-amt{flex:1.3;text-align:right;font-weight:700;color:var(--text);white-space:nowrap;font-size:14px}
-  .calc-row .c-del{cursor:pointer;color:var(--faint);font-size:18px;padding:4px}
+  .calc-row .c-del{cursor:pointer;color:var(--faint);font-size:18px;padding:11px;margin:-11px;display:inline-flex}
   .calc-row .c-del:hover{color:var(--crit)}
   .calc-total{display:flex;justify-content:space-between;align-items:center;padding-top:12px;margin-top:6px;border-top:1px solid var(--line);font-weight:700}
   .calc-total .ok{color:var(--good)}
@@ -206,7 +223,7 @@
   .tx .amt{font-weight:700}
   .tx .amt.in{color:var(--good)}
   .tx .amt.out{color:#f0a5a5}
-  .tx .del{cursor:pointer;color:var(--faint);font-size:18px;line-height:1}
+  .tx .del{cursor:pointer;color:var(--faint);font-size:18px;line-height:1;padding:11px;margin:-11px}
   .tx .del:hover{color:var(--crit)}
   .mini-date{width:auto;background:transparent;border:none;color:var(--faint);font-size:12px;padding:2px 0;margin:2px 0 0;font-family:inherit;color-scheme:dark}
   .mini-date:focus{border-color:var(--s1);color:var(--text)}
@@ -255,7 +272,8 @@
   .emoji-pick span.sel{border-color:var(--s1);background:var(--panel-2)}
   .modal-actions{display:flex;gap:12px;margin-top:8px}
   .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--panel-2);border:1px solid var(--s1);
-    padding:12px 22px;border-radius:12px;font-weight:600;z-index:200;opacity:0;transition:.3s;pointer-events:none}
+    padding:12px 22px;border-radius:12px;font-weight:600;z-index:200;opacity:0;transition:.3s;pointer-events:none;
+    display:flex;align-items:center;gap:8px;max-width:calc(100vw - 40px)}
   .toast.show{opacity:1;bottom:34px}
 
   /* ============ MOBILE (телефон нұсқасы) ============ */
@@ -264,7 +282,7 @@
     header{padding:14px 0}
     .nav{position:relative;flex-wrap:wrap}
     .logo{font-size:18px}
-    .hamburger{display:block}
+    .hamburger{display:flex}
     .nav-links{
       display:none;flex-direction:column;gap:0;width:100%;margin:14px 0 0;
       background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;
@@ -314,9 +332,10 @@
   .rt-text{font-size:20px;font-weight:700;padding:24px 10px;line-height:1.4}
 
   /* stars (sleep mood) */
-  .stars{display:flex;gap:6px;margin-bottom:14px}
-  .stars .star{font-size:30px;color:var(--line);cursor:pointer;transition:.1s}
+  .stars{display:flex;gap:8px;margin-bottom:14px}
+  .stars .star{font-size:30px;color:var(--line);cursor:pointer;transition:.1s;padding:7px;margin:-7px;line-height:1}
   .stars .star.on{color:var(--s4)}
+  .stars .star.on svg{fill:currentColor}
   .sl-preview{background:var(--panel-2);border-radius:10px;padding:14px;font-size:15px;margin-bottom:6px;min-height:20px}
 
   /* insights (podcast) */
@@ -325,14 +344,14 @@
   .ins-name{font-weight:700;font-size:14px;margin-bottom:8px;color:var(--s1)}
   .ins-text{font-size:14px;color:var(--text);margin-bottom:10px}
   .ins-foot{display:flex;justify-content:space-between;align-items:center}
-  .ins-foot .del{cursor:pointer;color:var(--faint);font-size:18px}
+  .ins-foot .del{cursor:pointer;color:var(--faint);font-size:18px;padding:11px;margin:-11px}
   .ins-foot .del:hover{color:var(--crit)}
 
   /* vitamins */
   .vit-desc{background:var(--panel-2);border-radius:12px;padding:18px;font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:18px}
   .vit{background:var(--panel-2);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px}
   .vit-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
-  .vit-head .del{cursor:pointer;color:var(--faint);font-size:20px}
+  .vit-head .del{cursor:pointer;color:var(--faint);font-size:20px;padding:10px;margin:-10px}
   .vit-head .del:hover{color:var(--crit)}
   .vmonth{margin-bottom:12px}
   .vmonth-t{font-size:13px;color:var(--muted);font-weight:600;margin-bottom:6px}
@@ -346,7 +365,7 @@
   /* tabs (goals) */
   .section-t{font-size:19px;font-weight:800;margin:0 0 14px}
   .tabs{display:flex;gap:8px;margin-bottom:18px}
-  .tab{background:var(--panel);border:1px solid var(--line);color:var(--muted);padding:10px 20px;border-radius:10px;font-weight:600;cursor:pointer;font-family:inherit;font-size:14px}
+  .tab{background:var(--panel);border:1px solid var(--line);color:var(--muted);padding:12px 20px;min-height:44px;border-radius:10px;font-weight:600;cursor:pointer;font-family:inherit;font-size:14px}
   .tab:hover{color:var(--text)}
   .tab.active{background:var(--panel-2);color:#fff;border-color:var(--s4)}
   .goal-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
@@ -354,7 +373,7 @@
   .goal-item .gcheck{cursor:pointer;font-size:18px;user-select:none}
   .goal-item .gtext{flex:1}
   .goal-item.done .gtext{text-decoration:line-through;color:var(--faint)}
-  .goal-item .del{cursor:pointer;color:var(--faint);font-size:18px}
+  .goal-item .del{cursor:pointer;color:var(--faint);font-size:18px;padding:11px;margin:-11px}
   .goal-item .del:hover{color:var(--crit)}
   .plan-time{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:2px 9px;font-size:13px;font-weight:700;color:var(--s1);font-variant-numeric:tabular-nums}
 
@@ -401,9 +420,9 @@
   .logout-btn{background:none;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:600;margin-left:12px}
   .logout-btn:hover{color:#f0a5a5;border-color:var(--crit)}
   .pw-wrap{position:relative}
-  .pw-wrap input{padding-right:44px}
-  .pw-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);margin-top:-7px;background:none;border:none;
-    cursor:pointer;font-size:16px;padding:6px;opacity:.7;line-height:1}
+  .pw-wrap input{padding-right:48px}
+  .pw-eye{position:absolute;right:0;top:50%;transform:translateY(-50%);background:none;border:none;
+    cursor:pointer;font-size:16px;padding:12px;opacity:.7;line-height:1;display:flex;align-items:center;justify-content:center}
   .pw-eye:hover{opacity:1}
   .buy-nav{background:var(--grad)!important;color:#fff!important;border-radius:8px;padding:8px 16px!important;font-weight:700!important}
 
@@ -429,7 +448,7 @@
   /* gratitude */
   .grat-card{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
   .grat-date{font-weight:700;font-size:14px;margin-bottom:10px;display:flex;justify-content:space-between}
-  .grat-date .del{cursor:pointer;color:var(--faint)}
+  .grat-date .del{cursor:pointer;color:var(--faint);padding:10px;margin:-10px}
   .grat-date .del:hover{color:var(--crit)}
   .grat-q{font-size:13px;color:var(--muted);margin-top:8px}
   .grat-a{font-size:15px;color:var(--text)}
@@ -440,7 +459,7 @@
 <!-- ============ AUTH SCREEN ============ -->
 <div id="authScreen">
   <div class="auth-card">
-    <div class="auth-logo"><span>📈</span> ÖZGERIS</div>
+    <div class="auth-logo"><span><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><polyline points='3,17 9,11 13,15 21,5'/><polyline points='15,5 21,5 21,11'/></svg></span> ÖZGERIS</div>
     <div class="auth-sub">Аккаунтыңмен кіріп, әдеттеріңді бақыла</div>
     <div class="auth-tabs tabs">
       <button class="tab active" id="tabLogin" onclick="authSwitch('login')">Кіру</button>
@@ -453,7 +472,7 @@
       <label>Пароль</label>
       <div class="pw-wrap">
         <input id="logPass" type="password" placeholder="••••••" onkeydown="if(event.key==='Enter')doLogin()">
-        <button type="button" class="pw-eye" onclick="togglePw('logPass',this)">👁</button>
+        <button type="button" class="pw-eye" onclick="togglePw('logPass',this)"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M2,12 C4,7 8,4 12,4 C16,4 20,7 22,12 C20,17 16,20 12,20 C8,20 4,17 2,12 Z'/><circle cx='12' cy='12' r='3'/></svg></button>
       </div>
       <div class="auth-err" id="authErr"></div>
       <button class="btn" onclick="doLogin()">Кіру</button>
@@ -468,7 +487,7 @@
       <label>Пароль</label>
       <div class="pw-wrap">
         <input id="regPass" type="password" placeholder="кемінде 4 таңба" onkeydown="if(event.key==='Enter')doRegister()">
-        <button type="button" class="pw-eye" onclick="togglePw('regPass',this)">👁</button>
+        <button type="button" class="pw-eye" onclick="togglePw('regPass',this)"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M2,12 C4,7 8,4 12,4 C16,4 20,7 22,12 C20,17 16,20 12,20 C8,20 4,17 2,12 Z'/><circle cx='12' cy='12' r='3'/></svg></button>
       </div>
       <div class="auth-err"></div>
       <button class="btn" onclick="doRegister()">Тіркелу</button>
@@ -479,16 +498,16 @@
 
 <header>
   <div class="container nav">
-    <div class="logo" onclick="showWelcome()"><span class="mark">📈</span> ÖZGERIS</div>
-    <button class="hamburger" onclick="toggleNav()">☰</button>
+    <div class="logo" onclick="showWelcome()"><span class="mark"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><polyline points='3,17 9,11 13,15 21,5'/><polyline points='15,5 21,5 21,11'/></svg></span> ÖZGERIS</div>
+    <button class="hamburger" onclick="toggleNav()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='4' y1='7' x2='20' y2='7'/><line x1='4' y1='12' x2='20' y2='12'/><line x1='4' y1='17' x2='20' y2='17'/></svg></button>
     <nav class="nav-links" id="navLinks">
       <a data-view="home" class="active">Трекер құру</a>
       <a data-view="mine">Менің трекерлерім</a>
-      <a class="rt-nav" onclick="randomTask()">🎲 Тапсырма</a>
+      <a class="rt-nav" onclick="randomTask()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='4' y='4' width='16' height='16' rx='3'/><circle cx='8' cy='8' r='1.2' fill='currentColor' stroke='none'/><circle cx='16' cy='8' r='1.2' fill='currentColor' stroke='none'/><circle cx='12' cy='12' r='1.2' fill='currentColor' stroke='none'/><circle cx='8' cy='16' r='1.2' fill='currentColor' stroke='none'/><circle cx='16' cy='16' r='1.2' fill='currentColor' stroke='none'/></svg> Тапсырма</a>
       <a data-view="finance">Қаржы</a>
       <a data-view="analytics">Талдау</a>
-      <a data-view="admin" id="adminNavLink" style="display:none">🛠 Админ</a>
-      <a class="buy-nav" onclick="buyClick()">🛒 Сатып алу</a>
+      <a data-view="admin" id="adminNavLink" style="display:none"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M12,3 L19,6 L19,12 L12,20 L5,12 L5,6 Z'/></svg> Админ</a>
+      <a class="buy-nav" onclick="buyClick()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M4,4 H6 L8,15 H18 L20,8 H7'/><circle cx='9' cy='19' r='1.4' fill='currentColor' stroke='none'/><circle cx='17' cy='19' r='1.4' fill='currentColor' stroke='none'/></svg> Сатып алу</a>
       <span class="user-badge" id="userBadge"></span>
       <button class="logout-btn" onclick="logout()">Шығу</button>
     </nav>
@@ -498,11 +517,11 @@
 <!-- ============ PENDING ACCESS SCREEN ============ -->
 <div id="pendingScreen" style="display:none">
   <div class="pending-card">
-    <div class="pe">🔒</div>
+    <div class="pe"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='5' y='11' width='14' height='10' rx='2'/><path d='M8,11 V7 a4,4 0 0 1 8,0 V11'/></svg></div>
     <h2>Аккаунтыңа әлі доступ берілмеген</h2>
     <p>ÖZGERIS-ті толық пайдалану үшін жазылымды рәсімдеу керек. Төмендегі батырма арқылы
       WhatsApp-қа жазып, төлемді рәсімдеңіз — доступ жылдам беріледі.</p>
-    <button class="btn" onclick="buyClick()">🛒 Сатып алу (WhatsApp)</button>
+    <button class="btn" onclick="buyClick()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M4,4 H6 L8,15 H18 L20,8 H7'/><circle cx='9' cy='19' r='1.4' fill='currentColor' stroke='none'/><circle cx='17' cy='19' r='1.4' fill='currentColor' stroke='none'/></svg> Сатып алу (WhatsApp)</button>
     <button class="btn ghost" onclick="logout()">Шығу</button>
   </div>
 </div>
@@ -511,12 +530,12 @@
 <section id="home" class="view active">
   <div class="container">
     <div class="top-bar">
-      <button class="btn ghost sm" onclick="showView('archive')">🗂 Архив</button>
+      <button class="btn ghost sm" onclick="showView('archive')"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='3' y='4' width='18' height='4' rx='1'/><path d='M5,8 V18 a2,2 0 0 0 2,2 h10 a2,2 0 0 0 2,-2 V8'/><line x1='10' y1='13' x2='14' y2='13'/></svg> Архив</button>
     </div>
     <p class="subtitle">Саланы таңда — ішінен дайын әдеттерді көресің.</p>
     <div class="cat-grid" id="catGrid"></div>
     <div class="add-own">
-      <button class="btn ghost sm" onclick="openCreate()">⚙️ Өз трекеріңді жаса</button>
+      <button class="btn ghost sm" onclick="openCreate()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='3.2'/><polygon points='12,3 19,7.5 19,16.5 12,21 5,16.5 5,7.5'/></svg> Өз трекеріңді жаса</button>
     </div>
   </div>
 </section>
@@ -524,12 +543,12 @@
 <!-- ============ CATEGORY DETAIL ============ -->
 <section id="category" class="view">
   <div class="container">
-    <button class="back-btn" onclick="showView('home')">← Барлық салалар</button>
+    <button class="back-btn" onclick="showView('home')"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M19,12 H5 M12,5 L5,12 L12,19'/></svg> Барлық салалар</button>
     <div class="cat-head" id="catHead"></div>
     <div class="grid" id="cardGrid"></div>
     <div id="catExtra"></div>
     <div class="add-own" id="catAddOwn">
-      <button class="btn ghost sm" onclick="openCreate()">⚙️ Осы салаға өз трекеріңді қос</button>
+      <button class="btn ghost sm" onclick="openCreate()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='3.2'/><polygon points='12,3 19,7.5 19,16.5 12,21 5,16.5 5,7.5'/></svg> Осы салаға өз трекеріңді қос</button>
     </div>
   </div>
 </section>
@@ -546,10 +565,10 @@
 <!-- ============ ARCHIVE ============ -->
 <section id="archive" class="view">
   <div class="container">
-    <button class="back-btn" onclick="showView('home')">← Артқа</button>
+    <button class="back-btn" onclick="showView('home')"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M19,12 H5 M12,5 L5,12 L12,19'/></svg> Артқа</button>
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
       <div>
-        <h1 class="page-title">🗂 Архив (жойылғандар)</h1>
+        <h1 class="page-title"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='3' y='4' width='18' height='4' rx='1'/><path d='M5,8 V18 a2,2 0 0 0 2,2 h10 a2,2 0 0 0 2,-2 V8'/><line x1='10' y1='13' x2='14' y2='13'/></svg> Архив (жойылғандар)</h1>
         <p class="page-sub">Жойылған трекерлер осында. Қалпына келтіруге немесе біржола жоюға болады.</p>
       </div>
       <button class="btn danger sm" onclick="clearArchive()">Архивті тазалау</button>
@@ -561,7 +580,7 @@
 <!-- ============ TRACKER DETAIL ============ -->
 <section id="detail" class="view">
   <div class="container">
-    <button class="back-btn" onclick="showView('mine')">← Менің трекерлерім</button>
+    <button class="back-btn" onclick="showView('mine')"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M19,12 H5 M12,5 L5,12 L12,19'/></svg> Менің трекерлерім</button>
     <div id="detailBody"></div>
   </div>
 </section>
@@ -569,7 +588,7 @@
 <!-- ============ FINANCE ============ -->
 <section id="finance" class="view">
   <div class="container">
-    <h1 class="page-title">💰 Қаржылық сауаттылық</h1>
+    <h1 class="page-title"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='3' y='7' width='18' height='12' rx='2'/><line x1='3' y1='10.5' x2='21' y2='10.5'/><circle cx='17' cy='14' r='1.3' fill='currentColor' stroke='none'/></svg> Қаржылық сауаттылық</h1>
     <p class="page-sub">Табыс пен шығын бөлек есептеледі. Калькулятор — жеке бөлім.</p>
 
     <!-- Balance summary -->
@@ -586,7 +605,7 @@
     <div class="fin-grid">
       <!-- INCOME -->
       <div class="box">
-        <div class="box-head"><h3>⬆️ Табыстар</h3><span class="sum-badge in" id="incSum">0 ₸</span></div>
+        <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='9'/><polyline points='8,13 12,9 16,13'/><line x1='12' y1='16' x2='12' y2='9'/></svg> Табыстар</h3><span class="sum-badge in" id="incSum">0 ₸</span></div>
         <div class="row">
           <div><label>Күні</label><input type="date" id="incDate"></div>
           <div><label>Сома (₸)</label><input type="number" id="incAmount" placeholder="0" min="0"></div>
@@ -594,13 +613,13 @@
         <label>Атауы</label>
         <input type="text" id="incName" placeholder="Мысалы: Жалақы" list="incNames">
         <datalist id="incNames"></datalist>
-        <button class="btn" onclick="addIncome()">＋ Табыс қосу</button>
+        <button class="btn" onclick="addIncome()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='5' x2='12' y2='19'/><line x1='5' y1='12' x2='19' y2='12'/></svg> Табыс қосу</button>
         <div class="tx-list" id="incList"></div>
       </div>
 
       <!-- EXPENSE -->
       <div class="box">
-        <div class="box-head"><h3>⬇️ Шығындар</h3><span class="sum-badge out" id="expSum">0 ₸</span></div>
+        <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='9'/><polyline points='8,11 12,15 16,11'/><line x1='12' y1='8' x2='12' y2='15'/></svg> Шығындар</h3><span class="sum-badge out" id="expSum">0 ₸</span></div>
         <div class="row">
           <div><label>Күні</label><input type="date" id="expDate"></div>
           <div><label>Сома (₸)</label><input type="number" id="expAmount" placeholder="0" min="0"></div>
@@ -608,7 +627,7 @@
         <label>Категория</label>
         <input type="text" id="expName" placeholder="Мысалы: Тамақ" list="expNames">
         <datalist id="expNames"></datalist>
-        <button class="btn" onclick="addExpense()">＋ Шығын қосу</button>
+        <button class="btn" onclick="addExpense()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='5' x2='12' y2='19'/><line x1='5' y1='12' x2='19' y2='12'/></svg> Шығын қосу</button>
         <div class="tx-list" id="expList"></div>
       </div>
     </div>
@@ -625,7 +644,7 @@
 
     <!-- SEPARATE CALCULATOR -->
     <div class="box" style="margin-top:20px">
-      <div class="box-head"><h3>🧮 Бөлу калькуляторы</h3></div>
+      <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='4' y='2' width='16' height='20' rx='2'/><rect x='7' y='5' width='10' height='4' rx='1'/><circle cx='8' cy='13' r='1' fill='currentColor' stroke='none'/><circle cx='12' cy='13' r='1' fill='currentColor' stroke='none'/><circle cx='16' cy='13' r='1' fill='currentColor' stroke='none'/><circle cx='8' cy='17' r='1' fill='currentColor' stroke='none'/><circle cx='12' cy='17' r='1' fill='currentColor' stroke='none'/><circle cx='16' cy='17' r='1' fill='currentColor' stroke='none'/></svg> Бөлу калькуляторы</h3></div>
       <div class="cd" style="color:var(--muted);font-size:14px;margin-bottom:14px">
         Соманы жаз, бөліктердің атын мен процентін өзің қой. Жалпы процент 100% болуы керек.
       </div>
@@ -634,8 +653,8 @@
       <div id="calcRows"></div>
       <div class="calc-total" id="calcTotal"></div>
       <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap">
-        <button class="btn ghost sm" onclick="addCalcRow()">＋ Жол қосу</button>
-        <button class="btn ghost sm" onclick="autoBalance()">⚖️ 100%-ке теңестір</button>
+        <button class="btn ghost sm" onclick="addCalcRow()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='5' x2='12' y2='19'/><line x1='5' y1='12' x2='19' y2='12'/></svg> Жол қосу</button>
+        <button class="btn ghost sm" onclick="autoBalance()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='3' x2='12' y2='20'/><line x1='4' y1='7' x2='20' y2='7'/><circle cx='4' cy='13' r='3'/><circle cx='20' cy='13' r='3'/><line x1='4' y1='7' x2='4' y2='10'/><line x1='20' y1='7' x2='20' y2='10'/></svg> 100%-ке теңестір</button>
       </div>
     </div>
   </div>
@@ -644,7 +663,7 @@
 <!-- ============ ANALYTICS ============ -->
 <section id="analytics" class="view">
   <div class="container">
-    <h1 class="page-title">📊 Талдау</h1>
+    <h1 class="page-title"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='4' y='12' width='4' height='8' rx='1'/><rect x='10' y='6' width='4' height='14' rx='1'/><rect x='16' y='14' width='4' height='6' rx='1'/></svg> Талдау</h1>
     <p class="page-sub">Барлық трекерлерің бойынша қорытынды.</p>
     <div id="healthPanel"></div>
     <div class="kpis" id="kpis"></div>
@@ -668,7 +687,7 @@
 <!-- ============ ADMIN ============ -->
 <section id="admin" class="view">
   <div class="container">
-    <h1 class="page-title">🛠 Админ панель</h1>
+    <h1 class="page-title"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M12,3 L19,6 L19,12 L12,20 L5,12 L5,6 Z'/></svg> Админ панель</h1>
     <p class="page-sub">Пайдаланушыларға доступ беру/алу, парольді ысырып тастау.</p>
     <div class="box" style="overflow-x:auto">
       <table class="admin-table" id="adminTable">
@@ -689,9 +708,9 @@
     <select id="mCat"></select>
     <label>Өлшеу түрі</label>
     <select id="mType" onchange="onTypeChange()">
-      <option value="check">✅ Орындадым / жоқ</option>
-      <option value="count">🔢 Сан санау (мыс. стакан)</option>
-      <option value="value">📊 Мән жазу (мыс. сағат/кг)</option>
+      <option value="check"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='9'/><polyline points='8,12 11,15 16,9'/></svg> Орындадым / жоқ</option>
+      <option value="count"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='9' y1='3' x2='7' y2='21'/><line x1='17' y1='3' x2='15' y2='21'/><line x1='4' y1='9' x2='20' y2='9'/><line x1='3' y1='15' x2='19' y2='15'/></svg> Сан санау (мыс. стакан)</option>
+      <option value="value"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='4' y='12' width='4' height='8' rx='1'/><rect x='10' y='6' width='4' height='14' rx='1'/><rect x='16' y='14' width='4' height='6' rx='1'/></svg> Мән жазу (мыс. сағат/кг)</option>
     </select>
     <div id="mNumOpts" style="display:none">
       <label>Бірлік</label>
@@ -716,7 +735,7 @@
 <!-- ============ WELCOME / MANIFESTO MODAL ============ -->
 <div class="modal-bg welcome-bg" id="welcomeModal">
   <div class="welcome-card">
-    <div class="welcome-emblem">📈 ÖZGERIS</div>
+    <div class="welcome-emblem"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><polyline points='3,17 9,11 13,15 21,5'/><polyline points='15,5 21,5 21,11'/></svg> ÖZGERIS</div>
     <h2 class="welcome-title">ӨМІРІҢНІҢ ЖАҢА БЕТІ</h2>
     <div class="welcome-body">
       <p>Сәлем! Егер сен осы жобаға тіркелген болсаң — бұл жай қызығушылық емес, бұл ішкі дауыстың «өзімді өзгерткім келеді» деген белгісі. Өз өмірін өзгертуді армандайтын адам өте көп, бірақ алғашқы қадамды шын мәнінде жасайтындар өте аз. Сен сол аздың бірі болдың.</p>
@@ -728,25 +747,25 @@
       <p><b>ÖZGERIS — сенің жолкөрсеткішің.</b> Ол саған мақсатыңды айқындауға, өміріңді жоспарлауға және ең бастысы — өзіңді қайта табуға көмектеседі. Мұндағы әр әдіс бір-бірімен байланысты: бір трекер ойыңды тазартады, екіншісі фокус береді, үшіншісі нақты әрекетке итермелейді. Ал олардың барлығының түпкі нәтижесі — ішкі тыныштық, жүйелілік пен береке.</p>
       <p><b>ÖZGERIS</b> сенен мінсіз болуды талап етпейді. Ол тек бір нәрсені сұрайды — <b>тоқтама</b>. Кейде сенің ең үлкен жетістігің бүгін тағы бір парақ ашқаныңда жатыр. Аз жазсаң да, жазғаныңның өзі — жеңіс. Себебі дамудың сыры көлемде емес, тұрақтылықта.</p>
     </div>
-    <button class="btn welcome-btn" onclick="closeWelcome()">Бастаймын ✨</button>
+    <button class="btn welcome-btn" onclick="closeWelcome()">Бастаймын <svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M12,2 L13.5,9.5 L21,11 L13.5,12.5 L12,20 L10.5,12.5 L3,11 L10.5,9.5 Z'/><circle cx='19' cy='5' r='1' fill='currentColor' stroke='none'/></svg></button>
   </div>
 </div>
 
 <!-- ============ SLEEP MODAL ============ -->
 <div class="modal-bg" id="sleepModal">
   <div class="modal">
-    <h3>😴 Ұйқы — <span id="slDay"></span></h3>
+    <h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M3,18 V8 a2,2 0 0 1 2,-2 h5 a2,2 0 0 1 2,2 v4'/><path d='M12,12 h7 a2,2 0 0 1 2,2 v4'/><line x1='3' y1='15' x2='21' y2='15'/><line x1='3' y1='18' x2='3' y2='21'/><line x1='21' y1='18' x2='21' y2='21'/></svg> Ұйқы — <span id="slDay"></span></h3>
     <div class="row">
       <div><label>Нешеде жаттың?</label><input type="time" id="slBed" value="23:00" oninput="updateSleepPreview()"></div>
       <div><label>Нешеде тұрдың?</label><input type="time" id="slWake" value="07:00" oninput="updateSleepPreview()"></div>
     </div>
     <label>Көңіл-күйің қандай болды?</label>
     <div class="stars" id="slMood">
-      <span class="star" onclick="setMood(1)">★</span>
-      <span class="star" onclick="setMood(2)">★</span>
-      <span class="star" onclick="setMood(3)">★</span>
-      <span class="star" onclick="setMood(4)">★</span>
-      <span class="star" onclick="setMood(5)">★</span>
+      <span class="star" onclick="setMood(1)"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M12,2 L15,9 L22,10 L17,15 L18.5,22 L12,18.5 L5.5,22 L7,15 L2,10 L9,9 Z'/></svg></span>
+      <span class="star" onclick="setMood(2)"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M12,2 L15,9 L22,10 L17,15 L18.5,22 L12,18.5 L5.5,22 L7,15 L2,10 L9,9 Z'/></svg></span>
+      <span class="star" onclick="setMood(3)"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M12,2 L15,9 L22,10 L17,15 L18.5,22 L12,18.5 L5.5,22 L7,15 L2,10 L9,9 Z'/></svg></span>
+      <span class="star" onclick="setMood(4)"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M12,2 L15,9 L22,10 L17,15 L18.5,22 L12,18.5 L5.5,22 L7,15 L2,10 L9,9 Z'/></svg></span>
+      <span class="star" onclick="setMood(5)"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M12,2 L15,9 L22,10 L17,15 L18.5,22 L12,18.5 L5.5,22 L7,15 L2,10 L9,9 Z'/></svg></span>
     </div>
     <div class="sl-preview" id="slPreview"></div>
     <div class="modal-actions">
@@ -759,7 +778,7 @@
 <!-- ============ GAD-7 MODAL ============ -->
 <div class="modal-bg" id="gadModal">
   <div class="modal" style="max-width:560px">
-    <h3>📝 GAD-7 — Мазасыздық тесті</h3>
+    <h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='6' y='4' width='12' height='18' rx='2'/><rect x='9' y='2' width='6' height='4' rx='1'/><line x1='9' y1='11' x2='15' y2='11'/><line x1='9' y1='15' x2='15' y2='15'/></svg> GAD-7 — Мазасыздық тесті</h3>
     <div style="color:var(--muted);font-size:13px;margin-bottom:16px">Соңғы 2 аптада мына жайттар сізді қаншалықты мазалады?</div>
     <div id="gadBody" style="max-height:52vh;overflow-y:auto"></div>
     <div id="gadScore" style="text-align:center;color:var(--muted);font-size:13px;margin:10px 0"></div>
@@ -773,10 +792,10 @@
 <!-- ============ RANDOM TASK MODAL ============ -->
 <div class="modal-bg" id="rtModal">
   <div class="modal" style="text-align:center">
-    <h3>🎲 Бүгінгі мини-тапсырма</h3>
+    <h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='4' y='4' width='16' height='16' rx='3'/><circle cx='8' cy='8' r='1.2' fill='currentColor' stroke='none'/><circle cx='16' cy='8' r='1.2' fill='currentColor' stroke='none'/><circle cx='12' cy='12' r='1.2' fill='currentColor' stroke='none'/><circle cx='8' cy='16' r='1.2' fill='currentColor' stroke='none'/><circle cx='16' cy='16' r='1.2' fill='currentColor' stroke='none'/></svg> Бүгінгі мини-тапсырма</h3>
     <div class="rt-text" id="rtText"></div>
     <div class="modal-actions">
-      <button class="btn ghost" onclick="anotherTask()">🔄 Басқа</button>
+      <button class="btn ghost" onclick="anotherTask()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M21,12 a9,9 0 1 1 -3,-6.7'/><polyline points='21,3 21,9 15,9'/></svg> Басқа</button>
       <button class="btn" onclick="document.getElementById('rtModal').classList.remove('open')">Жақсы!</button>
     </div>
   </div>
@@ -806,6 +825,12 @@ const Store = (() => {
     del(k){ const key=pfx(k); if(ok) localStorage.removeItem(key); else delete mem[key]; }
   };
 })();
+
+/* ============================================================
+   ICONS — SVG icon жүйесі (эмодзи орнына, brand-консистентті)
+   ============================================================ */
+const ICONS = {"trend":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><polyline points='3,17 9,11 13,15 21,5'/><polyline points='15,5 21,5 21,11'/></svg>","archive":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='3' y='4' width='18' height='4' rx='1'/><path d='M5,8 V18 a2,2 0 0 0 2,2 h10 a2,2 0 0 0 2,-2 V8'/><line x1='10' y1='13' x2='14' y2='13'/></svg>","settings":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='3.2'/><polygon points='12,3 19,7.5 19,16.5 12,21 5,16.5 5,7.5'/></svg>","dice":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='4' y='4' width='16' height='16' rx='3'/><circle cx='8' cy='8' r='1.2' fill='currentColor' stroke='none'/><circle cx='16' cy='8' r='1.2' fill='currentColor' stroke='none'/><circle cx='12' cy='12' r='1.2' fill='currentColor' stroke='none'/><circle cx='8' cy='16' r='1.2' fill='currentColor' stroke='none'/><circle cx='16' cy='16' r='1.2' fill='currentColor' stroke='none'/></svg>","shield":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M12,3 L19,6 L19,12 L12,20 L5,12 L5,6 Z'/></svg>","cart":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M4,4 H6 L8,15 H18 L20,8 H7'/><circle cx='9' cy='19' r='1.4' fill='currentColor' stroke='none'/><circle cx='17' cy='19' r='1.4' fill='currentColor' stroke='none'/></svg>","eye":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M2,12 C4,7 8,4 12,4 C16,4 20,7 22,12 C20,17 16,20 12,20 C8,20 4,17 2,12 Z'/><circle cx='12' cy='12' r='3'/></svg>","eyeOff":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M2,12 C4,7 8,4 12,4 C16,4 20,7 22,12 C20,17 16,20 12,20 C8,20 4,17 2,12 Z'/><circle cx='12' cy='12' r='3'/><line x1='3' y1='3' x2='21' y2='21'/></svg>","menu":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='4' y1='7' x2='20' y2='7'/><line x1='4' y1='12' x2='20' y2='12'/><line x1='4' y1='17' x2='20' y2='17'/></svg>","lock":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='5' y='11' width='14' height='10' rx='2'/><path d='M8,11 V7 a4,4 0 0 1 8,0 V11'/></svg>","arrowLeft":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M19,12 H5 M12,5 L5,12 L12,19'/></svg>","arrowRight":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M5,12 H19 M12,5 L19,12 L12,19'/></svg>","plus":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='5' x2='12' y2='19'/><line x1='5' y1='12' x2='19' y2='12'/></svg>","heart":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M12,21 C12,21 4,14.5 4,9 C4,6 6.5,4 9,4 C10.5,4 12,5 12,6.5 C12,5 13.5,4 15,4 C17.5,4 20,6 20,9 C20,14.5 12,21 12,21 Z'/></svg>","book":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M4,5 C6,4 9,4 12,5 C15,4 18,4 20,5 V19 C18,18 15,18 12,19 C9,18 6,18 4,19 Z'/><line x1='12' y1='5' x2='12' y2='19'/></svg>","dumbbell":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='7' y1='12' x2='17' y2='12' stroke-width='3'/><rect x='2.5' y='8' width='4' height='8' rx='1.5' fill='currentColor' stroke='none'/><rect x='17.5' y='8' width='4' height='8' rx='1.5' fill='currentColor' stroke='none'/></svg>","wallet":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='3' y='7' width='18' height='12' rx='2'/><line x1='3' y1='10.5' x2='21' y2='10.5'/><circle cx='17' cy='14' r='1.3' fill='currentColor' stroke='none'/></svg>","target":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='8'/><circle cx='12' cy='12' r='4.5'/><circle cx='12' cy='12' r='1.3' fill='currentColor' stroke='none'/></svg>","hands":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M7,20 C7,20 4,17 4,13 C4,10 5.5,8 8,8'/><path d='M17,20 C17,20 20,17 20,13 C20,10 18.5,8 16,8'/><path d='M8,8 C8,5 10,3 12,3 C14,3 16,5 16,8'/></svg>","sparkles":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M12,2 L13.5,9.5 L21,11 L13.5,12.5 L12,20 L10.5,12.5 L3,11 L10.5,9.5 Z'/><circle cx='19' cy='5' r='1' fill='currentColor' stroke='none'/></svg>","cookie":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='9'/><circle cx='9' cy='9' r='1' fill='currentColor' stroke='none'/><circle cx='15' cy='10' r='1' fill='currentColor' stroke='none'/><circle cx='10' cy='15' r='1' fill='currentColor' stroke='none'/><circle cx='14' cy='15' r='1' fill='currentColor' stroke='none'/></svg>","droplet":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M12,3 C12,3 5,11 5,15.5 C5,19 8,21 12,21 C16,21 19,19 19,15.5 C19,11 12,3 12,3 Z'/></svg>","noSmoking":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='9'/><line x1='6' y1='13' x2='15' y2='13' stroke-width='2.4'/><line x1='6' y1='18' x2='18' y2='6'/></svg>","bed":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M3,18 V8 a2,2 0 0 1 2,-2 h5 a2,2 0 0 1 2,2 v4'/><path d='M12,12 h7 a2,2 0 0 1 2,2 v4'/><line x1='3' y1='15' x2='21' y2='15'/><line x1='3' y1='18' x2='3' y2='21'/><line x1='21' y1='18' x2='21' y2='21'/></svg>","scale":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='3' x2='12' y2='20'/><line x1='4' y1='7' x2='20' y2='7'/><circle cx='4' cy='13' r='3'/><circle cx='20' cy='13' r='3'/><line x1='4' y1='7' x2='4' y2='10'/><line x1='20' y1='7' x2='20' y2='10'/></svg>","pill":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><g transform='rotate(45 12 12)'><rect x='3' y='9' width='18' height='6' rx='3'/><line x1='12' y1='9' x2='12' y2='15'/></g></svg>","languages":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='9'/><line x1='3' y1='12' x2='21' y2='12'/><ellipse cx='12' cy='12' rx='4' ry='9'/></svg>","headphones":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M4,14 V12 a8,8 0 0 1 16,0 V14'/><rect x='2' y='14' width='4' height='7' rx='2'/><rect x='18' y='14' width='4' height='7' rx='2'/></svg>","laptop":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='3' y='4' width='18' height='12' rx='1'/><path d='M2,18 L4,20 H20 L22,18 Z'/></svg>","footprints":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><ellipse cx='8' cy='8' rx='2.3' ry='3'/><ellipse cx='16' cy='15' rx='2.3' ry='3'/></svg>","flame":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M12,2 C9,6 5,8 5,13.5 C5,17.5 8,21 12,21 C16,21 19,17.5 19,13.5 C19,10 17,8.5 16,7 C16.5,9.5 15,10.5 15,10.5 C15,7 13,4.5 12,2 Z'/><path d='M12,12 C11,13.5 10,14.5 10,16.2 a2.3,2.3 0 0 0 4.6,0 C14.6,14.5 13,13 12,12 Z' fill='currentColor'/></svg>","trophy":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M7,4 H17 V9 a5,5 0 0 1 -10,0 Z'/><line x1='9' y1='17' x2='15' y2='17'/><line x1='12' y1='14' x2='12' y2='17'/><path d='M7,5 H4 a1,1 0 0 0 -1,1 c0,3 2,4 4,4'/><path d='M17,5 H20 a1,1 0 0 0 1,1 c0,3 -2,4 -4,4'/><rect x='8' y='19' width='8' height='2' rx='1'/></svg>","gem":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M6,3 H18 L22,9 L12,21 L2,9 Z'/><line x1='2' y1='9' x2='22' y2='9'/><line x1='9' y1='3' x2='7' y2='9'/><line x1='15' y1='3' x2='17' y2='9'/></svg>","star":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M12,2 L15,9 L22,10 L17,15 L18.5,22 L12,18.5 L5.5,22 L7,15 L2,10 L9,9 Z'/></svg>","checkCircle":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='9'/><polyline points='8,12 11,15 16,9'/></svg>","checkSquare":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='4' y='4' width='16' height='16' rx='2'/><polyline points='8,12 11,15 16,9'/></svg>","square":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='4' y='4' width='16' height='16' rx='2'/></svg>","x":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='6' y1='6' x2='18' y2='18'/><line x1='6' y1='18' x2='18' y2='6'/></svg>","edit":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M12,20 H21'/><path d='M16.5,3.5 a2.1,2.1 0 0 1 3,3 L7,19 L3,20 L4,16 Z'/></svg>","trash":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M3,6 H21'/><path d='M8,6 V4 a1,1 0 0 1 1,-1 H15 a1,1 0 0 1 1,1 V6'/><path d='M19,6 L18,20 a1,1 0 0 1 -1,1 H7 a1,1 0 0 1 -1,-1 L5,6'/><line x1='10' y1='11' x2='10' y2='17'/><line x1='14' y1='11' x2='14' y2='17'/></svg>","refresh":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M21,12 a9,9 0 1 1 -3,-6.7'/><polyline points='21,3 21,9 15,9'/></svg>","calendar":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='3' y='5' width='18' height='16' rx='2'/><line x1='3' y1='10' x2='21' y2='10'/><line x1='8' y1='3' x2='8' y2='7'/><line x1='16' y1='3' x2='16' y2='7'/></svg>","link":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='2' y='9' width='9' height='6' rx='3' transform='rotate(-45 6.5 12)'/><rect x='13' y='9' width='9' height='6' rx='3' transform='rotate(-45 17.5 12)'/></svg>","clipboard":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='6' y='4' width='12' height='18' rx='2'/><rect x='9' y='2' width='6' height='4' rx='1'/><line x1='9' y1='11' x2='15' y2='11'/><line x1='9' y1='15' x2='15' y2='15'/></svg>","inbox":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M3,8 L6,3 H18 L21,8'/><path d='M3,8 H21 V20 a1,1 0 0 1 -1,1 H4 a1,1 0 0 1 -1,-1 Z'/><path d='M8,13 V15 a1,1 0 0 0 1,1 H15 a1,1 0 0 0 1,-1 V13'/></svg>","gift":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='3' y='8' width='18' height='13' rx='1'/><rect x='2' y='5' width='20' height='4' rx='1'/><line x1='12' y1='5' x2='12' y2='21'/><path d='M12,5 C10,5 8,3 8,1.7 a1.5,1.5 0 0 1 3,0 C11,3.5 12,5 12,5 Z'/><path d='M12,5 C14,5 16,3 16,1.7 a1.5,1.5 0 0 0 -3,0 C13,3.5 12,5 12,5 Z'/></svg>","mail":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='3' y='5' width='18' height='14' rx='2'/><path d='M3,7 L12,13 L21,7'/></svg>","lightbulb":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M9,18 H15'/><path d='M10,21 H14'/><path d='M12,3 a6,6 0 0 0 -3.5,10.9 c0.7,0.5 1,1.3 1,2.1 H14.5 c0,-0.8 0.3,-1.6 1,-2.1 A6,6 0 0 0 12,3 Z'/></svg>","notebook":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='4' y='3' width='16' height='18' rx='2'/><line x1='9' y1='3' x2='9' y2='21'/><line x1='4' y1='8' x2='9' y2='8'/><line x1='4' y1='13' x2='9' y2='13'/><line x1='4' y1='18' x2='9' y2='18'/></svg>","clock":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='9'/><polyline points='12,7 12,12 16,14'/></svg>","palette":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M12,3 a9,9 0 1 0 0,18 c1.5,0 1.5,-1.5 0.7,-2.3 c-0.7,-0.7 -0.3,-1.9 0.7,-1.9 H15 a6,6 0 0 0 6,-6 C21,6.4 17,3 12,3 Z'/><circle cx='8' cy='10' r='1' fill='currentColor' stroke='none'/><circle cx='12' cy='7' r='1' fill='currentColor' stroke='none'/><circle cx='16' cy='10' r='1' fill='currentColor' stroke='none'/><circle cx='9' cy='15' r='1' fill='currentColor' stroke='none'/></svg>","music":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='6' cy='18' r='3'/><circle cx='18' cy='16' r='3'/><path d='M9,18 V4 L21,2 V16'/></svg>","sprout":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='22' x2='12' y2='13'/><path d='M12,13 C7,13 4,10 4,5 C9,5 12,8 12,13 Z'/><path d='M12,13 C17,13 20,10 20,5 C15,5 12,8 12,13 Z'/></svg>","phone":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M22,16.9 V19.9 a2,2 0 0 1 -2.2,2 A19.8,19.8 0 0 1 3.1,4.2 A2,2 0 0 1 5.1,2 H8.1 a2,2 0 0 1 2,1.7 c0.1,1.1 0.4,2.2 0.7,3.2 a2,2 0 0 1 -0.5,2.1 L9,10.3 a16,16 0 0 0 4.7,4.7 l1.3,-1.3 a2,2 0 0 1 2.1,-0.5 c1,0.4 2.1,0.6 3.2,0.7 a2,2 0 0 1 1.7,2Z'/></svg>","phoneOff":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M22,16.9 V19.9 a2,2 0 0 1 -2.2,2 A19.8,19.8 0 0 1 3.1,4.2 A2,2 0 0 1 5.1,2 H8.1 a2,2 0 0 1 2,1.7 c0.1,1.1 0.4,2.2 0.7,3.2 a2,2 0 0 1 -0.5,2.1 L9,10.3 a16,16 0 0 0 4.7,4.7 l1.3,-1.3 a2,2 0 0 1 2.1,-0.5 c1,0.4 2.1,0.6 3.2,0.7 a2,2 0 0 1 1.7,2Z'/><line x1='2' y1='2' x2='22' y2='22'/></svg>","alertTriangle":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M12,3 L22,20 H2 Z'/><line x1='12' y1='9' x2='12' y2='14'/><circle cx='12' cy='17.3' r='0.6' fill='currentColor' stroke='none'/></svg>","calculator":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='4' y='2' width='16' height='20' rx='2'/><rect x='7' y='5' width='10' height='4' rx='1'/><circle cx='8' cy='13' r='1' fill='currentColor' stroke='none'/><circle cx='12' cy='13' r='1' fill='currentColor' stroke='none'/><circle cx='16' cy='13' r='1' fill='currentColor' stroke='none'/><circle cx='8' cy='17' r='1' fill='currentColor' stroke='none'/><circle cx='12' cy='17' r='1' fill='currentColor' stroke='none'/><circle cx='16' cy='17' r='1' fill='currentColor' stroke='none'/></svg>","hash":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='9' y1='3' x2='7' y2='21'/><line x1='17' y1='3' x2='15' y2='21'/><line x1='4' y1='9' x2='20' y2='9'/><line x1='3' y1='15' x2='19' y2='15'/></svg>","user":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='8' r='4'/><path d='M4,20 C4,15.6 7.6,12 12,12 C16.4,12 20,15.6 20,20'/></svg>","arrowUpCircle":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='9'/><polyline points='8,13 12,9 16,13'/><line x1='12' y1='16' x2='12' y2='9'/></svg>","arrowDownCircle":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='9'/><polyline points='8,11 12,15 16,11'/><line x1='12' y1='8' x2='12' y2='15'/></svg>","barChart":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='4' y='12' width='4' height='8' rx='1'/><rect x='10' y='6' width='4' height='14' rx='1'/><rect x='16' y='14' width='4' height='6' rx='1'/></svg>","broom":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='5' y1='20' x2='11' y2='13'/><path d='M11,13 L16,3 L20,5 L15,15 Z'/></svg>","sunrise":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M7,17 a5,5 0 0 1 10,0 Z'/><line x1='3' y1='20' x2='21' y2='20'/><line x1='12' y1='2' x2='12' y2='7'/><line x1='4' y1='10' x2='6.5' y2='12'/><line x1='20' y1='10' x2='17.5' y2='12'/></svg>","apple":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M12,7 C9,4 5,5 4,8 C3,11 4,16 7,19 C8.5,20.5 10,21 12,21 C14,21 15.5,20.5 17,19 C20,16 21,11 20,8 C19,5 15,4 12,7 Z'/><path d='M12,7 C12,7 12,4 14,2'/></svg>","mood1":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='9'/><circle cx='9' cy='10' r='1' fill='currentColor' stroke='none'/><circle cx='15' cy='10' r='1' fill='currentColor' stroke='none'/><path d='M8,17.5 C9,15 15,15 16,17.5'/></svg>","mood2":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='9'/><circle cx='9' cy='10' r='1' fill='currentColor' stroke='none'/><circle cx='15' cy='10' r='1' fill='currentColor' stroke='none'/><path d='M8,16.5 C9,15.3 15,15.3 16,16.5'/></svg>","mood3":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='9'/><circle cx='9' cy='10' r='1' fill='currentColor' stroke='none'/><circle cx='15' cy='10' r='1' fill='currentColor' stroke='none'/><line x1='8.5' y1='16' x2='15.5' y2='16'/></svg>","mood4":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='9'/><circle cx='9' cy='10' r='1' fill='currentColor' stroke='none'/><circle cx='15' cy='10' r='1' fill='currentColor' stroke='none'/><path d='M8,15 C9,17 15,17 16,15'/></svg>","mood5":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='9'/><circle cx='9' cy='10' r='1' fill='currentColor' stroke='none'/><circle cx='15' cy='10' r='1' fill='currentColor' stroke='none'/><path d='M7,14.5 C8.5,18 15.5,18 17,14.5'/></svg>","brain":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M9,18 H15'/><path d='M10,21 H14'/><path d='M12,3 a6,6 0 0 0 -3.5,10.9 c0.7,0.5 1,1.3 1,2.1 H14.5 c0,-0.8 0.3,-1.6 1,-2.1 A6,6 0 0 0 12,3 Z'/></svg>","wrench":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M12,3 L19,6 L19,12 L12,20 L5,12 L5,6 Z'/></svg>","party":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M12,2 L13.5,9.5 L21,11 L13.5,12.5 L12,20 L10.5,12.5 L3,11 L10.5,9.5 Z'/><circle cx='19' cy='5' r='1' fill='currentColor' stroke='none'/></svg>","book2":"<svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M4,5 C6,4 9,4 12,5 C15,4 18,4 20,5 V19 C18,18 15,18 12,19 C9,18 6,18 4,19 Z'/><line x1='12' y1='5' x2='12' y2='19'/></svg>"};
+function ic(key){ return ICONS[key] || ''; }
 
 /* ============================================================
    CLOUD API — Neon (Postgres) негізіндегі Vercel serverless backend.
@@ -890,14 +915,21 @@ async function loginAs(email){
   Store.setGlobal('app_session', email);
   document.getElementById('authScreen').style.display='none';
 
+  // /api/me сәтсіз болса (желі үзілуі, cold start) — соңғы белгілі статусты пайдаланамыз,
+  // белсенді адамды желі ақауы үшін pending экранмен бекітіп қоймау үшін
   let me = null;
-  try{ me = (await apiCall('/me', 'GET')).user; }catch(e){ /* backend қолжетімсіз — pending экраны көрсетеміз */ }
+  try{ me = (await apiCall('/me', 'GET')).user; }catch(e){ /* төменде кэштен оқимыз */ }
 
-  isAdmin = !!(me && me.is_admin);
+  if(me){
+    Store.setGlobal('app_active', me.active);
+    Store.setGlobal('app_admin', !!me.is_admin);
+    Store.setGlobal('app_name', me.name);
+  }
+  const active = me ? me.active : Store.getGlobal('app_active', false);
+  isAdmin = me ? !!me.is_admin : Store.getGlobal('app_admin', false);
   document.getElementById('adminNavLink').style.display = isAdmin ? '' : 'none';
-  if(me) Store.setGlobal('app_name', me.name);
 
-  if(!me || !me.active){
+  if(!active){
     document.getElementById('pendingScreen').style.display='flex';
     return;
   }
@@ -905,7 +937,7 @@ async function loginAs(email){
 
   await fetchCloud();   // базадан деректі тартып, локал кэшке құяды
   loadUserData();
-  document.getElementById('userBadge').textContent='👤 '+me.name;
+  document.getElementById('userBadge').innerHTML=ic('user')+' '+me.name.replace(/</g,'&lt;');
   renderCatTiles();
   showView('home');
   if(!Store.get('seenWelcome', false)) showWelcome();  // алғаш кіргенде манифест
@@ -916,7 +948,7 @@ function togglePw(id, btn){
   const el = document.getElementById(id);
   const show = el.type === 'password';
   el.type = show ? 'text' : 'password';
-  btn.textContent = show ? '🙈' : '👁';
+  btn.innerHTML = show ? ic('eyeOff') : ic('eye');
 }
 function buyClick(){
   const who = currentUser ? `\nEmail: ${currentUser}` : '';
@@ -929,6 +961,8 @@ function logout(){
   Store.setGlobal('app_session', null);
   Store.setGlobal('app_token', null);
   Store.setGlobal('app_name', null);
+  Store.setGlobal('app_active', null);
+  Store.setGlobal('app_admin', null);
   document.getElementById('pendingScreen').style.display='none';
   document.getElementById('adminNavLink').style.display='none';
   document.getElementById('authScreen').style.display='flex';
@@ -940,32 +974,32 @@ function logout(){
    DATA MODEL
    ============================================================ */
 const CATEGORIES = [
-  {id:'health',   name:'Денсаулық',            emo:'❤️', color:'var(--s8)', desc:'Ұйқы, су, витаминдер — дене саулығының әдеттері.'},
-  {id:'edu',      name:'Білім',                emo:'📚', color:'var(--s1)', desc:'Ағылшын, кітап, подкаст — дағды дамыту.'},
-  {id:'sport',   name:'Спорт',                emo:'💪', color:'var(--s2)', desc:'Жаттығу, қозғалыс, дене шынықтыру.'},
-  {id:'finance',  name:'Қаржылық сауаттылық',  emo:'💰', color:'var(--s3)', desc:'Табыс-шығын, бюджет, жинақ калькуляторы.'},
-  {id:'goal',     name:'Мақсаттар',            emo:'🎯', color:'var(--s4)', desc:'Үлкен/кіші мақсаттар және айлық/апталық/күндік жоспарлар.'},
-  {id:'gratitude',name:'Шүкіршілік',           emo:'🤲', color:'var(--s5)', desc:'Күнделікті шүкіршілік сұрақтары — ішкі тыныштық.'},
-  {id:'other',    name:'Басқа әдеттер',        emo:'✨', color:'var(--s7)', desc:'Өз әдетіңді қолмен жаз — күн сайын орындалды/орындалмады деп белгіле.'},
+  {id:'health',   name:'Денсаулық',            emo:'heart',     color:'var(--s8)', desc:'Ұйқы, су, витаминдер — дене саулығының әдеттері.'},
+  {id:'edu',      name:'Білім',                emo:'book',      color:'var(--s1)', desc:'Ағылшын, кітап, подкаст — дағды дамыту.'},
+  {id:'sport',   name:'Спорт',                emo:'dumbbell',  color:'var(--s2)', desc:'Жаттығу, қозғалыс, дене шынықтыру.'},
+  {id:'finance',  name:'Қаржылық сауаттылық',  emo:'wallet',    color:'var(--s3)', desc:'Табыс-шығын, бюджет, жинақ калькуляторы.'},
+  {id:'goal',     name:'Мақсаттар',            emo:'target',    color:'var(--s4)', desc:'Үлкен/кіші мақсаттар және айлық/апталық/күндік жоспарлар.'},
+  {id:'gratitude',name:'Шүкіршілік',           emo:'hands',     color:'var(--s5)', desc:'Күнделікті шүкіршілік сұрақтары — ішкі тыныштық.'},
+  {id:'other',    name:'Басқа әдеттер',        emo:'sparkles',  color:'var(--s7)', desc:'Өз әдетіңді қолмен жаз — күн сайын орындалды/орындалмады деп белгіле.'},
 ];
 
 // Әдет шаблондары (карточкалар)
 const TEMPLATES = [
-  {cat:'health', emo:'🍪', name:'30 күн қантсыз',   desc:'Аз тәтті — көп энергия және тамақтануды бақылау.'},
-  {cat:'health', emo:'💧', name:'Су ішу (8 стакан)', desc:'Күнде су нормаңды ұста — ұяшықты бассаң +1 стакан.', type:'count', goal:8, unit:'стакан'},
-  {cat:'health', emo:'🚭', name:'Темекі шекпеу',    desc:'30 күн темекісіз — еркін тыныс алуға қадам.'},
-  {cat:'health', emo:'🛏️', name:'Ұйқы трекері',     desc:'Жату/тұру уақыты мен көңіл-күйіңді жаз — талдау шығады.', kind:'sleep'},
-  {cat:'health', emo:'⚖️', name:'Салмақ бақылау',   desc:'Күнделікті салмағыңды жазып, динамиканы бақыла.', type:'value', unit:'кг'},
-  {cat:'health', emo:'💊', name:'Витамин қабылдау', desc:'7 витаминге дейін: атауы, мерзімі, күнделікті белгі (3 ай).', kind:'vitamins'},
-  {cat:'edu',    emo:'🔤', name:'Ағылшын тілі',     desc:'Жаңа сөздерді жаз — бәрі «менің үйренгендерім» бөліміне жиналады.', kind:'english'},
-  {cat:'edu',    emo:'🎧', name:'Подкаст тыңдау',   desc:'Тыңдаған подкастың аты мен алған инсайтыңды жаз.', kind:'podcast'},
-  {cat:'edu',    emo:'📖', name:'Кітап оқу 20 мин', desc:'Қысымсыз күнделікті оқу — тек тұрақтылық.'},
-  {cat:'edu',    emo:'💻', name:'Код жазу',         desc:'Күнде аз да болса практика — дағды өседі.'},
-  {cat:'sport',  emo:'🏋️', name:'Отжимания',        desc:'Күнді белгіле, қанша рет жасағаныңды жаз.', type:'value', unit:'рет'},
-  {cat:'sport',  emo:'🚶', name:'10 000 қадам',     desc:'Күнді белгіле, қадам санын жаз.', type:'count', goal:10000, unit:'қадам'},
+  {cat:'health', emo:'cookie',      name:'30 күн қантсыз',   desc:'Аз тәтті — көп энергия және тамақтануды бақылау.'},
+  {cat:'health', emo:'droplet',     name:'Су ішу (8 стакан)', desc:'Күнде су нормаңды ұста — ұяшықты бассаң +1 стакан.', type:'count', goal:8, unit:'стакан'},
+  {cat:'health', emo:'noSmoking',   name:'Темекі шекпеу',    desc:'30 күн темекісіз — еркін тыныс алуға қадам.'},
+  {cat:'health', emo:'bed',         name:'Ұйқы трекері',     desc:'Жату/тұру уақыты мен көңіл-күйіңді жаз — талдау шығады.', kind:'sleep'},
+  {cat:'health', emo:'scale',       name:'Салмақ бақылау',   desc:'Күнделікті салмағыңды жазып, динамиканы бақыла.', type:'value', unit:'кг'},
+  {cat:'health', emo:'pill',        name:'Витамин қабылдау', desc:'7 витаминге дейін: атауы, мерзімі, күнделікті белгі (3 ай).', kind:'vitamins'},
+  {cat:'edu',    emo:'languages',   name:'Ағылшын тілі',     desc:'Жаңа сөздерді жаз — бәрі «менің үйренгендерім» бөліміне жиналады.', kind:'english'},
+  {cat:'edu',    emo:'headphones',  name:'Подкаст тыңдау',   desc:'Тыңдаған подкастың аты мен алған инсайтыңды жаз.', kind:'podcast'},
+  {cat:'edu',    emo:'book2',       name:'Кітап оқу 20 мин', desc:'Қысымсыз күнделікті оқу — тек тұрақтылық.'},
+  {cat:'edu',    emo:'laptop',      name:'Код жазу',         desc:'Күнде аз да болса практика — дағды өседі.'},
+  {cat:'sport',  emo:'dumbbell',    name:'Отжимания',        desc:'Күнді белгіле, қанша рет жасағаныңды жаз.', type:'value', unit:'рет'},
+  {cat:'sport',  emo:'footprints',  name:'10 000 қадам',     desc:'Күнді белгіле, қадам санын жаз.', type:'count', goal:10000, unit:'қадам'},
 ];
 
-const EMOJIS = ['🎯','🔥','💪','📚','🧘','🏃','💧','🍎','😴','💰','🎨','🎸','🧠','⏰','🚭','🌱'];
+const EMOJIS = ['target','flame','dumbbell','book','sprout','footprints','droplet','apple','bed','wallet','palette','music','brain','clock','noSmoking','sprout'];
 
 // Қаржы категориялары
 const FIN_CATS = {
@@ -1018,21 +1052,21 @@ function loadUserData(){
 
 // Кездейсоқ тапсырмалар (адамды қызықтыру үшін)
 const RANDOM_TASKS = [
-  '📵 Бүгін 1 сағат телефонсыз бол.',
-  '💧 Дәл қазір бір стакан су іш.',
-  '🚶 10 минут таза ауада серуенде.',
-  '📖 Кітаптан 5 бет оқы.',
-  '🧹 Бөлмеңнің бір бұрышын жина.',
-  '🙏 3 адамға алғыс айт.',
-  '🏋️ 20 отжимание жаса.',
-  '🧘 5 минут терең дем ал.',
-  '✍️ Бүгінгі ең жақсы сәтіңді жаз.',
-  '🔤 3 жаңа ағылшын сөзін үйрен.',
-  '🌅 Ертең 30 минут ерте тұр.',
-  '🍎 Бүгін бір жеміс же.',
-  '📞 Жақыныңа қоңырау шал.',
-  '💰 Бүгінгі шығындарыңды жазып шық.',
-  '😴 Бүгін экрансыз ұйықтауға дайындал.'
+  ['phoneOff','Бүгін 1 сағат телефонсыз бол.'],
+  ['droplet','Дәл қазір бір стакан су іш.'],
+  ['footprints','10 минут таза ауада серуенде.'],
+  ['book2','Кітаптан 5 бет оқы.'],
+  ['broom','Бөлмеңнің бір бұрышын жина.'],
+  ['hands','3 адамға алғыс айт.'],
+  ['dumbbell','20 отжимание жаса.'],
+  ['sprout','5 минут терең дем ал.'],
+  ['edit','Бүгінгі ең жақсы сәтіңді жаз.'],
+  ['languages','3 жаңа ағылшын сөзін үйрен.'],
+  ['sunrise','Ертең 30 минут ерте тұр.'],
+  ['apple','Бүгін бір жеміс же.'],
+  ['phone','Жақыныңа қоңырау шал.'],
+  ['wallet','Бүгінгі шығындарыңды жазып шық.'],
+  ['bed','Бүгін экрансыз ұйықтауға дайындал.']
 ];
 let activeCat = 'health';
 let selectedEmoji = EMOJIS[0];
@@ -1040,7 +1074,7 @@ let selectedEmoji = EMOJIS[0];
 function save(){ Store.set('trackers', trackers); scheduleSync(); }
 function saveTx(){ Store.set('txs', txs); scheduleSync(); }
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
-function todayStr(){ return new Date().toISOString().slice(0,10); }
+function todayStr(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 function fmt(n){ return Math.round(n).toLocaleString('ru-RU')+' ₸'; }
 
 // Трекер басталғаннан бері неше күн өтті (трекердің толық ұзақтығына дейін)
@@ -1106,7 +1140,7 @@ function extendTracker(id){
   const t=trackers.find(x=>x.id===id); if(!t) return;
   const fill = (t.kind==='sleep')?null : (dtype(t)==='check'?false:null);
   for(let i=0;i<30;i++) t.days.push(fill);
-  save(); toast('➕ Тағы 1 ай қосылды'); renderDetail(t);
+  save(); toast(`${ic('plus')} Тағы 1 ай қосылды`); renderDetail(t);
 }
 function currentStreak(t){
   let s=0; const passed=daysPassed(t);
@@ -1120,7 +1154,7 @@ function bestStreak(t){
 }
 
 /* ---- Жетістік белгілері ---- */
-const BADGES=[{n:7,emo:'🔥',label:'7 күн'},{n:21,emo:'🏆',label:'21 күн'},{n:30,emo:'💎',label:'30 күн'}];
+const BADGES=[{n:7,emo:'flame',label:'7 күн'},{n:21,emo:'trophy',label:'21 күн'},{n:30,emo:'gem',label:'30 күн'}];
 function topBadge(t){ const b=bestStreak(t); let r=null; for(const x of BADGES){ if(b>=x.n) r=x; } return r; }
 function earnedBadges(t){ const b=bestStreak(t); return BADGES.map(x=>({...x,got:b>=x.n})); }
 
@@ -1189,14 +1223,14 @@ async function resetPassPrompt(userId, email){
    ============================================================ */
 function renderCatTiles(){
   document.getElementById('catGrid').innerHTML = CATEGORIES.map(c=>{
-    const count = c.id==='finance' ? '💰 Калькулятор' : c.id==='goal' ? '🎯 Жоспарлау'
-                : c.id==='gratitude' ? '🤲 Күнделік' : TEMPLATES.filter(t=>t.cat===c.id).length+' дайын әдет';
+    const count = c.id==='finance' ? ic('wallet')+' Калькулятор' : c.id==='goal' ? ic('target')+' Жоспарлау'
+                : c.id==='gratitude' ? ic('hands')+' Күнделік' : TEMPLATES.filter(t=>t.cat===c.id).length+' дайын әдет';
     return `<div class="cat-tile" onclick="openCategory('${c.id}')">
       <div class="glow" style="background:${c.color}"></div>
-      <div class="big-icon" style="background:${c.color}22;color:${c.color}">${c.emo}</div>
+      <div class="big-icon" style="background:${c.color}22;color:${c.color}">${ic(c.emo)}</div>
       <h2>${c.name}</h2>
       <p>${c.desc}</p>
-      <div class="go"><span>Ашу →</span><span class="count">${count}</span></div>
+      <div class="go"><span>Ашу ${ic('arrowRight')}</span><span class="count">${count}</span></div>
     </div>`;
   }).join('');
 }
@@ -1209,7 +1243,7 @@ function openCategory(id){
   activeCat = id;
   const cat = CATEGORIES.find(c=>c.id===id);
   document.getElementById('catHead').innerHTML = `
-    <div class="big-icon" style="background:${cat.color}22;color:${cat.color}">${cat.emo}</div>
+    <div class="big-icon" style="background:${cat.color}22;color:${cat.color}">${ic(cat.emo)}</div>
     <div><h1>${cat.name}</h1><p>${cat.desc}</p></div>`;
   const special = (id==='goal'||id==='gratitude');
   document.getElementById('catAddOwn').style.display = special?'none':'flex';
@@ -1223,7 +1257,7 @@ function renderCatExtra(id){
   if(id!=='health'){ box.innerHTML=''; return; }
   box.innerHTML = `
     <div class="box" style="margin-top:24px">
-      <div class="box-head"><h3>💧 Су нормасы калькуляторы</h3></div>
+      <div class="box-head"><h3>${ic('droplet')} Су нормасы калькуляторы</h3></div>
       <div class="cd" style="color:var(--muted);font-size:14px;margin-bottom:12px">
         Салмағыңды жаз — күндік су нормаң есептеледі (35 мл/кг).
       </div>
@@ -1243,14 +1277,14 @@ function calcWaterNorm(){
   const liters=(ml/1000).toFixed(2);
   const glasses=Math.max(1,Math.round(ml/g));
   out.innerHTML = `
-    <div class="split-item"><span class="k">💧 Күндік норма</span><span class="v">${liters} л (~${glasses} стакан)</span></div>
+    <div class="split-item"><span class="k">${ic('droplet')} Күндік норма</span><span class="v">${liters} л (~${glasses} стакан)</span></div>
     <button class="btn sm" style="margin-top:14px" onclick="applyWaterGoal(${glasses})">Су трекеріне мақсат етіп қою (${glasses})</button>`;
 }
 function applyWaterGoal(glasses){
   const water = trackers.filter(t=>dtype(t)==='count' && ((t.unit||'').includes('стакан') || t.name.toLowerCase().includes('су')));
   if(!water.length){ toast('Алдымен «Су ішу» трекерін қос'); return; }
   water.forEach(t=> t.goal=glasses);
-  save(); toast(`✅ Су трекерінің мақсаты ${glasses} стакан болды`);
+  save(); toast(`${ic('checkCircle')} Су трекерінің мақсаты ${glasses} стакан болды`);
 }
 function renderCards(){
   const cat = CATEGORIES.find(c=>c.id===activeCat);
@@ -1262,20 +1296,20 @@ function renderCards(){
     const msg = activeCat==='other'
       ? 'Өз әдетіңді қолмен жаз — күн сайын орындалды/орындалмады<br>деп белгілеп отырасың. Төмендегі батырмамен қос.'
       : 'Бұл салада дайын шаблон жоқ.<br>Төмендегі батырмамен өзіңдікін жаса.';
-    grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><span class="em">✍️</span>${msg}</div>`;
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><span class="em">${ic('edit')}</span>${msg}</div>`;
     return;
   }
   grid.innerHTML = list.map(t=>{
     const xBtn = t.isUser
-      ? `<button class="card-x" title="Жою" onclick="delUserTpl('${t.id}')">✕</button>`
-      : `<button class="card-x" title="Жасыру" onclick="hideTemplate('${t.cat}','${t.name.replace(/'/g,"&#39;")}')">✕</button>`;
+      ? `<button class="card-x" title="Жою" onclick="delUserTpl('${t.id}')">${ic('x')}</button>`
+      : `<button class="card-x" title="Жасыру" onclick="hideTemplate('${t.cat}','${t.name.replace(/'/g,"&#39;")}')">${ic('x')}</button>`;
     return `<div class="card">
       ${xBtn}
-      <div class="icon" style="background:${cat.color}22;color:${cat.color}">${t.emo}</div>
+      <div class="icon" style="background:${cat.color}22;color:${cat.color}">${ic(t.emo)}</div>
       <h3>${t.name}</h3>
-      <div class="tag">${cat.emo} ${cat.name}${t.isUser?' · менікі':''}</div>
+      <div class="tag">${ic(cat.emo)} ${cat.name}${t.isUser?' · менікі':''}</div>
       <p>${t.desc}</p>
-      <button class="btn" onclick='startTracker(${JSON.stringify(t).replace(/'/g,"&#39;")})'>Начать</button>
+      <button class="btn" onclick='startTracker(${JSON.stringify(t).replace(/'/g,"&#39;")})'>Бастау</button>
     </div>`;
   }).join('');
   const hiddenHere = hiddenTpl.filter(k=>k.startsWith(activeCat+'|')).length;
@@ -1288,11 +1322,11 @@ function renderCards(){
 function hideTemplate(cat,name){
   const key=tplKey(cat,name);
   if(!hiddenTpl.includes(key)){ hiddenTpl.push(key); saveHidden(); }
-  renderCards(); toast('🗑️ Карточка жасырылды');
+  renderCards(); toast(`${ic('trash')} Карточка жасырылды`);
 }
 function restoreTemplates(cat){
   hiddenTpl = hiddenTpl.filter(k=>!k.startsWith(cat+'|')); saveHidden();
-  renderCards(); toast('♻️ Қайтарылды');
+  renderCards(); toast(`${ic('refresh')} Қайтарылды`);
 }
 
 /* ============================================================
@@ -1316,7 +1350,7 @@ function startTracker(t){
   if(nt.kind==='plan'){ nt.plans=[]; }
   trackers.push(nt);
   save();
-  toast('✅ Трекер қосылды!');
+  toast(`${ic('checkCircle')} Трекер қосылды!`);
   openTracker(nt.id);   // бірден ашылады
 }
 
@@ -1325,9 +1359,9 @@ function startTracker(t){
    ============================================================ */
 function openCreate(){
   document.getElementById('mCat').innerHTML =
-    CATEGORIES.filter(c=>!['finance','goal','gratitude'].includes(c.id)).map(c=>`<option value="${c.id}" ${c.id===activeCat?'selected':''}>${c.emo} ${c.name}</option>`).join('');
+    CATEGORIES.filter(c=>!['finance','goal','gratitude'].includes(c.id)).map(c=>`<option value="${c.id}" ${c.id===activeCat?'selected':''}>${c.name}</option>`).join('');
   document.getElementById('emojiPick').innerHTML =
-    EMOJIS.map((e,i)=>`<span class="${i===0?'sel':''}" onclick="pickEmoji('${e}',this)">${e}</span>`).join('');
+    EMOJIS.map((e,i)=>`<span class="${i===0?'sel':''}" onclick="pickEmoji('${e}',this)">${ic(e)}</span>`).join('');
   selectedEmoji = EMOJIS[0];
   document.getElementById('mName').value='';
   document.getElementById('mDesc').value='';
@@ -1363,12 +1397,12 @@ function saveCustom(){
     if(mn!=='') tpl.goalMin=+mn; if(mx!=='') tpl.goalMax=+mx;
   }
   userTpl.push(tpl); saveUserTpl();
-  closeCreate(); toast('✅ Карточка қосылды!');
-  openCategory(cat);   // жасалған карточка сол категорияда «Начать»-пен көрінеді
+  closeCreate(); toast(`${ic('checkCircle')} Карточка қосылды!`);
+  openCategory(cat);   // жасалған карточка сол категорияда «Бастау»-мен көрінеді
 }
 function delUserTpl(id){
   userTpl = userTpl.filter(t=>t.id!==id); saveUserTpl(); renderCards();
-  toast('🗑️ Карточка жойылды');
+  toast(`${ic('trash')} Карточка жойылды`);
 }
 
 /* ============================================================
@@ -1380,7 +1414,7 @@ function fmtDate(s){
 function renderMine(){
   const list = document.getElementById('myList');
   if(!trackers.length){
-    list.innerHTML = `<div class="empty" style="grid-column:1/-1"><span class="em">📭</span>
+    list.innerHTML = `<div class="empty" style="grid-column:1/-1"><span class="em">${ic('inbox')}</span>
       Әзірге трекер жоқ.<br>«Трекер құру» бетінен біреуін таңда.</div>`;
     return;
   }
@@ -1399,24 +1433,24 @@ function renderMine(){
       else if(t.kind==='anxiety'){ n=(t.tests||[]).length; lbl='тест тапсырдың'; }
       else if(t.kind==='emotion'){ n=(t.entries||[]).length; lbl='жазба'; }
       else if(t.kind==='plan'){ n=(t.plans||[]).length; lbl='жоспар'; }
-      body = `<div class="tcard-meta" style="margin-top:6px"><span><b>${n}</b> ${lbl}</span><span>→</span></div>`;
+      body = `<div class="tcard-meta" style="margin-top:6px"><span><b>${n}</b> ${lbl}</span><span>${ic('arrowRight')}</span></div>`;
     }
     return `<div class="tcard" onclick="openTracker('${t.id}')">
       <div class="tcard-top">
-        <div class="icon" style="background:${cat.color}22;color:${cat.color}">${t.emo}</div>
+        <div class="icon" style="background:${cat.color}22;color:${cat.color}">${ic(t.emo)}</div>
         <div class="ttl">
           <h3>${t.name}</h3>
-          <div class="tag">${cat.emo} ${cat.name}</div>
+          <div class="tag">${ic(cat.emo)} ${cat.name}</div>
         </div>
         <div class="tcard-acts">
-          <button class="icon-btn" title="Атын өзгерту" onclick="event.stopPropagation();editTracker('${t.id}')">✏️</button>
-          <button class="icon-btn del" title="Жою" onclick="event.stopPropagation();delTracker('${t.id}')">🗑️</button>
+          <button class="icon-btn" title="Атын өзгерту" onclick="event.stopPropagation();editTracker('${t.id}')">${ic('edit')}</button>
+          <button class="icon-btn del" title="Жою" onclick="event.stopPropagation();delTracker('${t.id}')">${ic('trash')}</button>
         </div>
       </div>
       ${body}
       <div class="tcard-foot">
-        <span class="date">📅 ${fmtDate(t.start)}</span>
-        ${isDayBased(t)? `<span class="share" onclick="event.stopPropagation();shareTracker('${t.id}')">🔗 Бөлісу</span>`:'<span></span>'}
+        <span class="date">${ic('calendar')} ${fmtDate(t.start)}</span>
+        ${isDayBased(t)? `<span class="share" onclick="event.stopPropagation();shareTracker('${t.id}')">${ic('link')} Бөлісу</span>`:'<span></span>'}
       </div>
     </div>`;
   }).join('');
@@ -1446,6 +1480,8 @@ function renderDetail(t){
     let cls='day';
     if(isDaySuccess(t,v)) cls+=' done';
     if(i===passed-1) cls+=' today';
+    const future = i>=passed;
+    if(future) cls+=' future';
     let label, style='';
     if(ty==='check'){ label = (i%30)+1; }
     else if(v!=null && v!==''){
@@ -1454,37 +1490,37 @@ function renderDetail(t){
       if(r!=null){ const col=gradeColor(r); style=` style="background:${col};border-color:${col};color:#08120c"`; }
       else { style=` style="background:var(--s1);border-color:var(--s1);color:#04121f"`; } // өлшеу (салмақ)
     } else { label = `<span style="color:var(--faint)">${(i%30)+1}</span>`; }
-    return `<div class="${cls}"${style} onclick="handleDay('${t.id}',${i})">${label}</div>`;
+    return `<div class="${cls}"${style} onclick="${future?'':`handleDay('${t.id}',${i})`}">${label}</div>`;
   });
   const days = monthGrid(cells);
 
   const u = t.unit? ' '+t.unit : '';
-  const hint = ty==='count' ? `Ұяшықты бас — әр басқанда +1${u} (мақсат ${t.goal}/күн). Түс қызылдан жасылға өзгереді 🔴→🟢`
-            : ty==='value' ? `Ұяшықты бас — мәнді жаз${t.unit?` (${t.unit})`:''}.${t.goalMin!=null?` Мақсат: ${t.goalMin}${t.goalMax!=null?'–'+t.goalMax:'+'}${u}.`:''} Түс мәнге қарай өзгереді 🔴→🟢`
+  const hint = ty==='count' ? `Ұяшықты бас — әр басқанда +1${u} (мақсат ${t.goal}/күн). Түс қызылдан жасылға өзгереді.`
+            : ty==='value' ? `Ұяшықты бас — мәнді жаз${t.unit?` (${t.unit})`:''}.${t.goalMin!=null?` Мақсат: ${t.goalMin}${t.goalMax!=null?'–'+t.goalMax:'+'}${u}.`:''} Түс мәнге қарай өзгереді.`
             : `Орындаған күніңді бас (бүгін — ${passed}-күн).`;
 
   const badgesHtml = `<div class="badges">${earnedBadges(t).map(x=>
-    `<span class="badge ${x.got?'got':''}">${x.emo} ${x.label}</span>`).join('')}</div>`;
+    `<span class="badge ${x.got?'got':''}">${ic(x.emo)} ${x.label}</span>`).join('')}</div>`;
 
   const chartHtml = ty==='check' ? '' :
-    `<div class="days-hint" style="margin-top:24px">📈 Динамика (${t.unit||''})</div>
+    `<div class="days-hint" style="margin-top:24px">${ic('trend')} Динамика (${t.unit||''})</div>
      <canvas id="detailChart" height="200" style="margin-top:6px"></canvas>`;
 
   const months = Math.ceil(t.days.length/30);
-  const extendBtn = `<button class="btn ghost sm" onclick="extendTracker('${t.id}')">➕ Тағы 1 ай қосу</button>
+  const extendBtn = `<button class="btn ghost sm" onclick="extendTracker('${t.id}')">${ic('plus')} Тағы 1 ай қосу</button>
     <span style="color:var(--muted);font-size:13px;margin-left:8px">Қазір: ${months} ай (${t.days.length} күн)</span>`;
 
   document.getElementById('detailBody').innerHTML = `
     <div class="detail-card">
       <div class="detail-head">
-        <div class="icon" style="background:${cat.color}22;color:${cat.color}">${t.emo}</div>
+        <div class="icon" style="background:${cat.color}22;color:${cat.color}">${ic(t.emo)}</div>
         <div>
           <h1>${t.name}</h1>
-          <div class="tag">${cat.emo} ${cat.name} · басталды ${fmtDate(t.start)}</div>
+          <div class="tag">${ic(cat.emo)} ${cat.name} · басталды ${fmtDate(t.start)}</div>
         </div>
         <div class="detail-stats">
           <div class="stat"><div class="num">${pct}%</div><div class="lbl">Орындалу</div></div>
-          <div class="stat"><div class="num">🔥 ${currentStreak(t)}</div><div class="lbl">Қатар</div></div>
+          <div class="stat"><div class="num">${ic('flame')} ${currentStreak(t)}</div><div class="lbl">Қатар</div></div>
           <div class="stat"><div class="num">${bestStreak(t)}</div><div class="lbl">Рекорд</div></div>
         </div>
       </div>
@@ -1495,15 +1531,16 @@ function renderDetail(t){
       <div style="margin-top:14px">${extendBtn}</div>
       ${chartHtml}
       <div style="margin-top:22px;display:flex;gap:12px;flex-wrap:wrap">
-        <button class="btn sm" onclick="shareTracker('${t.id}')">🔗 Нәтижемен бөлісу</button>
-        <button class="btn ghost sm" onclick="editTracker('${t.id}')">✏️ Атын өзгерту</button>
-        <button class="btn danger sm" onclick="delTracker('${t.id}',true)">🗑️ Жою</button>
+        <button class="btn sm" onclick="shareTracker('${t.id}')">${ic('link')} Нәтижемен бөлісу</button>
+        <button class="btn ghost sm" onclick="editTracker('${t.id}')">${ic('edit')} Атын өзгерту</button>
+        <button class="btn danger sm" onclick="delTracker('${t.id}',true)">${ic('trash')} Жою</button>
       </div>
     </div>`;
   if(ty!=='check') drawDetailChart(t);
 }
 function handleDay(id,i){
   const t = trackers.find(x=>x.id===id);
+  if(i>=daysPassed(t)) return; // болашақ күнді белгілеуге болмайды
   const ty = dtype(t);
   const before = bestStreak(t);
   if(ty==='count'){
@@ -1519,7 +1556,7 @@ function handleDay(id,i){
   save();
   const after = bestStreak(t);
   const nb = BADGES.filter(x=>after>=x.n && before<x.n)[0];
-  if(nb) toast(`${nb.emo} Жаңа белгі: ${nb.label} қатар!`);
+  if(nb) toast(`${ic(nb.emo)} Жаңа белгі: ${nb.label} қатар!`);
   renderDetail(t);
 }
 function editTracker(id){
@@ -1532,7 +1569,7 @@ function delTracker(id, backToList){
   const t = trackers.find(x=>x.id===id);
   if(t){ t.archivedAt = todayStr(); archived.push(t); saveArchived(); }
   trackers = trackers.filter(x=>x.id!==id);
-  save(); toast('🗂 Архивке жіберілді');
+  save(); toast(`${ic('archive')} Архивке жіберілді`);
   if(backToList) showView('mine'); else renderMine();
 }
 /* ---- Архив ---- */
@@ -1540,7 +1577,7 @@ function restoreTracker(id){
   const t = archived.find(x=>x.id===id);
   if(t){ delete t.archivedAt; trackers.push(t); save(); }
   archived = archived.filter(x=>x.id!==id); saveArchived();
-  toast('♻️ Қалпына келтірілді'); renderArchive();
+  toast(`${ic('refresh')} Қалпына келтірілді`); renderArchive();
 }
 function purgeTracker(id){
   if(!confirm('Біржола жоямыз ба? Бұны қайтару мүмкін емес.')) return;
@@ -1554,19 +1591,19 @@ function clearArchive(){
 function renderArchive(){
   const el=document.getElementById('archiveList');
   if(!archived.length){
-    el.innerHTML=`<div class="empty"><span class="em">🗂</span>Архив бос.<br>Жойылған трекерлер осында сақталады.</div>`;
+    el.innerHTML=`<div class="empty"><span class="em">${ic('archive')}</span>Архив бос.<br>Жойылған трекерлер осында сақталады.</div>`;
     return;
   }
   el.innerHTML = archived.slice().reverse().map(t=>{
     const cat=CATEGORIES.find(c=>c.id===t.cat)||CATEGORIES[6];
     return `<div class="tcard">
       <div class="tcard-top">
-        <div class="icon" style="background:${cat.color}22;color:${cat.color}">${t.emo}</div>
-        <div class="ttl"><h3>${t.name}</h3><div class="tag">${cat.emo} ${cat.name}${t.archivedAt?` · жойылды ${fmtDate(t.archivedAt)}`:''}</div></div>
+        <div class="icon" style="background:${cat.color}22;color:${cat.color}">${ic(t.emo)}</div>
+        <div class="ttl"><h3>${t.name}</h3><div class="tag">${ic(cat.emo)} ${cat.name}${t.archivedAt?` · жойылды ${fmtDate(t.archivedAt)}`:''}</div></div>
       </div>
       <div style="display:flex;gap:10px;margin-top:14px">
-        <button class="btn sm" onclick="restoreTracker('${t.id}')">♻️ Қалпына келтіру</button>
-        <button class="btn danger sm" onclick="purgeTracker('${t.id}')">🗑️ Біржола жою</button>
+        <button class="btn sm" onclick="restoreTracker('${t.id}')">${ic('refresh')} Қалпына келтіру</button>
+        <button class="btn danger sm" onclick="purgeTracker('${t.id}')">${ic('trash')} Біржола жою</button>
       </div>
     </div>`;
   }).join('');
@@ -1578,7 +1615,7 @@ function shareTracker(id){
   if(navigator.share){
     navigator.share({title:'ÖZGERIS', text}).catch(()=>{});
   } else if(navigator.clipboard){
-    navigator.clipboard.writeText(text).then(()=>toast('📋 Нәтиже көшірілді')).catch(()=>toast(text));
+    navigator.clipboard.writeText(text).then(()=>toast(`${ic('clipboard')} Нәтиже көшірілді`)).catch(()=>toast(text));
   } else { toast('Нәтиже: '+text); }
 }
 
@@ -1588,15 +1625,15 @@ function shareTracker(id){
 function detailHeader(t, statsHtml){
   const cat = CATEGORIES.find(c=>c.id===t.cat)||CATEGORIES[6];
   return `<div class="detail-head">
-      <div class="icon" style="background:${cat.color}22;color:${cat.color}">${t.emo}</div>
-      <div><h1>${t.name}</h1><div class="tag">${cat.emo} ${cat.name} · басталды ${fmtDate(t.start)}</div></div>
+      <div class="icon" style="background:${cat.color}22;color:${cat.color}">${ic(t.emo)}</div>
+      <div><h1>${t.name}</h1><div class="tag">${ic(cat.emo)} ${cat.name} · басталды ${fmtDate(t.start)}</div></div>
       ${statsHtml||''}
     </div>`;
 }
 function detailFooter(t){
   return `<div style="margin-top:22px;display:flex;gap:12px;flex-wrap:wrap">
-      <button class="btn ghost sm" onclick="editTracker('${t.id}')">✏️ Атын өзгерту</button>
-      <button class="btn danger sm" onclick="delTracker('${t.id}',true)">🗑️ Жою</button>
+      <button class="btn ghost sm" onclick="editTracker('${t.id}')">${ic('edit')} Атын өзгерту</button>
+      <button class="btn danger sm" onclick="delTracker('${t.id}',true)">${ic('trash')} Жою</button>
     </div>`;
 }
 
@@ -1610,9 +1647,9 @@ function sleepHours(d){
 }
 function sleepAssess(h){
   if(h==null) return {t:'',c:'var(--muted)'};
-  if(h<5) return {t:'Тым аз ұйықтадың — денең демалмайды 😴',c:'#f0a5a5'};
+  if(h<5) return {t:`Тым аз ұйықтадың — денең демалмайды ${ic('bed')}`,c:'#f0a5a5'};
   if(h<7) return {t:'Сәл жетіспейді — 7+ сағат мақсат ет',c:'var(--warn)'};
-  if(h<=9) return {t:'Ұйқың өте жақсы! 👏',c:'var(--good)'};
+  if(h<=9) return {t:`Ұйқың өте жақсы! ${ic('checkCircle')}`,c:'var(--good)'};
   return {t:'Тым көп ұйықтадың — ұйқыны қысқарту қажет',c:'var(--warn)'};
 }
 function isSleepOk(d){ const h=sleepHours(d); return h!=null && h>=7 && h<=9; }
@@ -1624,11 +1661,12 @@ function renderSleep(t){
   const avg=logged.length? Math.round(logged.reduce((s,d)=>s+sleepHours(d),0)/logged.length*10)/10 : 0;
   const cells=t.days.map((d,i)=>{
     const h=sleepHours(d); const ok=isSleepOk(d);
-    let cls='day'+(ok?' done':'')+(i===passed-1?' today':'');
+    const future=i>=passed;
+    let cls='day'+(ok?' done':'')+(i===passed-1?' today':'')+(future?' future':'');
     let style='',label;
     if(h!=null){ const col=gradeColor(h<7?h/7:(h<=9?1:Math.max(0.4,1-(h-9)/9))); style=` style="background:${col};border-color:${col};color:#08120c"`; label=`<b>${h}</b>`; }
     else label=`<span style="color:var(--faint)">${(i%30)+1}</span>`;
-    return `<div class="${cls}"${style} onclick="openSleepDay('${t.id}',${i})">${label}</div>`;
+    return `<div class="${cls}"${style} onclick="${future?'':`openSleepDay('${t.id}',${i})`}">${label}</div>`;
   });
   const days=monthGrid(cells);
   const months=Math.ceil(t.days.length/30);
@@ -1637,16 +1675,16 @@ function renderSleep(t){
       ${detailHeader(t,`<div class="detail-stats">
         <div class="stat"><div class="num">${avg||'—'}</div><div class="lbl">Орташа сағат</div></div>
         <div class="stat"><div class="num">${pct}%</div><div class="lbl">Сапалы ұйқы</div></div>
-        <div class="stat"><div class="num">🔥 ${okDays}</div><div class="lbl">Жақсы күн</div></div>
+        <div class="stat"><div class="num">${ic('flame')} ${okDays}</div><div class="lbl">Жақсы күн</div></div>
       </div>`)}
       <div class="progressbar"><span style="width:${pct}%"></span></div>
       <div class="days-hint">Ұяшықты бас — жату/тұру уақыты мен көңіл-күйіңді жаз. Талдау автоматты шығады.</div>
       ${days}
       <div style="margin-top:14px">
-        <button class="btn ghost sm" onclick="extendTracker('${t.id}')">➕ Тағы 1 ай қосу</button>
+        <button class="btn ghost sm" onclick="extendTracker('${t.id}')">${ic('plus')} Тағы 1 ай қосу</button>
         <span style="color:var(--muted);font-size:13px;margin-left:8px">Қазір: ${months} ай (${t.days.length} күн)</span>
       </div>
-      <div class="days-hint" style="margin-top:24px">📈 Ұйқы динамикасы (сағат)</div>
+      <div class="days-hint" style="margin-top:24px">${ic('trend')} Ұйқы динамикасы (сағат)</div>
       <canvas id="sleepChart" height="200" style="margin-top:6px"></canvas>
       ${detailFooter(t)}
     </div>`;
@@ -1670,7 +1708,9 @@ function drawSleepChart(t){
   pts.forEach(p=>{ctx.beginPath();ctx.arc(p[0],p[1],3.5,0,Math.PI*2);ctx.fillStyle='#3987e5';ctx.fill();ctx.strokeStyle='#1a2130';ctx.lineWidth=2;ctx.stroke();});
 }
 function openSleepDay(id,i){
-  const t=trackers.find(x=>x.id===id); const d=t.days[i]||{};
+  const t=trackers.find(x=>x.id===id);
+  if(i>=daysPassed(t)) return; // болашақ күнді белгілеуге болмайды
+  const d=t.days[i]||{};
   sleepCtx={id,i};
   document.getElementById('slDay').textContent=`${i+1}-күн`;
   document.getElementById('slBed').value = d.bed!=null? minToTime(d.bed):'23:00';
@@ -1720,32 +1760,32 @@ function renderEnglish(t){
     <div class="detail-card">
       ${detailHeader(t,`<div class="detail-stats"><div class="stat"><div class="num">${words.length}</div><div class="lbl">Үйренген сөз</div></div></div>`)}
       <div class="box" style="background:var(--panel-2);margin-bottom:16px">
-        <div class="box-head"><h3>🎁 Бүгінгі сөздер</h3></div>
+        <div class="box-head"><h3>${ic('gift')} Бүгінгі сөздер</h3></div>
         <div style="color:var(--muted);font-size:14px;margin-bottom:12px">Бизнеске қатысты 2 жаңа сөз ал (қайталанбайды) — бірден тізімге сақталады.</div>
-        <button class="btn" onclick="giveWords('${t.id}')">📩 Бүгінгі 2 сөз алу</button>
+        <button class="btn" onclick="giveWords('${t.id}')">${ic('mail')} Бүгінгі 2 сөз алу</button>
       </div>
       <div class="days-hint">Немесе өз сөзіңді жаз:</div>
       <div class="row">
         <div><label>English</label><input id="enWord" placeholder="apple" onkeydown="if(event.key==='Enter')addWord('${t.id}')"></div>
         <div><label>Қазақша</label><input id="kkWord" placeholder="алма" onkeydown="if(event.key==='Enter')addWord('${t.id}')"></div>
       </div>
-      <button class="btn" onclick="addWord('${t.id}')">＋ Сөз қосу</button>
-      <h3 style="margin-top:24px">📚 Менің үйренгендерім (${words.length})</h3>
+      <button class="btn" onclick="addWord('${t.id}')">${ic('plus')} Сөз қосу</button>
+      <h3 style="margin-top:24px">${ic('book')} Менің үйренгендерім (${words.length})</h3>
       <div id="wordList">${words.length? words.slice().reverse().map(wRow).join('') :
         `<div style="color:var(--faint);padding:14px 0">Әзірге сөз жоқ</div>`}</div>
       ${detailFooter(t)}
     </div>`;
 }
 function wRow(w){
-  return `<div class="tx"><span style="flex:1">${w.given?'🎁 ':''}<b>${w.en}</b> — ${w.kk}
+  return `<div class="tx"><span style="flex:1">${w.given?ic('gift')+' ':''}<b>${w.en}</b> — ${w.kk}
     <br><small style="color:var(--faint)">${w.date}</small></span>
-    <span class="del" onclick="delWord('${w.id}')">×</span></div>`;
+    <span class="del" onclick="delWord('${w.id}')">${ic('x')}</span></div>`;
 }
 function giveWords(id){
   const t=trackers.find(x=>x.id===id); t.words=t.words||[];
   const known=new Set(t.words.map(w=>w.en.toLowerCase()));
   const pool=BIZ_WORDS.filter(([en])=>!known.has(en.toLowerCase()));
-  if(!pool.length){ toast('🎉 Барлық бизнес-сөзді үйрендің!'); return; }
+  if(!pool.length){ toast(`${ic('party')} Барлық бизнес-сөзді үйрендің!`); return; }
   // кездейсоқ 2 (қайталанбайтын)
   const pick=[];
   for(let i=0;i<2 && pool.length;i++){
@@ -1754,7 +1794,7 @@ function giveWords(id){
   }
   pick.forEach(([en,kk])=> t.words.push({id:uid(),en,kk,date:todayStr(),given:true}));
   save(); renderEnglish(t);
-  toast('🎁 '+pick.map(p=>p[0]).join(', ')+' қосылды');
+  toast(ic('gift')+' '+pick.map(p=>p[0]).join(', ')+' қосылды');
 }
 function addWord(id){
   const t=trackers.find(x=>x.id===id);
@@ -1780,8 +1820,8 @@ function renderPodcast(t){
       <input id="pcName" placeholder="Мысалы: Lex Fridman #123">
       <label>Алған инсайтың</label>
       <input id="pcInsight" placeholder="Не үйрендің?">
-      <button class="btn" onclick="addPodcast('${t.id}')">＋ Қосу</button>
-      <h3 style="margin-top:24px">💡 Инсайттар (${items.length})</h3>
+      <button class="btn" onclick="addPodcast('${t.id}')">${ic('plus')} Қосу</button>
+      <h3 style="margin-top:24px">${ic('lightbulb')} Инсайттар (${items.length})</h3>
       <div class="ins-grid">${items.length? items.slice().reverse().map(pcCard).join('') :
         `<div style="color:var(--faint);padding:14px 0">Әзірге инсайт жоқ</div>`}</div>
       ${detailFooter(t)}
@@ -1789,10 +1829,10 @@ function renderPodcast(t){
 }
 function pcCard(it){
   return `<div class="ins-card">
-    <div class="ins-name">🎧 ${it.name}</div>
+    <div class="ins-name">${ic('headphones')} ${it.name}</div>
     <div class="ins-text">${it.insight}</div>
     <div class="ins-foot"><small style="color:var(--faint)">${it.date}</small>
-    <span class="del" onclick="delPodcast('${it.id}')">×</span></div>
+    <span class="del" onclick="delPodcast('${it.id}')">${ic('x')}</span></div>
   </div>`;
 }
 function addPodcast(id){
@@ -1817,7 +1857,7 @@ function renderVitamins(t){
       <div class="vit-desc">
         <b>ВИТАМИН ҚАБЫЛДАУ ТРЕКЕРІ</b><br>
         Витаминдер қабылдау әдетін қалыптастыру үшін трекерді қолданыңыз. Витамин атауын жазып,
-        қай уақытта бастағаныңызды және қанша күн қабылдау қажет, яғни мерзімін жазып, күнделікті ✓ белгісін қойып отырыңыз.
+        қай уақытта бастағаныңызды және қанша күн қабылдау қажет, яғни мерзімін жазып, күнделікті белгі қойып отырыңыз.
         Тек өзіңіздің ғана емес, отбасы мүшелерінің де витамин қабылдау әдетін енгізіп отырсаңыз болады —
         бұл трекерде <b>7 витаминге дейін</b> толтыруға болады.
       </div>
@@ -1829,10 +1869,10 @@ function renderVitamins(t){
           <div><label>Бастаған уақыт</label><input id="vStart" type="date" value="${todayStr()}"></div>
         </div>
         <label>Қабылдау мерзімі (күн)</label><input id="vDur" type="number" placeholder="90">
-        <button class="btn" onclick="addVit('${t.id}')">＋ Витамин қосу</button>
+        <button class="btn" onclick="addVit('${t.id}')">${ic('plus')} Витамин қосу</button>
       </div>`:'<div style="color:var(--warn);margin-top:12px">Ең көбі 7 витамин.</div>'}
       <div class="box" style="margin-top:16px">
-        <div class="box-head"><h3>📖 Витаминдер бойынша білім</h3></div>
+        <div class="box-head"><h3>${ic('book2')} Витаминдер бойынша білім</h3></div>
         <div style="color:var(--muted);font-size:14px">Бұл бөлімге кейін мазмұн (мақалалар/кеңестер) қосылады. Орны дайын.</div>
       </div>
       ${detailFooter(t)}
@@ -1851,8 +1891,8 @@ function vitBlock(t,v,vi){
   const done=(v.days||[]).filter(Boolean).length;
   return `<div class="vit">
     <div class="vit-head">
-      <div><b>💊 ${v.name}</b><div class="tag">Басталды: ${fmtDate(v.start)} · мерзім ${v.dur} күн · белгіленген ${done}</div></div>
-      <span class="del" onclick="delVit('${t.id}',${vi})">×</span>
+      <div><b>${ic('pill')} ${v.name}</b><div class="tag">Басталды: ${fmtDate(v.start)} · мерзім ${v.dur} күн · белгіленген ${done}</div></div>
+      <span class="del" onclick="delVit('${t.id}',${vi})">${ic('x')}</span>
     </div>
     ${monthsHtml}
   </div>`;
@@ -1878,34 +1918,35 @@ function delVit(id,vi){
 /* ============================================================
    SPECIAL: Көңіл-күй (эмодзи тренд)
    ============================================================ */
-const MOODS=['','😢','😕','😐','🙂','😄']; // 1..5
+const MOODS=['','mood1','mood2','mood3','mood4','mood5']; // 1..5
 function renderMood(t){
   const passed=daysPassed(t);
   const logged=t.days.filter(v=>v!=null);
   const avg=logged.length? Math.round(logged.reduce((s,v)=>s+v,0)/logged.length*10)/10 : 0;
   const goodDays=t.days.filter(v=>v>=4).length;
   const cells=t.days.map((v,i)=>{
-    let cls='day'+(v>=4?' done':'')+(i===passed-1?' today':'');
+    const future=i>=passed;
+    let cls='day'+(v>=4?' done':'')+(i===passed-1?' today':'')+(future?' future':'');
     let style='',label;
-    if(v!=null){ const col=gradeColor((v-1)/4); style=` style="background:${col};border-color:${col}"`; label=`<span style="font-size:18px">${MOODS[v]}</span>`; }
+    if(v!=null){ const col=gradeColor((v-1)/4); style=` style="background:${col};border-color:${col}"`; label=`<span style="font-size:18px">${ic(MOODS[v])}</span>`; }
     else label=`<span style="color:var(--faint)">${(i%30)+1}</span>`;
-    return `<div class="${cls}"${style} onclick="cycleMood('${t.id}',${i})">${label}</div>`;
+    return `<div class="${cls}"${style} onclick="${future?'':`cycleMood('${t.id}',${i})`}">${label}</div>`;
   });
   const days=monthGrid(cells);
   const months=Math.ceil(t.days.length/30);
   document.getElementById('detailBody').innerHTML=`
     <div class="detail-card">
       ${detailHeader(t,`<div class="detail-stats">
-        <div class="stat"><div class="num">${avg?MOODS[Math.round(avg)]:'—'}</div><div class="lbl">Орташа (${avg||'—'})</div></div>
+        <div class="stat"><div class="num">${avg?ic(MOODS[Math.round(avg)]):'—'}</div><div class="lbl">Орташа (${avg||'—'})</div></div>
         <div class="stat"><div class="num">${goodDays}</div><div class="lbl">Жақсы күн</div></div>
       </div>`)}
-      <div class="days-hint">Ұяшықты бас — көңіл-күйіңді таңда (😢 😕 😐 🙂 😄). Түс те өзгереді.</div>
+      <div class="days-hint">Ұяшықты бас — көңіл-күйіңді таңда (${ic('mood1')} ${ic('mood2')} ${ic('mood3')} ${ic('mood4')} ${ic('mood5')}). Түс те өзгереді.</div>
       ${days}
       <div style="margin-top:14px">
-        <button class="btn ghost sm" onclick="extendTracker('${t.id}')">➕ Тағы 1 ай қосу</button>
+        <button class="btn ghost sm" onclick="extendTracker('${t.id}')">${ic('plus')} Тағы 1 ай қосу</button>
         <span style="color:var(--muted);font-size:13px;margin-left:8px">Қазір: ${months} ай</span>
       </div>
-      <div class="days-hint" style="margin-top:24px">📈 Көңіл-күй динамикасы</div>
+      <div class="days-hint" style="margin-top:24px">${ic('trend')} Көңіл-күй динамикасы</div>
       <canvas id="moodChart" height="200" style="margin-top:6px"></canvas>
       ${detailFooter(t)}
     </div>`;
@@ -1913,6 +1954,7 @@ function renderMood(t){
 }
 function cycleMood(id,i){
   const t=trackers.find(x=>x.id===id);
+  if(i>=daysPassed(t)) return; // болашақ күнді белгілеуге болмайды
   let v=t.days[i]; v = v==null?1 : (v>=5? null : v+1); t.days[i]=v;
   save(); renderMood(t);
 }
@@ -1924,7 +1966,7 @@ function drawMoodChart(t){
   const pad={l:30,r:12,t:12,b:26}, cw=w-pad.l-pad.r, ch=h-pad.t-pad.b, n=vals.length;
   const xAt=i=>pad.l+(i/Math.max(1,n-1))*cw, yAt=v=>pad.t+ch-((v-1)/4*ch);
   ctx.font='11px system-ui';ctx.textAlign='right';ctx.textBaseline='middle';
-  for(let g=1;g<=5;g++){const y=yAt(g);ctx.strokeStyle='#2c2c2a';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();ctx.fillStyle='#898781';ctx.fillText(MOODS[g],pad.l-6,y);}
+  for(let g=1;g<=5;g++){const y=yAt(g);ctx.strokeStyle='#2c2c2a';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();ctx.fillStyle='#898781';ctx.fillText(g,pad.l-6,y);}
   const pts=vals.map((v,i)=>v==null?null:[xAt(i),yAt(v)]).filter(Boolean);
   ctx.beginPath();pts.forEach((p,k)=>k?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.strokeStyle='#199e70';ctx.lineWidth=2;ctx.stroke();
   pts.forEach(p=>{ctx.beginPath();ctx.arc(p[0],p[1],3.5,0,Math.PI*2);ctx.fillStyle='#199e70';ctx.fill();ctx.strokeStyle='#1a2130';ctx.lineWidth=2;ctx.stroke();});
@@ -1958,14 +2000,14 @@ function renderAnxiety(t){
       <div class="vit-desc">
         <b>GAD-7 — мазасыздықты өлшеу</b><br>
         Соңғы 2 аптада мына жайттар сізді қаншалықты мазалады? 7 сұраққа жауап беріп, мазасыздық деңгейіңізді біліңіз.
-        <br><small style="color:var(--warn)">⚠️ Бұл — скрининг құралы, медициналық диагноз емес. Балл жоғары болса, маманға жүгініңіз.</small>
+        <br><small style="color:var(--warn)">${ic('alertTriangle')} Бұл — скрининг құралы, медициналық диагноз емес. Балл жоғары болса, маманға жүгініңіз.</small>
       </div>
-      <button class="btn" onclick="openGAD('${t.id}')">📝 Тест тапсыру</button>
+      <button class="btn" onclick="openGAD('${t.id}')">${ic('clipboard')} Тест тапсыру</button>
       ${last?`<div class="gad-result" style="border-color:${gadBand(last.score).c};margin-top:16px">
         <div class="gr-top"><b>Соңғы нәтиже: ${last.score}/21</b> <span style="color:${gadBand(last.score).c};font-weight:700">${gadBand(last.score).t}</span></div>
         <div style="color:var(--muted);font-size:14px;margin-top:6px">${gadBand(last.score).a}</div>
       </div>`:''}
-      ${tests.length>1?`<div class="days-hint" style="margin-top:24px">📈 Балл динамикасы (0–21)</div><canvas id="gadChart" height="200" style="margin-top:6px"></canvas>`:''}
+      ${tests.length>1?`<div class="days-hint" style="margin-top:24px">${ic('trend')} Балл динамикасы (0–21)</div><canvas id="gadChart" height="200" style="margin-top:6px"></canvas>`:''}
       ${tests.length?`<h3 style="margin-top:24px">Тарих (${tests.length})</h3>
         <div>${tests.slice().reverse().map(gadRow).join('')}</div>`:''}
       ${detailFooter(t)}
@@ -1975,7 +2017,7 @@ function renderAnxiety(t){
 function gadRow(r){
   const b=gadBand(r.score);
   return `<div class="tx"><span style="flex:1">${fmtDate(r.date)} — <b style="color:${b.c}">${r.score}/21</b> · ${b.t}</span>
-    <span class="del" onclick="delGad('${r.id}')">×</span></div>`;
+    <span class="del" onclick="delGad('${r.id}')">${ic('x')}</span></div>`;
 }
 let gadCtx=null;
 function openGAD(id){
@@ -2023,7 +2065,7 @@ function drawGadChart(t){
 /* ============================================================
    SPECIAL: Эмоция күнделігі
    ============================================================ */
-const EMOTIONS=['😀 Қуаныш','😌 Тыныштық','🙏 Ризашылық','💪 Сенімділік','😢 Мұң','😠 Ашу','😨 Қорқыныш','😰 Мазасыздық','😴 Шаршау','😔 Жалғыздық','🤩 Шабыт','😐 Бейтараптық'];
+const EMOTIONS=['Қуаныш','Тыныштық','Ризашылық','Сенімділік','Мұң','Ашу','Қорқыныш','Мазасыздық','Шаршау','Жалғыздық','Шабыт','Бейтараптық'];
 function renderEmotion(t){
   const entries=t.entries||[];
   const chosen=t._draft||[];
@@ -2038,16 +2080,16 @@ function renderEmotion(t){
       <div class="emo-pick" id="emoPick">${EMOTIONS.map(e=>`<span class="emo-tag ${chosen.includes(e)?'sel':''}" onclick="toggleEmo('${t.id}','${e}')">${e}</span>`).join('')}</div>
       <label style="margin-top:12px">Не болды? Неге осылай сезіндің?</label>
       <textarea id="emoText" rows="3" style="width:100%;background:var(--bg);border:1px solid var(--line);color:var(--text);border-radius:9px;padding:10px 12px;font-family:inherit;font-size:15px"></textarea>
-      <button class="btn" style="margin-top:12px" onclick="addEmotion('${t.id}')">＋ Күнделікке қосу</button>
+      <button class="btn" style="margin-top:12px" onclick="addEmotion('${t.id}')">${ic('plus')} Күнделікке қосу</button>
       ${top.length?`<div style="margin-top:16px;color:var(--muted);font-size:14px">Жиі кездесетін: ${top.map(([e,n])=>`${e} (${n})`).join(', ')}</div>`:''}
-      <h3 style="margin-top:24px">📔 Жазбалар (${entries.length})</h3>
+      <h3 style="margin-top:24px">${ic('notebook')} Жазбалар (${entries.length})</h3>
       <div>${entries.length? entries.slice().reverse().map(emoCard).join('') : `<div style="color:var(--faint);padding:12px 0">Әзірге жазба жоқ</div>`}</div>
       ${detailFooter(t)}
     </div>`;
 }
 function emoCard(e){
   return `<div class="grat-card">
-    <div class="grat-date">📅 ${fmtDate(e.date)} <span class="del" onclick="delEmotion('${e.id}')">×</span></div>
+    <div class="grat-date">${ic('calendar')} ${fmtDate(e.date)} <span class="del" onclick="delEmotion('${e.id}')">${ic('x')}</span></div>
     <div style="margin:6px 0">${(e.emotions||[]).map(em=>`<span class="emo-tag sel" style="cursor:default">${em}</span>`).join(' ')}</div>
     ${e.text?`<div class="grat-a">${e.text}</div>`:''}
   </div>`;
@@ -2097,42 +2139,42 @@ function renderPlan(t){
       <div class="row" style="margin-top:10px;align-items:flex-end">
         <div style="max-width:130px;flex:0 0 130px"><label>Уақыт</label><input type="time" id="planTime" value="09:00"></div>
         <div style="flex:1"><label>Жоспар</label><input type="text" id="planText" placeholder="Мысалы: Ағылшын сабағы"></div>
-        <button class="btn" style="max-width:120px" onclick="addPlan('${t.id}')">＋ Қосу</button>
+        <button class="btn" style="max-width:120px" onclick="addPlan('${t.id}')">${ic('plus')} Қосу</button>
       </div>
 
-      <h3 style="margin-top:22px">📋 ${fmtDate(planDate)} жоспары</h3>
+      <h3 style="margin-top:22px">${ic('clipboard')} ${fmtDate(planDate)} жоспары</h3>
       <div>${day.length? day.map(p=>planRow(t.id,p)).join('') : `<div style="color:var(--faint);padding:12px 0">Бұл күнге жоспар жоқ</div>`}</div>
 
       ${total?`<div class="box" style="margin-top:16px;background:var(--panel-2)">
-        <div class="box-head"><h3>📊 Талдау</h3></div>
+        <div class="box-head"><h3>${ic('barChart')} Талдау</h3></div>
         <div class="progressbar"><span style="width:${pct}%"></span></div>
         <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:14px">
-          <span style="color:var(--good)">✅ Орындалды: <b>${done}</b></span>
-          <span style="color:#f0a5a5">⬜ Орындалмады: <b>${notDone}</b></span>
+          <span style="color:var(--good)">${ic('checkCircle')} Орындалды: <b>${done}</b></span>
+          <span style="color:#f0a5a5">${ic('square')} Орындалмады: <b>${notDone}</b></span>
           <span><b>${pct}%</b></span>
         </div>
       </div>`:''}
 
-      <h3 style="margin-top:24px">🗂 Жоспарлар (тарих)</h3>
+      <h3 style="margin-top:24px">${ic('archive')} Жоспарлар (тарих)</h3>
       <div>${dates.length? dates.map(d=>planHistCard(t,d)).join('') : `<div style="color:var(--faint);padding:12px 0">Әзірге сақталған жоспар жоқ</div>`}</div>
       ${detailFooter(t)}
     </div>`;
 }
 function planRow(tid,p){
   return `<div class="goal-item ${p.done?'done':''}">
-    <span class="gcheck" onclick="togglePlan('${tid}','${p.id}')">${p.done?'✅':'⬜'}</span>
+    <span class="gcheck" onclick="togglePlan('${tid}','${p.id}')">${p.done?ic('checkSquare'):ic('square')}</span>
     <span class="plan-time">${p.time||''}</span>
     <span class="gtext">${p.text}</span>
-    <span class="del" onclick="delPlan('${tid}','${p.id}')">×</span>
+    <span class="del" onclick="delPlan('${tid}','${p.id}')">${ic('x')}</span>
   </div>`;
 }
 function planHistCard(t,d){
   const items=t.plans.filter(p=>p.date===d).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
   const done=items.filter(p=>p.done).length;
   return `<div class="grat-card">
-    <div class="grat-date">📅 ${fmtDate(d)} <span style="color:var(--muted);font-weight:600">${done}/${items.length} орындалды</span></div>
+    <div class="grat-date">${ic('calendar')} ${fmtDate(d)} <span style="color:var(--muted);font-weight:600">${done}/${items.length} орындалды</span></div>
     ${items.map(p=>`<div style="font-size:14px;padding:3px 0;color:${p.done?'var(--good)':'var(--muted)'}">
-      ${p.done?'✅':'⬜'} <b style="color:var(--faint)">${p.time||''}</b> ${p.text}</div>`).join('')}
+      ${p.done?ic('checkSquare'):ic('square')} <b style="color:var(--faint)">${p.time||''}</b> ${p.text}</div>`).join('')}
   </div>`;
 }
 function setPlanDate(v){ planDate=v; const t=trackers.find(x=>x.id===curPlanId); if(t) renderPlan(t); }
@@ -2163,9 +2205,9 @@ function curMonth(){ return todayStr().slice(0,7); }
 function goalItemRow(kindArg,g){
   // kindArg: 'big' | 'small' | plan tab key
   return `<div class="goal-item ${g.done?'done':''}">
-    <span class="gcheck" onclick="toggleGoalItem('${kindArg}','${g.id}')">${g.done?'✅':'⬜'}</span>
+    <span class="gcheck" onclick="toggleGoalItem('${kindArg}','${g.id}')">${g.done?ic('checkSquare'):ic('square')}</span>
     <span class="gtext">${g.text}</span>
-    <span class="del" onclick="delGoalItem('${kindArg}','${g.id}')">×</span>
+    <span class="del" onclick="delGoalItem('${kindArg}','${g.id}')">${ic('x')}</span>
   </div>`;
 }
 function goalGroup(title,kindArg,arr,ph){
@@ -2183,11 +2225,11 @@ function analysisBox(items,label){
   if(!items.length) return '';
   const done=items.filter(p=>p.done).length, pct=Math.round(done/items.length*100);
   return `<div class="box" style="margin-bottom:16px;background:var(--panel-2)">
-    <div class="box-head"><h3>📊 ${label||'Талдау'}</h3></div>
+    <div class="box-head"><h3>${ic('barChart')} ${label||'Талдау'}</h3></div>
     <div class="progressbar"><span style="width:${pct}%"></span></div>
     <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:14px">
-      <span style="color:var(--good)">✅ Орындалды: <b>${done}</b></span>
-      <span style="color:#f0a5a5">⬜ Орындалмады: <b>${items.length-done}</b></span>
+      <span style="color:var(--good)">${ic('checkCircle')} Орындалды: <b>${done}</b></span>
+      <span style="color:#f0a5a5">${ic('square')} Орындалмады: <b>${items.length-done}</b></span>
       <span><b>${pct}%</b></span>
     </div></div>`;
 }
@@ -2213,7 +2255,7 @@ function plansSection(){
     const dn=items.filter(p=>p.done).length;
     const lbl = isDaily? (k?fmtDate(k):'Күні белгіленбеген') : monthName(k);
     return `<div class="grat-card">
-      <div class="grat-date">📅 ${lbl} <span style="color:var(--muted);font-weight:600">${dn}/${items.length} орындалды</span></div>
+      <div class="grat-date">${ic('calendar')} ${lbl} <span style="color:var(--muted);font-weight:600">${dn}/${items.length} орындалды</span></div>
       ${items.map(p=>goalItemRow('plan_'+period,p)).join('')}
     </div>`;
   }).join('') : `<div style="color:var(--faint);padding:10px 0">Әзірге жоспар жоқ</div>`;
@@ -2227,18 +2269,18 @@ function plansSection(){
       </div>
     </div>
     ${analysisBox(selItems, selLabel+' — талдау')}
-    <h3 style="margin:18px 0 10px">🗂 ${isDaily?'Күндер':'Айлар'} бойынша</h3>
+    <h3 style="margin:18px 0 10px">${ic('archive')} ${isDaily?'Күндер':'Айлар'} бойынша</h3>
     ${history}`;
 }
 function renderGoalsPage(){
   const box=document.getElementById('catExtra');
   const tabs=[['monthly','Айлық'],['weekly','Апталық'],['daily','Күндік']];
   box.innerHTML=`
-    <div class="section-t">🎯 Мақсаттар</div>
-    ${goalGroup('🌟 Үлкен мақсаттар','big',goals.big,'Үлкен мақсат жаз... (мыс. Умраға бару)')}
-    ${goalGroup('⭐ Кіші мақсаттар','small',goals.small,'Кіші мақсат жаз... (мыс. Кітап оқу)')}
+    <div class="section-t">${ic('target')} Мақсаттар</div>
+    ${goalGroup(ic('star')+' Үлкен мақсаттар','big',goals.big,'Үлкен мақсат жаз... (мыс. Умраға бару)')}
+    ${goalGroup(ic('star')+' Кіші мақсаттар','small',goals.small,'Кіші мақсат жаз... (мыс. Кітап оқу)')}
 
-    <div class="section-t" style="margin-top:26px">🗓️ Жоспарлар</div>
+    <div class="section-t" style="margin-top:26px">${ic('calendar')} Жоспарлар</div>
     <div class="tabs">${tabs.map(([k,n])=>`<button class="tab ${k===planTab?'active':''}" onclick="setPlanTab('${k}')">${n}</button>`).join('')}</div>
     ${plansSection()}`;
 }
@@ -2284,19 +2326,19 @@ function renderGratitudePage(){
   const box=document.getElementById('catExtra');
   box.innerHTML=`
     <div class="box" style="margin-bottom:16px">
-      <div class="box-head"><h3>🤲 Бүгінгі шүкіршілік</h3></div>
+      <div class="box-head"><h3>${ic('hands')} Бүгінгі шүкіршілік</h3></div>
       ${GRAT_Q.map((q,i)=>`<label>${q}</label><input id="grat${i}" placeholder="Жауабыңды жаз...">`).join('')}
       <button class="btn" onclick="saveGratitude()">Сақтау</button>
     </div>
     <div class="box">
-      <div class="box-head"><h3>📖 Шүкіршілік беті (${gratitude.length})</h3></div>
+      <div class="box-head"><h3>${ic('book2')} Шүкіршілік беті (${gratitude.length})</h3></div>
       <div>${gratitude.length? gratitude.slice().reverse().map(gratCard).join('') :
         `<div style="color:var(--faint);padding:10px 0">Әзірге жазба жоқ</div>`}</div>
     </div>`;
 }
 function gratCard(g){
   return `<div class="grat-card">
-    <div class="grat-date">📅 ${fmtDate(g.date)} <span class="del" onclick="delGrat('${g.id}')">×</span></div>
+    <div class="grat-date">${ic('calendar')} ${fmtDate(g.date)} <span class="del" onclick="delGrat('${g.id}')">${ic('x')}</span></div>
     ${[g.a1,g.a2,g.a3].map((a,i)=> a?`<div class="grat-q">${GRAT_Q[i]}</div><div class="grat-a">${a}</div>`:'').join('')}
   </div>`;
 }
@@ -2305,22 +2347,26 @@ function saveGratitude(){
   const a2=document.getElementById('grat1').value.trim();
   const a3=document.getElementById('grat2').value.trim();
   if(!a1&&!a2&&!a3){ toast('Кемінде бір жауап жаз'); return; }
-  gratitude.push({id:uid(),date:todayStr(),a1,a2,a3}); saveGrat(); toast('🤲 Сақталды'); renderGratitudePage();
+  gratitude.push({id:uid(),date:todayStr(),a1,a2,a3}); saveGrat(); toast(`${ic('hands')} Сақталды`); renderGratitudePage();
 }
 function delGrat(gid){ gratitude=gratitude.filter(x=>x.id!==gid); saveGrat(); renderGratitudePage(); }
 
 /* ============================================================
    Кездейсоқ тапсырма
    ============================================================ */
+function renderTask(i){
+  const [key,text]=RANDOM_TASKS[i];
+  document.getElementById('rtText').innerHTML=`<div style="font-size:36px;color:var(--s4)">${ic(key)}</div><div style="margin-top:10px">${text}</div>`;
+}
 function randomTask(){
   closeNav();
   const i=Math.floor((Date.now()/1000)%RANDOM_TASKS.length);
-  document.getElementById('rtText').textContent=RANDOM_TASKS[i];
+  renderTask(i);
   document.getElementById('rtModal').classList.add('open');
 }
 function anotherTask(){
   let i=Math.floor((Date.now()/7)%RANDOM_TASKS.length);
-  document.getElementById('rtText').textContent=RANDOM_TASKS[i];
+  renderTask(i);
 }
 
 /* ============================================================
@@ -2366,7 +2412,7 @@ function txRow(t){
       <input type="date" class="mini-date" value="${t.date}" onchange="editTxDate('${t.id}',this.value)">
     </div>
     <span class="amt ${t.type==='in'?'in':'out'}">${t.type==='in'?'+':'−'}${fmt(t.amount)}</span>
-    <span class="del" onclick="delTx('${t.id}')">×</span>
+    <span class="del" onclick="delTx('${t.id}')">${ic('x')}</span>
   </div>`;
 }
 function renderTxLists(){
@@ -2397,7 +2443,7 @@ function renderCalc(){
       <input class="c-name" type="text" value="${(r.name||'').replace(/"/g,'&quot;')}" placeholder="Бөлік аты" oninput="updateCalc()">
       <input class="c-pct" type="number" value="${r.pct}" min="0" max="100" placeholder="%" oninput="updateCalc()">
       <span class="c-amt" data-i="${i}"></span>
-      <span class="c-del" onclick="removeCalcRow(${i})">🗑️</span>
+      <span class="c-del" onclick="removeCalcRow(${i})">${ic('trash')}</span>
     </div>`).join('');
   updateCalc();
 }
@@ -2416,7 +2462,7 @@ function updateCalc(){
   Store.set('calcCfg', calcCfg); scheduleSync();
   const tot = document.getElementById('calcTotal');
   const cls = sum===100 ? 'ok' : 'bad';
-  const msg = sum===100 ? '✅ Дәл 100%' : (sum<100 ? `⚠️ ${100-sum}% жетпейді` : `⚠️ ${sum-100}% артық`);
+  const msg = sum===100 ? `${ic('checkCircle')} Дәл 100%` : (sum<100 ? `${ic('alertTriangle')} ${100-sum}% жетпейді` : `${ic('alertTriangle')} ${sum-100}% артық`);
   tot.innerHTML = `<span>Жалпы процент: <span class="${cls}">${sum}%</span> <small style="color:var(--muted)">${msg}</small></span>
                    <span>Бөлінген: <b>${fmt(amount*Math.min(sum,100)/100)}</b></span>`;
 }
@@ -2675,7 +2721,7 @@ function renderHealthPanel(){
         <div class="gtext"><div class="gv" id="hgv">${hs.index}</div><div class="gl">/ 100</div></div>
       </div>
       <div class="hp-info">
-        <h3>❤️ Денсаулық индексі</h3>
+        <h3>${ic('heart')} Денсаулық индексі</h3>
         <div style="color:var(--muted);font-size:14px;margin-bottom:8px">${hs.count} денсаулық трекерінің орташа орындалуы.</div>
         <div class="delta" style="color:${hs.delta>0?'var(--good)':hs.delta<0?'#f0a5a5':'var(--muted)'}">
           ${hs.delta>0?'▲ ':hs.delta<0?'▼ ':'■ '}Соңғы аптада денсаулығың ${Math.abs(hs.delta)}%-ға ${hs.delta>0?'жақсарды':hs.delta<0?'төмендеді':'тұрақты'}
@@ -2699,7 +2745,7 @@ function renderAchievements(){
   const counts={7:0,21:0,30:0};
   trackers.forEach(t=>{ const b=bestStreak(t); BADGES.forEach(x=>{ if(b>=x.n) counts[x.n]++; }); });
   el.innerHTML=`<div class="ach-row">
-    ${BADGES.map(x=>`<div class="ach"><span class="ae">${x.emo}</span>
+    ${BADGES.map(x=>`<div class="ach"><span class="ae">${ic(x.emo)}</span>
       <div><div class="an">${counts[x.n]}</div><div class="al">${x.label} қатар алды</div></div></div>`).join('')}
   </div>`;
 }
@@ -2709,7 +2755,7 @@ function renderAnalytics(){
   if(!trackers.length){
     kpi.innerHTML='';
     document.getElementById('derived').innerHTML=
-      `<div class="empty"><span class="em">📊</span>Талдау үшін алдымен трекер қос.</div>`;
+      `<div class="empty"><span class="em">${ic('barChart')}</span>Талдау үшін алдымен трекер қос.</div>`;
     // бос диаграммалар
     drawBar(); drawLine();
     return;
@@ -2723,7 +2769,7 @@ function renderAnalytics(){
     <div class="kpi"><div class="big">${trackers.length}</div><div class="lbl">Белсенді трекер</div></div>
     <div class="kpi"><div class="big" style="color:var(--s3)">${formed}</div><div class="lbl">Қалыптасқан әдет</div><div class="sub">≥80% & 7+ күн</div></div>
     <div class="kpi"><div class="big">${avgAll}%</div><div class="lbl">Орташа тұрақтылық</div></div>
-    <div class="kpi"><div class="big">🔥 ${best}</div><div class="lbl">Ең ұзын қатар</div></div>
+    <div class="kpi"><div class="big">${ic('flame')} ${best}</div><div class="lbl">Ең ұзын қатар</div></div>
     <div class="kpi"><div class="big">${totalDone}</div><div class="lbl">Барлығы орындалған күн</div></div>`;
 
   drawBar(); drawLine();
@@ -2742,7 +2788,7 @@ function renderAnalytics(){
       <div class="cd">Әр саладағы прогресіңе негізделген</div>
       ${rows.map(r=>`
         <div class="split-item">
-          <span class="k">${r.emo} ${r.name} <small style="color:var(--faint)">(${r.count} трекер)</small></span>
+          <span class="k">${ic(r.emo)} ${r.name} <small style="color:var(--faint)">(${r.count} трекер)</small></span>
           <span class="v" style="color:${r.avg>=70?'var(--good)':r.avg>=40?'var(--warn)':'#f0a5a5'}">
             ${r.name} бойынша ${r.avg}%-ға дамыдың</span>
         </div>`).join('')}
@@ -2755,7 +2801,7 @@ function renderAnalytics(){
 let toastTimer;
 function toast(msg){
   const el=document.getElementById('toast');
-  el.textContent=msg; el.classList.add('show');
+  el.innerHTML=msg; el.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer=setTimeout(()=>el.classList.remove('show'),2200);
 }

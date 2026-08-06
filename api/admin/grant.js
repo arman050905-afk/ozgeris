@@ -9,6 +9,9 @@ module.exports = async (req, res) => {
 
   const { userId, active } = req.body || {};
   if (!userId || typeof active !== 'boolean') return res.status(400).json({ error: 'дұрыс параметр жоқ' });
+  if (userId === admin.uid && !active) {
+    return res.status(400).json({ error: 'Өз аккаунтыңның доступын өзің ала алмайсың' });
+  }
 
   try {
     await sql`update users set active = ${active} where id = ${userId}`;

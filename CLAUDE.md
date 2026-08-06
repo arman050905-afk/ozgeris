@@ -15,6 +15,14 @@
   істемейді (`fetch('/api/...')` қатесі шығады, error хабары UI-де көрсетіледі). Толық жұмыс үшін
   Vercel-ге деплой керек (GitHub-тан авто-деплой қосулы).
 - Диаграммалар — таза `<canvas>` (сыртқы кітапхана жоқ).
+- **Иконкалар**: эмодзи жоқ — барлық UI иконка қолмен салынған SVG (`ICONS` объектісі + `ic(key)`
+  көмекшісі, Store блогынан кейін анықталған). `ic('trash')` секілді шақыру `<svg>...</svg>` жол
+  қайтарады, оны backtick template literal ішінде `${ic('key')}` етіп қою керек. **Ескерту**:
+  `textContent` HTML-ды рендерлемейді — `ic()` нәтижесін `textContent`-ке емес, `innerHTML`-ге қою
+  керек (мыс. `toast()`, `userBadge`, `togglePw` осылай істейді). Тек нағыз сыртқа кететін мәтінде
+  (`navigator.share`/`clipboard.writeText` — `shareTracker()`-дегі `text`) эмодзи қасақана қалдырылған,
+  өйткені ол HTML емес, таза мәтін ретінде WhatsApp/т.б. қолданбаға кетеді. `<option>` элементінің
+  ішінде де SVG рендерленбейді — сол жерде тек plain text қалдыру керек.
 - Дерекқор: **Neon** (serverless Postgres). Схема — `schema.sql` (Neon SQL Editor-де бір рет орындау
   керек). Vercel-де `DATABASE_URL` және `JWT_SECRET` env var орнатылуы міндетті — соларсыз `api/*`
   функциялары бірден 500 қатесін қайтарады (`_db.js`/`_auth.js` ішінде тексеріледі).
@@ -71,9 +79,10 @@
 
 `<script>` негізгі блоктар (жоғарыдан төмен):
 1. **Store** — localStorage қабаты
-2. **CLOUD API** — `API_BASE`, `DATA_KEYS`, `apiCall/fetchCloud/syncToCloud/scheduleSync` (Neon+Vercel `api/`-мен байланыс)
-3. **AUTH** — `currentUser`, `isAdmin`, `doRegister/doLogin/loginAs/logout`, `togglePw`, `buyClick`
-4. **DATA MODEL** — `CATEGORIES`, `TEMPLATES`, `EMOJIS`, `FIN_CATS`
+2. **ICONS** — `ICONS` объектісі + `ic(key)` көмекшісі (SVG иконка жүйесі, эмодзи орнына)
+3. **CLOUD API** — `API_BASE`, `DATA_KEYS`, `apiCall/fetchCloud/syncToCloud/scheduleSync` (Neon+Vercel `api/`-мен байланыс)
+4. **AUTH** — `currentUser`, `isAdmin`, `doRegister/doLogin/loginAs/logout`, `togglePw`, `buyClick`
+5. **DATA MODEL** — `CATEGORIES`, `TEMPLATES`, `EMOJIS`, `FIN_CATS` (`emo` өрісі — icon key, эмодзи емес)
 5. **STATE** — `trackers, archived, hiddenTpl, userTpl, txs, calcCfg, goals, gratitude` + `loadUserData()`
 6. **Есептеу көмекшілері** — `daysPassed, totalDays, monthGrid, dtype, isDayBased, isDaySuccess,
    successDays, completion, currentStreak, bestStreak, BADGES, gradeColor, cellRatio, extendTracker`
