@@ -1,0 +1,2609 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ÖZGERIS</title>
+<style>
+  :root{
+    --bg:#0f1420;
+    --panel:#1a2130;
+    --panel-2:#212a3b;
+    --panel-hover:#26314599;
+    --line:#2b3648;
+    --text:#eef2f8;
+    --muted:#94a1b8;
+    --faint:#64748b;
+    /* validated categorical palette (dark) */
+    --s1:#3987e5; /* blue */
+    --s2:#d95926; /* orange */
+    --s3:#199e70; /* aqua */
+    --s4:#c98500; /* yellow */
+    --s5:#d55181; /* magenta */
+    --s6:#008300; /* green */
+    --s7:#9085e9; /* violet */
+    --s8:#e66767; /* red */
+    --good:#0ca30c;
+    --warn:#fab219;
+    --crit:#d03b3b;
+    --grad:linear-gradient(135deg,#2f7de0,#20b6c9);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.5;
+    min-height:100vh;
+  }
+  a{color:inherit;text-decoration:none}
+  .container{max-width:1240px;margin:0 auto;padding:0 24px}
+
+  /* ---------- Header ---------- */
+  header{
+    border-bottom:1px solid var(--line);
+    padding:18px 0;position:sticky;top:0;z-index:50;
+    background:rgba(15,20,32,.9);backdrop-filter:blur(8px);
+  }
+  .nav{display:flex;align-items:center;gap:28px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px}
+  .logo .mark{color:var(--s1);font-size:22px}
+  .nav-links{display:flex;gap:28px;margin-left:auto}
+  .nav-links a{color:var(--muted);font-weight:600;font-size:15px;cursor:pointer;padding:6px 2px;border-bottom:2px solid transparent}
+  .nav-links a:hover{color:var(--text)}
+  .nav-links a.active{color:var(--text);border-bottom-color:var(--s1)}
+  .hamburger{display:none;background:none;border:1px solid var(--line);color:var(--text);font-size:20px;
+    border-radius:9px;width:42px;height:38px;cursor:pointer;margin-left:auto}
+
+  /* ---------- Sections ---------- */
+  .view{display:none;padding:40px 0 80px}
+  .view.active{display:block}
+  .subtitle{text-align:center;color:var(--muted);margin-bottom:32px;font-size:16px}
+  .page-title{font-size:26px;font-weight:800;margin-bottom:6px}
+  .page-sub{color:var(--muted);margin-bottom:28px}
+
+  /* ---------- Category tiles (home) ---------- */
+  .cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px}
+  .cat-tile{
+    background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px;
+    cursor:pointer;transition:.15s;position:relative;overflow:hidden;
+  }
+  .cat-tile:hover{transform:translateY(-3px);border-color:#3a4a63}
+  .cat-tile .big-icon{
+    width:60px;height:60px;border-radius:16px;display:flex;align-items:center;justify-content:center;
+    font-size:30px;margin-bottom:18px;
+  }
+  .cat-tile h2{font-size:21px;margin-bottom:8px}
+  .cat-tile p{color:var(--muted);font-size:14px;margin-bottom:18px;min-height:40px}
+  .cat-tile .go{display:flex;align-items:center;justify-content:space-between;font-weight:700;color:var(--s1)}
+  .cat-tile .count{font-size:13px;color:var(--faint);font-weight:600}
+  .cat-tile .glow{position:absolute;top:-40px;right:-40px;width:120px;height:120px;border-radius:50%;filter:blur(50px);opacity:.18}
+
+  /* ---------- Category detail header ---------- */
+  .back-btn{background:none;border:none;color:var(--muted);font-size:15px;font-weight:600;cursor:pointer;padding:6px 0;margin-bottom:18px}
+  .back-btn:hover{color:var(--text)}
+  .cat-head{display:flex;align-items:center;gap:16px;margin-bottom:28px}
+  .cat-head .big-icon{width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px}
+  .cat-head h1{font-size:26px}
+  .cat-head p{color:var(--muted);font-size:14px}
+
+  /* ---------- Cards grid ---------- */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px}
+  .card{
+    background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;
+    display:flex;flex-direction:column;transition:.15s;
+  }
+  .card{position:relative}
+  .card:hover{border-color:#3a4a63;transform:translateY(-2px)}
+  .card-x{position:absolute;top:10px;right:10px;width:26px;height:26px;border-radius:8px;border:1px solid var(--line);
+    background:var(--panel-2);color:var(--faint);cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;padding:0}
+  .card-x:hover{color:#fff;background:var(--crit);border-color:var(--crit)}
+  .card .icon{
+    width:52px;height:52px;border-radius:13px;display:flex;align-items:center;justify-content:center;
+    font-size:24px;margin-bottom:16px;
+  }
+  .card h3{font-size:18px;margin-bottom:6px}
+  .card .tag{font-size:13px;color:var(--muted);margin-bottom:12px;font-weight:600}
+  .card p{font-size:14px;color:var(--muted);flex:1;margin-bottom:18px}
+  .btn{
+    background:var(--grad);color:#fff;border:none;padding:11px;border-radius:10px;
+    font-weight:700;cursor:pointer;font-size:15px;width:100%;transition:.15s;
+  }
+  .btn:hover{filter:brightness(1.08)}
+  .btn.ghost{background:transparent;border:1px solid var(--s1);color:var(--text)}
+  .btn.ghost:hover{background:#1e2942}
+  .btn.sm{width:auto;padding:8px 16px;font-size:14px}
+  .btn.danger{background:transparent;border:1px solid var(--crit);color:#f3a9a9}
+  .btn.danger:hover{background:#2a1516}
+
+  .add-own{display:flex;justify-content:center;margin-top:34px}
+  .top-bar{display:flex;justify-content:flex-end;margin-bottom:6px}
+
+  /* ---------- Tracker compact cards (my trackers) ---------- */
+  .tracker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+  .tcard{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;cursor:pointer;transition:.15s}
+  .tcard:hover{border-color:#3a4a63;transform:translateY(-2px)}
+  .tcard-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px}
+  .tcard-top .icon{width:46px;height:46px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0}
+  .tcard-top .ttl{flex:1;min-width:0}
+  .tcard-top h3{font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tcard-top .tag{color:var(--muted);font-size:13px;font-weight:600}
+  .tcard-acts{display:flex;gap:4px}
+  .icon-btn{background:none;border:none;color:var(--faint);cursor:pointer;font-size:16px;padding:5px;border-radius:7px;line-height:1}
+  .icon-btn:hover{color:var(--text);background:var(--panel-2)}
+  .icon-btn.del:hover{color:var(--crit)}
+  .tcard-meta{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin:12px 0 4px}
+  .tcard-meta b{color:var(--text)}
+  .tcard-foot{display:flex;justify-content:space-between;align-items:center;margin-top:14px;font-size:13px}
+  .tcard-foot .date{color:var(--muted);display:flex;align-items:center;gap:6px}
+  .tcard-foot .share{color:var(--s1);font-weight:600;display:flex;align-items:center;gap:5px}
+  .tcard-foot .share:hover{filter:brightness(1.2)}
+
+  /* ---------- Detail view ---------- */
+  .detail-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px}
+  .detail-head{display:flex;align-items:center;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+  .detail-head .icon{width:58px;height:58px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:28px}
+  .detail-head h1{font-size:24px}
+  .detail-head .tag{color:var(--muted);font-size:14px;font-weight:600}
+  .detail-stats{display:flex;gap:14px;margin-left:auto;flex-wrap:wrap}
+  .stat{text-align:center;background:var(--panel-2);border-radius:12px;padding:12px 18px;min-width:90px}
+  .stat .num{font-size:24px;font-weight:800}
+  .stat .lbl{font-size:12px;color:var(--muted)}
+  .days-hint{color:var(--muted);font-size:14px;margin:18px 0 10px}
+  .tmonth{margin-bottom:14px}
+  .tmonth .vmonth-t{font-size:13px;color:var(--muted);font-weight:600;margin-bottom:6px}
+  .badges{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0 4px}
+  .badge{padding:6px 14px;border-radius:20px;font-size:13px;font-weight:700;background:var(--panel-2);color:var(--faint);border:1px solid var(--line);opacity:.55}
+  .badge.got{opacity:1;color:var(--text);border-color:var(--s4);background:#c9850022}
+  .days{display:grid;grid-template-columns:repeat(10,1fr);gap:8px;margin-top:8px}
+  .day{
+    aspect-ratio:1;border-radius:7px;background:var(--panel-2);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--faint);
+    cursor:pointer;transition:.1s;user-select:none;
+  }
+  .day:hover{border-color:var(--s1)}
+  .day.done{background:var(--s3);border-color:var(--s3);color:#02261a;font-weight:700}
+  .day.today{box-shadow:0 0 0 2px var(--s1)}
+  .day.future{opacity:.4;cursor:default}
+  .day.future:hover{border-color:var(--line)}
+  .progressbar{height:8px;border-radius:6px;background:var(--panel-2);overflow:hidden;margin-top:14px}
+  .progressbar > span{display:block;height:100%;background:var(--grad);border-radius:6px;transition:width .3s}
+
+  /* ---------- Finance ---------- */
+  .fin-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:820px){.fin-grid{grid-template-columns:1fr}}
+  .box{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px}
+  .box h3{font-size:17px;margin-bottom:16px}
+  label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:600}
+  input,select{
+    width:100%;background:var(--bg);border:1px solid var(--line);color:var(--text);
+    padding:10px 12px;border-radius:9px;font-size:15px;font-family:inherit;margin-bottom:14px;
+  }
+  input:focus,select:focus{outline:none;border-color:var(--s1)}
+  .row{display:flex;gap:12px}
+  .row > *{flex:1}
+  .split-item{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--line)}
+  .split-item:last-child{border-bottom:none}
+  .split-item .k{display:flex;align-items:center;gap:9px;color:var(--muted);font-weight:600}
+  .split-item .dot{width:11px;height:11px;border-radius:50%}
+  .split-item .v{font-weight:800;font-size:16px}
+  .box-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+  .box-head h3{margin-bottom:0}
+  .sum-badge{font-weight:800;font-size:15px;padding:4px 12px;border-radius:20px}
+  .sum-badge.in{color:var(--good);background:#0ca30c22}
+  .sum-badge.out{color:#f0a5a5;background:#d03b3b22}
+  .calc-row{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+  .calc-row input{margin-bottom:0}
+  .calc-row .c-name{flex:2}
+  .calc-row .c-pct{flex:1;max-width:90px}
+  .calc-row .c-amt{flex:1.3;text-align:right;font-weight:700;color:var(--text);white-space:nowrap;font-size:14px}
+  .calc-row .c-del{cursor:pointer;color:var(--faint);font-size:18px;padding:4px}
+  .calc-row .c-del:hover{color:var(--crit)}
+  .calc-total{display:flex;justify-content:space-between;align-items:center;padding-top:12px;margin-top:6px;border-top:1px solid var(--line);font-weight:700}
+  .calc-total .ok{color:var(--good)}
+  .calc-total .bad{color:var(--warn)}
+  .tx-list{max-height:280px;overflow-y:auto;margin-top:4px}
+  .tx{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px}
+  .tx .cat{color:var(--muted);flex:1}
+  .tx .amt{font-weight:700}
+  .tx .amt.in{color:var(--good)}
+  .tx .amt.out{color:#f0a5a5}
+  .tx .del{cursor:pointer;color:var(--faint);font-size:18px;line-height:1}
+  .tx .del:hover{color:var(--crit)}
+  .mini-date{width:auto;background:transparent;border:none;color:var(--faint);font-size:12px;padding:2px 0;margin:2px 0 0;font-family:inherit;color-scheme:dark}
+  .mini-date:focus{border-color:var(--s1);color:var(--text)}
+  .balance{font-size:34px;font-weight:800;margin:4px 0 2px}
+  .goal-line{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:6px}
+
+  /* ---------- Analytics ---------- */
+  .health-panel{display:flex;align-items:center;gap:28px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:24px 28px;margin-bottom:24px;flex-wrap:wrap}
+  .health-panel .gauge-wrap{position:relative;flex-shrink:0}
+  .health-panel .gtext{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;top:18px}
+  .health-panel .gtext .gv{font-size:34px;font-weight:800;line-height:1}
+  .health-panel .gtext .gl{font-size:12px;color:var(--muted)}
+  .health-panel .hp-info{flex:1;min-width:220px}
+  .health-panel .hp-info h3{font-size:18px;margin-bottom:8px}
+  .health-panel .delta{font-weight:800;font-size:16px}
+  .ach-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:24px}
+  .ach{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 20px;display:flex;align-items:center;gap:12px;flex:1;min-width:150px}
+  .ach .ae{font-size:28px}
+  .ach .an{font-size:22px;font-weight:800}
+  .ach .al{font-size:12px;color:var(--muted)}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px}
+  .kpi .big{font-size:32px;font-weight:800}
+  .kpi .lbl{color:var(--muted);font-size:14px;margin-top:2px}
+  .kpi .sub{font-size:12px;color:var(--faint);margin-top:6px}
+  .charts{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:820px){.charts{grid-template-columns:1fr}}
+  .chart-box{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px}
+  .chart-box h3{font-size:16px;margin-bottom:4px}
+  .chart-box .cd{font-size:13px;color:var(--muted);margin-bottom:14px}
+  canvas{width:100%;display:block}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;font-size:13px;color:var(--muted)}
+  .legend span{display:flex;align-items:center;gap:6px}
+  .legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+
+  .empty{text-align:center;color:var(--muted);padding:60px 20px}
+  .empty .em{font-size:44px;display:block;margin-bottom:12px}
+
+  /* ---------- Modal ---------- */
+  .modal-bg{position:fixed;inset:0;background:rgba(5,8,15,.7);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+  .modal-bg.open{display:flex}
+  .modal{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px;max-width:440px;width:100%}
+  .modal h3{margin-bottom:18px;font-size:20px}
+  .emoji-pick{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .emoji-pick span{font-size:22px;padding:6px;border-radius:8px;cursor:pointer;border:1px solid transparent}
+  .emoji-pick span.sel{border-color:var(--s1);background:var(--panel-2)}
+  .modal-actions{display:flex;gap:12px;margin-top:8px}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--panel-2);border:1px solid var(--s1);
+    padding:12px 22px;border-radius:12px;font-weight:600;z-index:200;opacity:0;transition:.3s;pointer-events:none}
+  .toast.show{opacity:1;bottom:34px}
+
+  /* ============ MOBILE (телефон нұсқасы) ============ */
+  @media(max-width:760px){
+    .container{padding:0 16px}
+    header{padding:14px 0}
+    .nav{position:relative;flex-wrap:wrap}
+    .logo{font-size:18px}
+    .hamburger{display:block}
+    .nav-links{
+      display:none;flex-direction:column;gap:0;width:100%;margin:14px 0 0;
+      background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;
+    }
+    .nav-links.open{display:flex}
+    .nav-links a{padding:14px 16px;border-bottom:1px solid var(--line)!important;border-radius:0;width:100%}
+    .nav-links a.active{background:var(--panel-2)}
+    .user-badge{padding:12px 16px;margin:0;border-bottom:1px solid var(--line);width:100%}
+    .logout-btn{margin:12px 16px;width:calc(100% - 32px)}
+
+    .view{padding:26px 0 60px}
+    .page-title{font-size:22px}
+    .subtitle{font-size:15px;margin-bottom:24px}
+    .cat-grid,.grid,.tracker-grid{grid-template-columns:1fr;gap:14px}
+    .cat-tile{padding:22px}
+    .card,.tcard,.box,.chart-box,.detail-card{padding:18px}
+
+    /* күн торы — телефонда ықшам */
+    .days{grid-template-columns:repeat(7,1fr);gap:6px}
+    .day{font-size:12px;border-radius:8px}
+    .vgrid{grid-template-columns:repeat(10,1fr)}
+
+    .detail-head,.cat-head{flex-wrap:wrap;gap:12px}
+    .detail-stats{margin-left:0;width:100%}
+    .detail-stats .stat{flex:1;min-width:0;padding:10px}
+    .kpis{grid-template-columns:1fr 1fr}
+    .charts{grid-template-columns:1fr}
+    canvas{max-width:100%}
+
+    .health-panel{flex-direction:column;text-align:center}
+    .row{flex-direction:column;gap:0}
+    .fin-grid{grid-template-columns:1fr}
+
+    .modal,.welcome-card{padding:24px}
+    .welcome-title{font-size:21px}
+    .emo-pick,.badges{gap:6px}
+    .tabs{flex-wrap:wrap}
+  }
+  @media(max-width:400px){
+    .days{grid-template-columns:repeat(6,1fr)}
+    .kpis{grid-template-columns:1fr}
+  }
+
+  /* nav random-task */
+  .rt-nav{cursor:pointer;color:var(--s4)!important;font-weight:700}
+  .rt-nav:hover{filter:brightness(1.2)}
+  .rt-text{font-size:20px;font-weight:700;padding:24px 10px;line-height:1.4}
+
+  /* stars (sleep mood) */
+  .stars{display:flex;gap:6px;margin-bottom:14px}
+  .stars .star{font-size:30px;color:var(--line);cursor:pointer;transition:.1s}
+  .stars .star.on{color:var(--s4)}
+  .sl-preview{background:var(--panel-2);border-radius:10px;padding:14px;font-size:15px;margin-bottom:6px;min-height:20px}
+
+  /* insights (podcast) */
+  .ins-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:8px}
+  .ins-card{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .ins-name{font-weight:700;font-size:14px;margin-bottom:8px;color:var(--s1)}
+  .ins-text{font-size:14px;color:var(--text);margin-bottom:10px}
+  .ins-foot{display:flex;justify-content:space-between;align-items:center}
+  .ins-foot .del{cursor:pointer;color:var(--faint);font-size:18px}
+  .ins-foot .del:hover{color:var(--crit)}
+
+  /* vitamins */
+  .vit-desc{background:var(--panel-2);border-radius:12px;padding:18px;font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:18px}
+  .vit{background:var(--panel-2);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px}
+  .vit-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+  .vit-head .del{cursor:pointer;color:var(--faint);font-size:20px}
+  .vit-head .del:hover{color:var(--crit)}
+  .vmonth{margin-bottom:12px}
+  .vmonth-t{font-size:13px;color:var(--muted);font-weight:600;margin-bottom:6px}
+  .vgrid{display:grid;grid-template-columns:repeat(15,1fr);gap:4px}
+  .vday{aspect-ratio:1;border-radius:5px;background:var(--panel);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--faint);cursor:pointer}
+  .vday:hover{border-color:var(--s3)}
+  .vday.on{background:var(--s3);border-color:var(--s3);color:#02261a;font-weight:700}
+  .vday.off{opacity:.3;cursor:default}
+  .vday.off:hover{border-color:var(--line)}
+
+  /* tabs (goals) */
+  .section-t{font-size:19px;font-weight:800;margin:0 0 14px}
+  .tabs{display:flex;gap:8px;margin-bottom:18px}
+  .tab{background:var(--panel);border:1px solid var(--line);color:var(--muted);padding:10px 20px;border-radius:10px;font-weight:600;cursor:pointer;font-family:inherit;font-size:14px}
+  .tab:hover{color:var(--text)}
+  .tab.active{background:var(--panel-2);color:#fff;border-color:var(--s4)}
+  .goal-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+  .goal-item:last-child{border-bottom:none}
+  .goal-item .gcheck{cursor:pointer;font-size:18px;user-select:none}
+  .goal-item .gtext{flex:1}
+  .goal-item.done .gtext{text-decoration:line-through;color:var(--faint)}
+  .goal-item .del{cursor:pointer;color:var(--faint);font-size:18px}
+  .goal-item .del:hover{color:var(--crit)}
+  .plan-time{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:2px 9px;font-size:13px;font-weight:700;color:var(--s1);font-variant-numeric:tabular-nums}
+
+  /* GAD-7 */
+  .gad-q{margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+  .gad-qt{font-size:15px;font-weight:600;margin-bottom:10px}
+  .gad-opts{display:flex;flex-direction:column;gap:6px}
+  .gad-opt{text-align:left;background:var(--bg);border:1px solid var(--line);color:var(--muted);padding:9px 12px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:14px}
+  .gad-opt:hover{border-color:var(--s1);color:var(--text)}
+  .gad-opt.sel{background:var(--panel-2);border-color:var(--s1);color:#fff;font-weight:600}
+  .gad-result{background:var(--panel-2);border:1px solid var(--line);border-left-width:4px;border-radius:10px;padding:16px}
+  .gr-top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+  /* emotion journal */
+  .emo-pick{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .emo-tag{padding:7px 13px;border-radius:20px;background:var(--panel-2);border:1px solid var(--line);cursor:pointer;font-size:14px;color:var(--muted)}
+  .emo-tag:hover{color:var(--text);border-color:var(--s6)}
+  .emo-tag.sel{background:#00830022;border-color:var(--s6);color:var(--text);font-weight:600}
+
+  /* WELCOME manifesto */
+  .welcome-bg{background:rgba(8,12,22,.55);backdrop-filter:blur(10px)}
+  .welcome-card{background:linear-gradient(160deg,rgba(30,41,64,.92),rgba(20,27,44,.95));border:1px solid #33415e;
+    border-radius:22px;padding:38px;max-width:640px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+  .welcome-emblem{text-align:center;font-weight:800;letter-spacing:2px;color:var(--s1);font-size:15px;margin-bottom:10px}
+  .welcome-title{text-align:center;font-size:26px;font-weight:800;letter-spacing:1px;margin-bottom:22px;
+    background:linear-gradient(90deg,#5aa0ff,#3fd0c9);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .welcome-body p{color:#cdd6e6;font-size:15px;line-height:1.7;margin-bottom:14px}
+  .welcome-body h3{color:#fff;font-size:17px;margin:20px 0 8px}
+  .welcome-body b{color:#fff}
+  .welcome-btn{margin-top:20px;font-size:16px;padding:14px}
+  .logo{cursor:pointer}
+
+  /* AUTH screen */
+  #authScreen{position:fixed;inset:0;z-index:500;background:radial-gradient(circle at 30% 20%,#16233b,#0f1420 60%);
+    display:flex;align-items:center;justify-content:center;padding:20px}
+  .auth-card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:34px;max-width:400px;width:100%}
+  .auth-logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:22px;justify-content:center;margin-bottom:6px}
+  .auth-sub{text-align:center;color:var(--muted);font-size:14px;margin-bottom:22px}
+  .auth-tabs{display:flex;gap:8px;margin-bottom:20px}
+  .auth-tabs .tab{flex:1;text-align:center}
+  .auth-err{color:#f0a5a5;font-size:13px;min-height:18px;margin:4px 0 8px;text-align:center}
+  .auth-alt{text-align:center;color:var(--muted);font-size:13px;margin-top:14px}
+  .auth-alt span{color:var(--s1);cursor:pointer;font-weight:600}
+  .user-badge{color:var(--muted);font-size:14px;font-weight:600;display:flex;align-items:center;margin-left:8px}
+  .logout-btn{background:none;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:600;margin-left:12px}
+  .logout-btn:hover{color:#f0a5a5;border-color:var(--crit)}
+
+  /* gratitude */
+  .grat-card{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
+  .grat-date{font-weight:700;font-size:14px;margin-bottom:10px;display:flex;justify-content:space-between}
+  .grat-date .del{cursor:pointer;color:var(--faint)}
+  .grat-date .del:hover{color:var(--crit)}
+  .grat-q{font-size:13px;color:var(--muted);margin-top:8px}
+  .grat-a{font-size:15px;color:var(--text)}
+</style>
+</head>
+<body>
+
+<!-- ============ AUTH SCREEN ============ -->
+<div id="authScreen">
+  <div class="auth-card">
+    <div class="auth-logo"><span>📈</span> ÖZGERIS</div>
+    <div class="auth-sub">Аккаунтыңмен кіріп, әдеттеріңді бақыла</div>
+    <div class="auth-tabs tabs">
+      <button class="tab active" id="tabLogin" onclick="authSwitch('login')">Кіру</button>
+      <button class="tab" id="tabRegister" onclick="authSwitch('register')">Тіркелу</button>
+    </div>
+
+    <div id="authLogin">
+      <label>Email</label>
+      <input id="logEmail" type="email" placeholder="you@mail.com">
+      <label>Пароль</label>
+      <input id="logPass" type="password" placeholder="••••••" onkeydown="if(event.key==='Enter')doLogin()">
+      <div class="auth-err" id="authErr"></div>
+      <button class="btn" onclick="doLogin()">Кіру</button>
+      <div class="auth-alt">Аккаунтың жоқ па? <span onclick="authSwitch('register')">Тіркел</span></div>
+    </div>
+
+    <div id="authRegister" style="display:none">
+      <label>Атың</label>
+      <input id="regName" type="text" placeholder="Арман">
+      <label>Email</label>
+      <input id="regEmail" type="email" placeholder="you@mail.com">
+      <label>Пароль</label>
+      <input id="regPass" type="password" placeholder="кемінде 4 таңба" onkeydown="if(event.key==='Enter')doRegister()">
+      <div class="auth-err"></div>
+      <button class="btn" onclick="doRegister()">Тіркелу</button>
+      <div class="auth-alt">Аккаунтың бар ма? <span onclick="authSwitch('login')">Кір</span></div>
+    </div>
+  </div>
+</div>
+
+<header>
+  <div class="container nav">
+    <div class="logo" onclick="showWelcome()"><span class="mark">📈</span> ÖZGERIS</div>
+    <button class="hamburger" onclick="toggleNav()">☰</button>
+    <nav class="nav-links" id="navLinks">
+      <a data-view="home" class="active">Трекер құру</a>
+      <a data-view="mine">Менің трекерлерім</a>
+      <a class="rt-nav" onclick="randomTask()">🎲 Тапсырма</a>
+      <a data-view="finance">Қаржы</a>
+      <a data-view="analytics">Талдау</a>
+      <span class="user-badge" id="userBadge"></span>
+      <button class="logout-btn" onclick="logout()">Шығу</button>
+    </nav>
+  </div>
+</header>
+
+<!-- ============ HOME / CATEGORIES ============ -->
+<section id="home" class="view active">
+  <div class="container">
+    <div class="top-bar">
+      <button class="btn ghost sm" onclick="showView('archive')">🗂 Архив</button>
+    </div>
+    <p class="subtitle">Саланы таңда — ішінен дайын әдеттерді көресің.</p>
+    <div class="cat-grid" id="catGrid"></div>
+    <div class="add-own">
+      <button class="btn ghost sm" onclick="openCreate()">⚙️ Өз трекеріңді жаса</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CATEGORY DETAIL ============ -->
+<section id="category" class="view">
+  <div class="container">
+    <button class="back-btn" onclick="showView('home')">← Барлық салалар</button>
+    <div class="cat-head" id="catHead"></div>
+    <div class="grid" id="cardGrid"></div>
+    <div id="catExtra"></div>
+    <div class="add-own" id="catAddOwn">
+      <button class="btn ghost sm" onclick="openCreate()">⚙️ Осы салаға өз трекеріңді қос</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MY TRACKERS ============ -->
+<section id="mine" class="view">
+  <div class="container">
+    <h1 class="page-title">Менің трекерлерім</h1>
+    <p class="page-sub">Трекерді ашу үшін карточкасын бас.</p>
+    <div class="tracker-grid" id="myList"></div>
+  </div>
+</section>
+
+<!-- ============ ARCHIVE ============ -->
+<section id="archive" class="view">
+  <div class="container">
+    <button class="back-btn" onclick="showView('home')">← Артқа</button>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+      <div>
+        <h1 class="page-title">🗂 Архив (жойылғандар)</h1>
+        <p class="page-sub">Жойылған трекерлер осында. Қалпына келтіруге немесе біржола жоюға болады.</p>
+      </div>
+      <button class="btn danger sm" onclick="clearArchive()">Архивті тазалау</button>
+    </div>
+    <div class="tracker-grid" id="archiveList"></div>
+  </div>
+</section>
+
+<!-- ============ TRACKER DETAIL ============ -->
+<section id="detail" class="view">
+  <div class="container">
+    <button class="back-btn" onclick="showView('mine')">← Менің трекерлерім</button>
+    <div id="detailBody"></div>
+  </div>
+</section>
+
+<!-- ============ FINANCE ============ -->
+<section id="finance" class="view">
+  <div class="container">
+    <h1 class="page-title">💰 Қаржылық сауаттылық</h1>
+    <p class="page-sub">Табыс пен шығын бөлек есептеледі. Калькулятор — жеке бөлім.</p>
+
+    <!-- Balance summary -->
+    <div class="box" style="margin-bottom:20px">
+      <label>Баланс (табыс − шығын)</label>
+      <div class="balance" id="balance">0 ₸</div>
+      <div style="display:flex;gap:20px;font-size:13px;color:var(--muted)">
+        <span>Барлық табыс: <b style="color:var(--good)" id="totalIn">0 ₸</b></span>
+        <span>Барлық шығын: <b style="color:#f0a5a5" id="totalOut">0 ₸</b></span>
+      </div>
+    </div>
+
+    <!-- Income + Expense, side by side, separate -->
+    <div class="fin-grid">
+      <!-- INCOME -->
+      <div class="box">
+        <div class="box-head"><h3>⬆️ Табыстар</h3><span class="sum-badge in" id="incSum">0 ₸</span></div>
+        <div class="row">
+          <div><label>Күні</label><input type="date" id="incDate"></div>
+          <div><label>Сома (₸)</label><input type="number" id="incAmount" placeholder="0" min="0"></div>
+        </div>
+        <label>Атауы</label>
+        <input type="text" id="incName" placeholder="Мысалы: Жалақы" list="incNames">
+        <datalist id="incNames"></datalist>
+        <button class="btn" onclick="addIncome()">＋ Табыс қосу</button>
+        <div class="tx-list" id="incList"></div>
+      </div>
+
+      <!-- EXPENSE -->
+      <div class="box">
+        <div class="box-head"><h3>⬇️ Шығындар</h3><span class="sum-badge out" id="expSum">0 ₸</span></div>
+        <div class="row">
+          <div><label>Күні</label><input type="date" id="expDate"></div>
+          <div><label>Сома (₸)</label><input type="number" id="expAmount" placeholder="0" min="0"></div>
+        </div>
+        <label>Категория</label>
+        <input type="text" id="expName" placeholder="Мысалы: Тамақ" list="expNames">
+        <datalist id="expNames"></datalist>
+        <button class="btn" onclick="addExpense()">＋ Шығын қосу</button>
+        <div class="tx-list" id="expList"></div>
+      </div>
+    </div>
+
+    <!-- Expense pie -->
+    <div class="chart-box" style="margin-top:20px">
+      <h3>Ақша қайда кетті</h3>
+      <div class="cd">Шығындарды категория бойынша бөлу</div>
+      <div style="display:flex;gap:30px;align-items:center;flex-wrap:wrap">
+        <canvas id="finPie" width="240" height="240" style="max-width:240px"></canvas>
+        <div class="legend" id="finLegend" style="flex-direction:column;gap:10px"></div>
+      </div>
+    </div>
+
+    <!-- SEPARATE CALCULATOR -->
+    <div class="box" style="margin-top:20px">
+      <div class="box-head"><h3>🧮 Бөлу калькуляторы</h3></div>
+      <div class="cd" style="color:var(--muted);font-size:14px;margin-bottom:14px">
+        Соманы жаз, бөліктердің атын мен процентін өзің қой. Жалпы процент 100% болуы керек.
+      </div>
+      <label>Бөлінетін сома (₸) — мыс. жалақы</label>
+      <input type="number" id="calcAmount" placeholder="200000" oninput="updateCalc()">
+      <div id="calcRows"></div>
+      <div class="calc-total" id="calcTotal"></div>
+      <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap">
+        <button class="btn ghost sm" onclick="addCalcRow()">＋ Жол қосу</button>
+        <button class="btn ghost sm" onclick="autoBalance()">⚖️ 100%-ке теңестір</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ANALYTICS ============ -->
+<section id="analytics" class="view">
+  <div class="container">
+    <h1 class="page-title">📊 Талдау</h1>
+    <p class="page-sub">Барлық трекерлерің бойынша қорытынды.</p>
+    <div id="healthPanel"></div>
+    <div class="kpis" id="kpis"></div>
+    <div id="achievements"></div>
+    <div class="charts">
+      <div class="chart-box">
+        <h3>Категория бойынша прогресс</h3>
+        <div class="cd">Әр саладағы орташа орындалу %</div>
+        <canvas id="barChart" width="560" height="300"></canvas>
+      </div>
+      <div class="chart-box">
+        <h3>30 күндік динамика</h3>
+        <div class="cd">Күніне неше әдет орындалды</div>
+        <canvas id="lineChart" width="560" height="300"></canvas>
+      </div>
+    </div>
+    <div id="derived" style="margin-top:24px"></div>
+  </div>
+</section>
+
+<!-- ============ CREATE MODAL ============ -->
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <h3>Өз трекеріңді жаса</h3>
+    <label>Атауы</label>
+    <input id="mName" placeholder="Мысалы: Күнделікті жаттығу">
+    <label>Категория</label>
+    <select id="mCat"></select>
+    <label>Өлшеу түрі</label>
+    <select id="mType" onchange="onTypeChange()">
+      <option value="check">✅ Орындадым / жоқ</option>
+      <option value="count">🔢 Сан санау (мыс. стакан)</option>
+      <option value="value">📊 Мән жазу (мыс. сағат/кг)</option>
+    </select>
+    <div id="mNumOpts" style="display:none">
+      <label>Бірлік</label>
+      <input id="mUnit" placeholder="стакан / сағат / кг">
+      <div id="mCountOpts"><label>Күндік мақсат</label><input id="mGoal" type="number" placeholder="8"></div>
+      <div id="mRangeOpts" style="display:none"><div class="row">
+        <div><label>Ең аз (қаласаң)</label><input id="mMin" type="number" placeholder="7"></div>
+        <div><label>Ең көп (қаласаң)</label><input id="mMax" type="number" placeholder="9"></div>
+      </div></div>
+    </div>
+    <label>Сипаттама</label>
+    <input id="mDesc" placeholder="Қысқаша мақсат">
+    <label>Иконка</label>
+    <div class="emoji-pick" id="emojiPick"></div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeCreate()">Болдырмау</button>
+      <button class="btn" onclick="saveCustom()">Жасау</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ WELCOME / MANIFESTO MODAL ============ -->
+<div class="modal-bg welcome-bg" id="welcomeModal">
+  <div class="welcome-card">
+    <div class="welcome-emblem">📈 ÖZGERIS</div>
+    <h2 class="welcome-title">ӨМІРІҢНІҢ ЖАҢА БЕТІ</h2>
+    <div class="welcome-body">
+      <p>Сәлем! Егер сен осы жобаға тіркелген болсаң — бұл жай қызығушылық емес, бұл ішкі дауыстың «өзімді өзгерткім келеді» деген белгісі. Өз өмірін өзгертуді армандайтын адам өте көп, бірақ алғашқы қадамды шын мәнінде жасайтындар өте аз. Сен сол аздың бірі болдың.</p>
+      <p>Бұл күнделік саған өз өміріңді ретке келтірудің жолын көрсетеді. Ол сені шектемейді, керісінше бағыт береді. Күн сайын небәрі бірнеше минут өз ойыңмен жұмыс істеу арқылы сен өміріңнің бағытын өзгертесің, өйткені адам сыртқы жағдайды емес, ең алдымен ішкі жүйесін басқаруды үйренуі керек. Ал ішкі жүйе — ой, ниет, әдет және тұрақтылықтан тұрады.</p>
+      <h3>Жобаның басты мақсаты не?</h3>
+      <p>«ÖZGERIS» басты мақсаты — саған жаңа өмір сыйлау емес, өз өміріңді саналы түрде басқаруға мүмкіндік беру. Себебі адамның тағдыры кездейсоқтықтан емес, күн сайынғы таңдау мен қайталанатын әдеттерден құралады. Көп адам тыныштық пен береке іздейді, бірақ оны сырттан табуға тырысады. Ал шын мәнінде бәрі ішкі тәртіптен басталады.</p>
+      <h3>Кедейлік пен берекесіз өмір</h3>
+      <p>— ақшаның жетпеуінен емес, назардың бөлінуінен және энергияның шашырауынан туындайды. Сол сияқты депрессия мен күйзеліс те нақты бағыт пен мағына болмаған кезде пайда болады. Адам не үшін өмір сүріп жатқанын, қайда бара жатқанын білмесе, оның күндері сырттай толы, бірақ іштей бос болып өтеді.</p>
+      <p><b>ÖZGERIS — сенің жолкөрсеткішің.</b> Ол саған мақсатыңды айқындауға, өміріңді жоспарлауға және ең бастысы — өзіңді қайта табуға көмектеседі. Мұндағы әр әдіс бір-бірімен байланысты: бір трекер ойыңды тазартады, екіншісі фокус береді, үшіншісі нақты әрекетке итермелейді. Ал олардың барлығының түпкі нәтижесі — ішкі тыныштық, жүйелілік пен береке.</p>
+      <p><b>ÖZGERIS</b> сенен мінсіз болуды талап етпейді. Ол тек бір нәрсені сұрайды — <b>тоқтама</b>. Кейде сенің ең үлкен жетістігің бүгін тағы бір парақ ашқаныңда жатыр. Аз жазсаң да, жазғаныңның өзі — жеңіс. Себебі дамудың сыры көлемде емес, тұрақтылықта.</p>
+    </div>
+    <button class="btn welcome-btn" onclick="closeWelcome()">Бастаймын ✨</button>
+  </div>
+</div>
+
+<!-- ============ SLEEP MODAL ============ -->
+<div class="modal-bg" id="sleepModal">
+  <div class="modal">
+    <h3>😴 Ұйқы — <span id="slDay"></span></h3>
+    <div class="row">
+      <div><label>Нешеде жаттың?</label><input type="time" id="slBed" value="23:00" oninput="updateSleepPreview()"></div>
+      <div><label>Нешеде тұрдың?</label><input type="time" id="slWake" value="07:00" oninput="updateSleepPreview()"></div>
+    </div>
+    <label>Көңіл-күйің қандай болды?</label>
+    <div class="stars" id="slMood">
+      <span class="star" onclick="setMood(1)">★</span>
+      <span class="star" onclick="setMood(2)">★</span>
+      <span class="star" onclick="setMood(3)">★</span>
+      <span class="star" onclick="setMood(4)">★</span>
+      <span class="star" onclick="setMood(5)">★</span>
+    </div>
+    <div class="sl-preview" id="slPreview"></div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="document.getElementById('sleepModal').classList.remove('open')">Болдырмау</button>
+      <button class="btn" onclick="saveSleepDay()">Сақтау</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ GAD-7 MODAL ============ -->
+<div class="modal-bg" id="gadModal">
+  <div class="modal" style="max-width:560px">
+    <h3>📝 GAD-7 — Мазасыздық тесті</h3>
+    <div style="color:var(--muted);font-size:13px;margin-bottom:16px">Соңғы 2 аптада мына жайттар сізді қаншалықты мазалады?</div>
+    <div id="gadBody" style="max-height:52vh;overflow-y:auto"></div>
+    <div id="gadScore" style="text-align:center;color:var(--muted);font-size:13px;margin:10px 0"></div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="document.getElementById('gadModal').classList.remove('open')">Болдырмау</button>
+      <button class="btn" onclick="saveGAD()">Нәтижені көру</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ RANDOM TASK MODAL ============ -->
+<div class="modal-bg" id="rtModal">
+  <div class="modal" style="text-align:center">
+    <h3>🎲 Бүгінгі мини-тапсырма</h3>
+    <div class="rt-text" id="rtText"></div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="anotherTask()">🔄 Басқа</button>
+      <button class="btn" onclick="document.getElementById('rtModal').classList.remove('open')">Жақсы!</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   STORAGE — localStorage болса соны, болмаса жадта сақтайды
+   ============================================================ */
+const Store = (() => {
+  let mem = {};
+  let ok = false;
+  try { localStorage.setItem('__t','1'); localStorage.removeItem('__t'); ok = true; } catch(e){ ok = false; }
+  function pfx(k){ return (typeof currentUser!=='undefined' && currentUser) ? ('u:'+currentUser+':'+k) : k; }
+  function _get(key, def){
+    try{ const raw = ok ? localStorage.getItem(key) : mem[key]; return raw ? JSON.parse(raw) : def; }
+    catch(e){ return def; }
+  }
+  function _set(key, v){ const raw=JSON.stringify(v); if(ok) localStorage.setItem(key,raw); else mem[key]=raw; }
+  return {
+    get(k, def){ return _get(pfx(k), def); },           // ағымдағы қолданушыға байланған
+    set(k, v){ _set(pfx(k), v); },
+    getGlobal(k, def){ return _get(k, def); },          // қолданушыдан тәуелсіз (аккаунттар/сессия)
+    setGlobal(k, v){ _set(k, v); },
+    del(k){ const key=pfx(k); if(ok) localStorage.removeItem(key); else delete mem[key]; }
+  };
+})();
+
+/* ============================================================
+   AUTH — кіру/тіркелу (қазірге localStorage; кейін Supabase)
+   ============================================================ */
+let currentUser = null;
+function getUsers(){ return Store.getGlobal('app_users', []); }
+function setUsers(u){ Store.setGlobal('app_users', u); }
+function authSwitch(mode){
+  document.getElementById('authLogin').style.display  = mode==='login'?'block':'none';
+  document.getElementById('authRegister').style.display = mode==='register'?'block':'none';
+  document.getElementById('tabLogin').classList.toggle('active', mode==='login');
+  document.getElementById('tabRegister').classList.toggle('active', mode==='register');
+  document.querySelectorAll('.auth-err').forEach(e=>e.textContent='');
+}
+function authErr(msg){ document.querySelectorAll('.auth-err').forEach(e=>e.textContent=msg); }
+function doRegister(){
+  const name=document.getElementById('regName').value.trim();
+  const email=document.getElementById('regEmail').value.trim().toLowerCase();
+  const pass=document.getElementById('regPass').value;
+  if(!name||!email||!pass){ authErr('Барлық өрісті толтыр'); return; }
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ authErr('Email дұрыс емес'); return; }
+  if(pass.length<4){ authErr('Пароль кемінде 4 таңба'); return; }
+  const users=getUsers();
+  if(users.some(u=>u.email===email)){ authErr('Бұл email тіркелген — кіріп көр'); return; }
+  users.push({name,email,pass}); setUsers(users);   // ⚠️ пароль ашық — база қосылғанда қауіпсіз болады
+  loginAs(email);
+}
+function doLogin(){
+  const email=document.getElementById('logEmail').value.trim().toLowerCase();
+  const pass=document.getElementById('logPass').value;
+  const u=getUsers().find(x=>x.email===email);
+  if(!u || u.pass!==pass){ authErr('Email не пароль қате'); return; }
+  loginAs(email);
+}
+function loginAs(email){
+  currentUser=email;
+  Store.setGlobal('app_session', email);
+  loadUserData();
+  const u=getUsers().find(x=>x.email===email);
+  document.getElementById('userBadge').textContent='👤 '+((u&&u.name)||email);
+  document.getElementById('authScreen').style.display='none';
+  renderCatTiles();
+  showView('home');
+  if(!Store.get('seenWelcome', false)) showWelcome();  // алғаш кіргенде манифест
+}
+function showWelcome(){ document.getElementById('welcomeModal').classList.add('open'); }
+function closeWelcome(){ document.getElementById('welcomeModal').classList.remove('open'); Store.set('seenWelcome', true); }
+function logout(){
+  currentUser=null;
+  Store.setGlobal('app_session', null);
+  document.getElementById('authScreen').style.display='flex';
+  authSwitch('login');
+  ['logEmail','logPass','regName','regEmail','regPass'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+}
+
+/* ============================================================
+   DATA MODEL
+   ============================================================ */
+const CATEGORIES = [
+  {id:'health',   name:'Денсаулық',            emo:'❤️', color:'var(--s8)', desc:'Ұйқы, су, витаминдер — дене саулығының әдеттері.'},
+  {id:'edu',      name:'Білім',                emo:'📚', color:'var(--s1)', desc:'Ағылшын, кітап, подкаст — дағды дамыту.'},
+  {id:'sport',   name:'Спорт',                emo:'💪', color:'var(--s2)', desc:'Жаттығу, қозғалыс, дене шынықтыру.'},
+  {id:'finance',  name:'Қаржылық сауаттылық',  emo:'💰', color:'var(--s3)', desc:'Табыс-шығын, бюджет, жинақ калькуляторы.'},
+  {id:'goal',     name:'Мақсаттар',            emo:'🎯', color:'var(--s4)', desc:'Үлкен/кіші мақсаттар және айлық/апталық/күндік жоспарлар.'},
+  {id:'gratitude',name:'Шүкіршілік',           emo:'🤲', color:'var(--s5)', desc:'Күнделікті шүкіршілік сұрақтары — ішкі тыныштық.'},
+  {id:'other',    name:'Басқа әдеттер',        emo:'✨', color:'var(--s7)', desc:'Өз әдетіңді қолмен жаз — күн сайын орындалды/орындалмады деп белгіле.'},
+];
+
+// Әдет шаблондары (карточкалар)
+const TEMPLATES = [
+  {cat:'health', emo:'🍪', name:'30 күн қантсыз',   desc:'Аз тәтті — көп энергия және тамақтануды бақылау.'},
+  {cat:'health', emo:'💧', name:'Су ішу (8 стакан)', desc:'Күнде су нормаңды ұста — ұяшықты бассаң +1 стакан.', type:'count', goal:8, unit:'стакан'},
+  {cat:'health', emo:'🚭', name:'Темекі шекпеу',    desc:'30 күн темекісіз — еркін тыныс алуға қадам.'},
+  {cat:'health', emo:'🛏️', name:'Ұйқы трекері',     desc:'Жату/тұру уақыты мен көңіл-күйіңді жаз — талдау шығады.', kind:'sleep'},
+  {cat:'health', emo:'⚖️', name:'Салмақ бақылау',   desc:'Күнделікті салмағыңды жазып, динамиканы бақыла.', type:'value', unit:'кг'},
+  {cat:'health', emo:'💊', name:'Витамин қабылдау', desc:'7 витаминге дейін: атауы, мерзімі, күнделікті белгі (3 ай).', kind:'vitamins'},
+  {cat:'edu',    emo:'🔤', name:'Ағылшын тілі',     desc:'Жаңа сөздерді жаз — бәрі «менің үйренгендерім» бөліміне жиналады.', kind:'english'},
+  {cat:'edu',    emo:'🎧', name:'Подкаст тыңдау',   desc:'Тыңдаған подкастың аты мен алған инсайтыңды жаз.', kind:'podcast'},
+  {cat:'edu',    emo:'📖', name:'Кітап оқу 20 мин', desc:'Қысымсыз күнделікті оқу — тек тұрақтылық.'},
+  {cat:'edu',    emo:'💻', name:'Код жазу',         desc:'Күнде аз да болса практика — дағды өседі.'},
+  {cat:'sport',  emo:'🏋️', name:'Отжимания',        desc:'Күнді белгіле, қанша рет жасағаныңды жаз.', type:'value', unit:'рет'},
+  {cat:'sport',  emo:'🚶', name:'10 000 қадам',     desc:'Күнді белгіле, қадам санын жаз.', type:'count', goal:10000, unit:'қадам'},
+];
+
+const EMOJIS = ['🎯','🔥','💪','📚','🧘','🏃','💧','🍎','😴','💰','🎨','🎸','🧠','⏰','🚭','🌱'];
+
+// Қаржы категориялары
+const FIN_CATS = {
+  in:  ['Жалақы','Стипендия','Қосымша табыс','Сыйлық','Басқа табыс'],
+  out: ['Тамақ','Көлік','Тұрғын үй','Ойын-сауық','Киім','Оқу','Денсаулық','Басқа шығын']
+};
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let trackers = [];   // [{id,name,cat,emo,desc,start,days:[bool x30]}]
+let archived = [];   // жойылған (архивтелген) трекерлер
+let hiddenTpl = [];  // жасырылған дайын карточкалар (cat|name)
+let userTpl = [];    // қолданушы жасаған карточкалар (шаблондар)
+let txs = [];        // [{id,type:'in'|'out',cat,amount,date}]
+let calcCfg = {amount:0, rows:[]};
+let goals = {big:[], small:[], plans:{monthly:[], weekly:[], daily:[]}};
+let gratitude = [];  // [{id,date,a1,a2,a3}]
+function saveArchived(){ Store.set('archived', archived); }
+function saveHidden(){ Store.set('hiddenTpl', hiddenTpl); }
+function saveUserTpl(){ Store.set('userTpl', userTpl); }
+function tplKey(cat,name){ return cat+'|'+name; }
+function saveGoals(){ Store.set('goals', goals); }
+function saveGrat(){ Store.set('gratitude', gratitude); }
+
+// Ағымдағы қолданушының деректерін жүктеу (кіргеннен кейін шақырылады)
+function loadUserData(){
+  trackers  = Store.get('trackers', []);
+  archived  = Store.get('archived', []);
+  hiddenTpl = Store.get('hiddenTpl', []);
+  userTpl   = Store.get('userTpl', []);
+  txs       = Store.get('txs', []);
+  calcCfg   = Store.get('calcCfg', {amount:0, rows:[
+    {name:'Қажеттіліктер',pct:50},{name:'Өзіңе',pct:30},{name:'Жинақ',pct:20}
+  ]});
+  if(!calcCfg.rows || !calcCfg.rows.length) calcCfg.rows=[{name:'',pct:0}];
+  goals = Store.get('goals', {big:[], small:[], plans:{monthly:[], weekly:[], daily:[]}});
+  if(goals.monthly!==undefined){ // ескі құрылымнан көшіру
+    const ng={big:[],small:[],plans:{monthly:[],weekly:[],daily:[]}};
+    ['monthly','weekly','daily'].forEach(k=>{ (goals[k]||[]).forEach(it=>{
+      if(it.big) ng.big.push({id:it.id,text:it.text,done:!!it.done});
+      else ng.plans[k].push({id:it.id,text:it.text,done:!!it.done});
+    }); });
+    goals=ng;
+  }
+  if(!goals.big) goals.big=[]; if(!goals.small) goals.small=[];
+  if(!goals.plans) goals.plans={monthly:[],weekly:[],daily:[]};
+  gratitude = Store.get('gratitude', []);
+}
+
+// Кездейсоқ тапсырмалар (адамды қызықтыру үшін)
+const RANDOM_TASKS = [
+  '📵 Бүгін 1 сағат телефонсыз бол.',
+  '💧 Дәл қазір бір стакан су іш.',
+  '🚶 10 минут таза ауада серуенде.',
+  '📖 Кітаптан 5 бет оқы.',
+  '🧹 Бөлмеңнің бір бұрышын жина.',
+  '🙏 3 адамға алғыс айт.',
+  '🏋️ 20 отжимание жаса.',
+  '🧘 5 минут терең дем ал.',
+  '✍️ Бүгінгі ең жақсы сәтіңді жаз.',
+  '🔤 3 жаңа ағылшын сөзін үйрен.',
+  '🌅 Ертең 30 минут ерте тұр.',
+  '🍎 Бүгін бір жеміс же.',
+  '📞 Жақыныңа қоңырау шал.',
+  '💰 Бүгінгі шығындарыңды жазып шық.',
+  '😴 Бүгін экрансыз ұйықтауға дайындал.'
+];
+let activeCat = 'health';
+let selectedEmoji = EMOJIS[0];
+
+function save(){ Store.set('trackers', trackers); }
+function saveTx(){ Store.set('txs', txs); }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+function fmt(n){ return Math.round(n).toLocaleString('ru-RU')+' ₸'; }
+
+// Трекер басталғаннан бері неше күн өтті (трекердің толық ұзақтығына дейін)
+function daysPassed(t){
+  const start = new Date(t.start+'T00:00:00');
+  const now = new Date(todayStr()+'T00:00:00');
+  const diff = Math.floor((now-start)/86400000);
+  return Math.min(t.days.length, Math.max(0, diff+1)); // бүгінді қоса
+}
+function totalDays(t){ return t.days.length; }
+// Ай-ай болып бөлінген ұяшық торы (30 күн = 1 ай)
+function monthGrid(cells){
+  let out='', per=30, months=Math.ceil(cells.length/per);
+  for(let m=0;m<months;m++){
+    const slice=cells.slice(m*per,(m+1)*per).join('');
+    out+=`<div class="tmonth"><div class="vmonth-t">${m+1} ай</div><div class="days">${slice}</div></div>`;
+  }
+  return out;
+}
+/* ---- Трекер типтері: check / count / value ---- */
+function dtype(t){ return t.type||'check'; }
+// Күнге негізделмеген трекерлер (тізім түрлі)
+function isDayBased(t){ return !(t.kind==='english'||t.kind==='podcast'||t.kind==='vitamins'||t.kind==='anxiety'||t.kind==='emotion'||t.kind==='plan'); }
+function isDaySuccess(t,v){
+  if(t.kind==='sleep') return isSleepOk(v);
+  const ty=dtype(t);
+  if(ty==='count') return (+v||0) >= (t.goal||1);
+  if(ty==='value'){
+    if(v==null||v==='') return false;
+    if(t.goalMin!=null) return v>=t.goalMin && (t.goalMax==null||v<=t.goalMax);
+    return true; // өлшеу (салмақ) — жазылса, орындалды деп саналады
+  }
+  return v===true;
+}
+function successDays(t){ return t.days.reduce((n,v)=> n+(isDaySuccess(t,v)?1:0),0); }
+/* ұяшық түсі: 0=қызыл → 0.5=сары → 1=жасыл */
+function gradeColor(r){
+  r=Math.max(0,Math.min(1,r));
+  const s=[[227,73,72],[237,161,0],[25,158,112]];
+  const seg=r<0.5?0:1, lt=r<0.5?r/0.5:(r-0.5)/0.5;
+  const a=s[seg], b=s[seg+1];
+  const c=a.map((v,i)=>Math.round(v+(b[i]-v)*lt));
+  return `rgb(${c[0]},${c[1]},${c[2]})`;
+}
+function cellRatio(t,v){
+  if(v==null||v==='') return null;
+  const ty=dtype(t);
+  if(ty==='count') return t.goal? v/t.goal : (v>0?1:0);
+  if(ty==='value'){
+    if(t.goalMin!=null){
+      if(v>=t.goalMin && (t.goalMax==null||v<=t.goalMax)) return 1;
+      if(v<t.goalMin) return t.goalMin? v/t.goalMin : 0;
+      if(t.goalMax!=null && v>t.goalMax) return Math.max(0.4, 1-(v-t.goalMax)/t.goalMax);
+      return 1;
+    }
+    return null; // өлшеу (салмақ) — мақсат жоқ
+  }
+  return null;
+}
+function completion(t){ return Math.round(successDays(t)/totalDays(t)*100); }
+// Трекерді тағы бір айға (30 күн) ұзарту
+function extendTracker(id){
+  const t=trackers.find(x=>x.id===id); if(!t) return;
+  const fill = (t.kind==='sleep')?null : (dtype(t)==='check'?false:null);
+  for(let i=0;i<30;i++) t.days.push(fill);
+  save(); toast('➕ Тағы 1 ай қосылды'); renderDetail(t);
+}
+function currentStreak(t){
+  let s=0; const passed=daysPassed(t);
+  for(let i=passed-1;i>=0;i--){ if(isDaySuccess(t,t.days[i])) s++; else break; }
+  return s;
+}
+function bestStreak(t){
+  let best=0,cur=0;
+  for(let i=0;i<t.days.length;i++){ if(isDaySuccess(t,t.days[i])){cur++;best=Math.max(best,cur);} else cur=0; }
+  return best;
+}
+
+/* ---- Жетістік белгілері ---- */
+const BADGES=[{n:7,emo:'🔥',label:'7 күн'},{n:21,emo:'🏆',label:'21 күн'},{n:30,emo:'💎',label:'30 күн'}];
+function topBadge(t){ const b=bestStreak(t); let r=null; for(const x of BADGES){ if(b>=x.n) r=x; } return r; }
+function earnedBadges(t){ const b=bestStreak(t); return BADGES.map(x=>({...x,got:b>=x.n})); }
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+document.querySelectorAll('.nav-links a[data-view]').forEach(a=>{
+  a.onclick = ()=> showView(a.dataset.view);
+});
+function toggleNav(){ document.getElementById('navLinks').classList.toggle('open'); }
+function closeNav(){ document.getElementById('navLinks').classList.remove('open'); }
+function showView(v){
+  closeNav();
+  document.querySelectorAll('.view').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-links a').forEach(a=>a.classList.remove('active'));
+  document.getElementById(v).classList.add('active');
+  // category беті — навигацияда «Создать трекер» белсенді болып тұрсын
+  const navKey = v==='category' ? 'home' : (v==='detail' ? 'mine' : v);
+  const navLink = document.querySelector(`.nav-links a[data-view="${navKey}"]`);
+  if(navLink) navLink.classList.add('active');
+  if(v==='mine') renderMine();
+  if(v==='finance') renderFinance();
+  if(v==='analytics') renderAnalytics();
+  if(v==='archive') renderArchive();
+  window.scrollTo(0,0);
+}
+
+/* ============================================================
+   HOME — big category tiles
+   ============================================================ */
+function renderCatTiles(){
+  document.getElementById('catGrid').innerHTML = CATEGORIES.map(c=>{
+    const count = c.id==='finance' ? '💰 Калькулятор' : c.id==='goal' ? '🎯 Жоспарлау'
+                : c.id==='gratitude' ? '🤲 Күнделік' : TEMPLATES.filter(t=>t.cat===c.id).length+' дайын әдет';
+    return `<div class="cat-tile" onclick="openCategory('${c.id}')">
+      <div class="glow" style="background:${c.color}"></div>
+      <div class="big-icon" style="background:${c.color}22;color:${c.color}">${c.emo}</div>
+      <h2>${c.name}</h2>
+      <p>${c.desc}</p>
+      <div class="go"><span>Ашу →</span><span class="count">${count}</span></div>
+    </div>`;
+  }).join('');
+}
+
+/* ============================================================
+   CATEGORY DETAIL — cards inside a category
+   ============================================================ */
+function openCategory(id){
+  if(id==='finance'){ showView('finance'); return; }
+  activeCat = id;
+  const cat = CATEGORIES.find(c=>c.id===id);
+  document.getElementById('catHead').innerHTML = `
+    <div class="big-icon" style="background:${cat.color}22;color:${cat.color}">${cat.emo}</div>
+    <div><h1>${cat.name}</h1><p>${cat.desc}</p></div>`;
+  const special = (id==='goal'||id==='gratitude');
+  document.getElementById('catAddOwn').style.display = special?'none':'flex';
+  if(id==='goal'){ document.getElementById('cardGrid').innerHTML=''; renderGoalsPage(); }
+  else if(id==='gratitude'){ document.getElementById('cardGrid').innerHTML=''; renderGratitudePage(); }
+  else { renderCards(); renderCatExtra(id); }
+  showView('category');
+}
+function renderCatExtra(id){
+  const box = document.getElementById('catExtra');
+  if(id!=='health'){ box.innerHTML=''; return; }
+  box.innerHTML = `
+    <div class="box" style="margin-top:24px">
+      <div class="box-head"><h3>💧 Су нормасы калькуляторы</h3></div>
+      <div class="cd" style="color:var(--muted);font-size:14px;margin-bottom:12px">
+        Салмағыңды жаз — күндік су нормаң есептеледі (35 мл/кг).
+      </div>
+      <div class="row">
+        <div><label>Салмағың (кг)</label><input type="number" id="wnWeight" placeholder="70" oninput="calcWaterNorm()"></div>
+        <div><label>Стакан көлемі (мл)</label><input type="number" id="wnGlass" value="250" oninput="calcWaterNorm()"></div>
+      </div>
+      <div id="wnOut"></div>
+    </div>`;
+}
+function calcWaterNorm(){
+  const w=+document.getElementById('wnWeight').value||0;
+  const g=+document.getElementById('wnGlass').value||250;
+  const out=document.getElementById('wnOut');
+  if(w<=0){ out.innerHTML=''; return; }
+  const ml=Math.round(w*35);
+  const liters=(ml/1000).toFixed(2);
+  const glasses=Math.max(1,Math.round(ml/g));
+  out.innerHTML = `
+    <div class="split-item"><span class="k">💧 Күндік норма</span><span class="v">${liters} л (~${glasses} стакан)</span></div>
+    <button class="btn sm" style="margin-top:14px" onclick="applyWaterGoal(${glasses})">Су трекеріне мақсат етіп қою (${glasses})</button>`;
+}
+function applyWaterGoal(glasses){
+  const water = trackers.filter(t=>dtype(t)==='count' && ((t.unit||'').includes('стакан') || t.name.toLowerCase().includes('су')));
+  if(!water.length){ toast('Алдымен «Су ішу» трекерін қос'); return; }
+  water.forEach(t=> t.goal=glasses);
+  save(); toast(`✅ Су трекерінің мақсаты ${glasses} стакан болды`);
+}
+function renderCards(){
+  const cat = CATEGORIES.find(c=>c.id===activeCat);
+  const presets = TEMPLATES.filter(t=>t.cat===activeCat && !hiddenTpl.includes(tplKey(t.cat,t.name)));
+  const mine = userTpl.filter(t=>t.cat===activeCat);
+  const list = [...presets, ...mine];
+  const grid = document.getElementById('cardGrid');
+  if(!list.length){
+    const msg = activeCat==='other'
+      ? 'Өз әдетіңді қолмен жаз — күн сайын орындалды/орындалмады<br>деп белгілеп отырасың. Төмендегі батырмамен қос.'
+      : 'Бұл салада дайын шаблон жоқ.<br>Төмендегі батырмамен өзіңдікін жаса.';
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><span class="em">✍️</span>${msg}</div>`;
+    return;
+  }
+  grid.innerHTML = list.map(t=>{
+    const xBtn = t.isUser
+      ? `<button class="card-x" title="Жою" onclick="delUserTpl('${t.id}')">✕</button>`
+      : `<button class="card-x" title="Жасыру" onclick="hideTemplate('${t.cat}','${t.name.replace(/'/g,"&#39;")}')">✕</button>`;
+    return `<div class="card">
+      ${xBtn}
+      <div class="icon" style="background:${cat.color}22;color:${cat.color}">${t.emo}</div>
+      <h3>${t.name}</h3>
+      <div class="tag">${cat.emo} ${cat.name}${t.isUser?' · менікі':''}</div>
+      <p>${t.desc}</p>
+      <button class="btn" onclick='startTracker(${JSON.stringify(t).replace(/'/g,"&#39;")})'>Начать</button>
+    </div>`;
+  }).join('');
+  const hiddenHere = hiddenTpl.filter(k=>k.startsWith(activeCat+'|')).length;
+  if(hiddenHere){
+    grid.innerHTML += `<div style="grid-column:1/-1;color:var(--muted);font-size:13px;text-align:center;padding:6px">
+      ${hiddenHere} шаблон жасырылған · <span style="color:var(--s1);cursor:pointer;font-weight:600" onclick="restoreTemplates('${activeCat}')">қайтару</span></div>`;
+  }
+}
+
+function hideTemplate(cat,name){
+  const key=tplKey(cat,name);
+  if(!hiddenTpl.includes(key)){ hiddenTpl.push(key); saveHidden(); }
+  renderCards(); toast('🗑️ Карточка жасырылды');
+}
+function restoreTemplates(cat){
+  hiddenTpl = hiddenTpl.filter(k=>!k.startsWith(cat+'|')); saveHidden();
+  renderCards(); toast('♻️ Қайтарылды');
+}
+
+/* ============================================================
+   START TRACKER
+   ============================================================ */
+function startTracker(t){
+  const type = t.type||'check';
+  const nt = {
+    id:uid(), name:t.name, cat:t.cat, emo:t.emo, desc:t.desc||'',
+    kind:t.kind||null,
+    type, goal:t.goal, unit:t.unit, goalMin:t.goalMin, goalMax:t.goalMax,
+    start:todayStr(), days:new Array(30).fill(type==='check'?false:null)
+  };
+  if(nt.kind==='sleep'){ nt.type='value'; nt.unit='сағат'; nt.goalMin=7; nt.goalMax=9; nt.days=new Array(30).fill(null); }
+  if(nt.kind==='mood'){ nt.days=new Array(30).fill(null); }
+  if(nt.kind==='english'){ nt.words=[]; }
+  if(nt.kind==='podcast'){ nt.items=[]; }
+  if(nt.kind==='vitamins'){ nt.vits=[]; }
+  if(nt.kind==='anxiety'){ nt.tests=[]; }
+  if(nt.kind==='emotion'){ nt.entries=[]; }
+  if(nt.kind==='plan'){ nt.plans=[]; }
+  trackers.push(nt);
+  save();
+  toast('✅ Трекер қосылды!');
+  openTracker(nt.id);   // бірден ашылады
+}
+
+/* ============================================================
+   CUSTOM TRACKER MODAL
+   ============================================================ */
+function openCreate(){
+  document.getElementById('mCat').innerHTML =
+    CATEGORIES.filter(c=>!['finance','goal','gratitude'].includes(c.id)).map(c=>`<option value="${c.id}" ${c.id===activeCat?'selected':''}>${c.emo} ${c.name}</option>`).join('');
+  document.getElementById('emojiPick').innerHTML =
+    EMOJIS.map((e,i)=>`<span class="${i===0?'sel':''}" onclick="pickEmoji('${e}',this)">${e}</span>`).join('');
+  selectedEmoji = EMOJIS[0];
+  document.getElementById('mName').value='';
+  document.getElementById('mDesc').value='';
+  document.getElementById('mType').value='check';
+  ['mUnit','mGoal','mMin','mMax'].forEach(id=>document.getElementById(id).value='');
+  onTypeChange();
+  document.getElementById('modal').classList.add('open');
+}
+function closeCreate(){ document.getElementById('modal').classList.remove('open'); }
+function onTypeChange(){
+  const ty=document.getElementById('mType').value;
+  document.getElementById('mNumOpts').style.display = ty==='check'?'none':'block';
+  document.getElementById('mCountOpts').style.display = ty==='count'?'block':'none';
+  document.getElementById('mRangeOpts').style.display = ty==='value'?'block':'none';
+}
+function pickEmoji(e,el){
+  selectedEmoji=e;
+  document.querySelectorAll('#emojiPick span').forEach(s=>s.classList.remove('sel'));
+  el.classList.add('sel');
+}
+function saveCustom(){
+  const name = document.getElementById('mName').value.trim();
+  if(!name){ toast('Атауын енгіз'); return; }
+  const type = document.getElementById('mType').value;
+  const cat = document.getElementById('mCat').value;
+  const tpl = {
+    id:uid(), isUser:true, name, cat, emo:selectedEmoji,
+    desc:document.getElementById('mDesc').value.trim()||'Өз әдетім.', type
+  };
+  if(type==='count'){ tpl.unit=document.getElementById('mUnit').value.trim()||'дана'; tpl.goal=+document.getElementById('mGoal').value||1; }
+  if(type==='value'){ tpl.unit=document.getElementById('mUnit').value.trim()||'';
+    const mn=document.getElementById('mMin').value, mx=document.getElementById('mMax').value;
+    if(mn!=='') tpl.goalMin=+mn; if(mx!=='') tpl.goalMax=+mx;
+  }
+  userTpl.push(tpl); saveUserTpl();
+  closeCreate(); toast('✅ Карточка қосылды!');
+  openCategory(cat);   // жасалған карточка сол категорияда «Начать»-пен көрінеді
+}
+function delUserTpl(id){
+  userTpl = userTpl.filter(t=>t.id!==id); saveUserTpl(); renderCards();
+  toast('🗑️ Карточка жойылды');
+}
+
+/* ============================================================
+   MY TRACKERS — compact card grid
+   ============================================================ */
+function fmtDate(s){
+  return new Date(s+'T00:00:00').toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
+}
+function renderMine(){
+  const list = document.getElementById('myList');
+  if(!trackers.length){
+    list.innerHTML = `<div class="empty" style="grid-column:1/-1"><span class="em">📭</span>
+      Әзірге трекер жоқ.<br>«Трекер құру» бетінен біреуін таңда.</div>`;
+    return;
+  }
+  list.innerHTML = trackers.map(t=>{
+    const cat = CATEGORIES.find(c=>c.id===t.cat)||CATEGORIES[6];
+    let body;
+    if(isDayBased(t)){
+      const pct = completion(t);
+      body = `<div class="progressbar"><span style="width:${pct}%"></span></div>
+        <div class="tcard-meta"><span><b>${successDays(t)}</b> / ${totalDays(t)} күн</span><span><b>${pct}%</b></span></div>`;
+    } else {
+      let n=0,lbl='';
+      if(t.kind==='english'){ n=(t.words||[]).length; lbl='сөз үйрендің'; }
+      else if(t.kind==='podcast'){ n=(t.items||[]).length; lbl='инсайт жаздың'; }
+      else if(t.kind==='vitamins'){ n=(t.vits||[]).length; lbl='витамин қосылды'; }
+      else if(t.kind==='anxiety'){ n=(t.tests||[]).length; lbl='тест тапсырдың'; }
+      else if(t.kind==='emotion'){ n=(t.entries||[]).length; lbl='жазба'; }
+      else if(t.kind==='plan'){ n=(t.plans||[]).length; lbl='жоспар'; }
+      body = `<div class="tcard-meta" style="margin-top:6px"><span><b>${n}</b> ${lbl}</span><span>→</span></div>`;
+    }
+    return `<div class="tcard" onclick="openTracker('${t.id}')">
+      <div class="tcard-top">
+        <div class="icon" style="background:${cat.color}22;color:${cat.color}">${t.emo}</div>
+        <div class="ttl">
+          <h3>${t.name}</h3>
+          <div class="tag">${cat.emo} ${cat.name}</div>
+        </div>
+        <div class="tcard-acts">
+          <button class="icon-btn" title="Атын өзгерту" onclick="event.stopPropagation();editTracker('${t.id}')">✏️</button>
+          <button class="icon-btn del" title="Жою" onclick="event.stopPropagation();delTracker('${t.id}')">🗑️</button>
+        </div>
+      </div>
+      ${body}
+      <div class="tcard-foot">
+        <span class="date">📅 ${fmtDate(t.start)}</span>
+        ${isDayBased(t)? `<span class="share" onclick="event.stopPropagation();shareTracker('${t.id}')">🔗 Бөлісу</span>`:'<span></span>'}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ---------- Tracker detail ---------- */
+function openTracker(id){
+  const t = trackers.find(x=>x.id===id);
+  if(!t){ showView('mine'); return; }
+  renderDetail(t);
+  showView('detail');
+}
+function renderDetail(t){
+  if(t.kind==='sleep')   return renderSleep(t);
+  if(t.kind==='mood')    return renderMood(t);
+  if(t.kind==='anxiety') return renderAnxiety(t);
+  if(t.kind==='emotion') return renderEmotion(t);
+  if(t.kind==='plan')    return renderPlan(t);
+  if(t.kind==='english') return renderEnglish(t);
+  if(t.kind==='podcast') return renderPodcast(t);
+  if(t.kind==='vitamins')return renderVitamins(t);
+  const cat = CATEGORIES.find(c=>c.id===t.cat)||CATEGORIES[4];
+  const passed = daysPassed(t);
+  const pct = completion(t);
+  const ty = dtype(t);
+  const cells = t.days.map((v,i)=>{
+    let cls='day';
+    if(isDaySuccess(t,v)) cls+=' done';
+    if(i===passed-1) cls+=' today';
+    let label, style='';
+    if(ty==='check'){ label = (i%30)+1; }
+    else if(v!=null && v!==''){
+      label = `<b>${v}</b>`;
+      const r = cellRatio(t,v);
+      if(r!=null){ const col=gradeColor(r); style=` style="background:${col};border-color:${col};color:#08120c"`; }
+      else { style=` style="background:var(--s1);border-color:var(--s1);color:#04121f"`; } // өлшеу (салмақ)
+    } else { label = `<span style="color:var(--faint)">${(i%30)+1}</span>`; }
+    return `<div class="${cls}"${style} onclick="handleDay('${t.id}',${i})">${label}</div>`;
+  });
+  const days = monthGrid(cells);
+
+  const u = t.unit? ' '+t.unit : '';
+  const hint = ty==='count' ? `Ұяшықты бас — әр басқанда +1${u} (мақсат ${t.goal}/күн). Түс қызылдан жасылға өзгереді 🔴→🟢`
+            : ty==='value' ? `Ұяшықты бас — мәнді жаз${t.unit?` (${t.unit})`:''}.${t.goalMin!=null?` Мақсат: ${t.goalMin}${t.goalMax!=null?'–'+t.goalMax:'+'}${u}.`:''} Түс мәнге қарай өзгереді 🔴→🟢`
+            : `Орындаған күніңді бас (бүгін — ${passed}-күн).`;
+
+  const badgesHtml = `<div class="badges">${earnedBadges(t).map(x=>
+    `<span class="badge ${x.got?'got':''}">${x.emo} ${x.label}</span>`).join('')}</div>`;
+
+  const chartHtml = ty==='check' ? '' :
+    `<div class="days-hint" style="margin-top:24px">📈 Динамика (${t.unit||''})</div>
+     <canvas id="detailChart" height="200" style="margin-top:6px"></canvas>`;
+
+  const months = Math.ceil(t.days.length/30);
+  const extendBtn = `<button class="btn ghost sm" onclick="extendTracker('${t.id}')">➕ Тағы 1 ай қосу</button>
+    <span style="color:var(--muted);font-size:13px;margin-left:8px">Қазір: ${months} ай (${t.days.length} күн)</span>`;
+
+  document.getElementById('detailBody').innerHTML = `
+    <div class="detail-card">
+      <div class="detail-head">
+        <div class="icon" style="background:${cat.color}22;color:${cat.color}">${t.emo}</div>
+        <div>
+          <h1>${t.name}</h1>
+          <div class="tag">${cat.emo} ${cat.name} · басталды ${fmtDate(t.start)}</div>
+        </div>
+        <div class="detail-stats">
+          <div class="stat"><div class="num">${pct}%</div><div class="lbl">Орындалу</div></div>
+          <div class="stat"><div class="num">🔥 ${currentStreak(t)}</div><div class="lbl">Қатар</div></div>
+          <div class="stat"><div class="num">${bestStreak(t)}</div><div class="lbl">Рекорд</div></div>
+        </div>
+      </div>
+      <div class="progressbar"><span style="width:${pct}%"></span></div>
+      ${badgesHtml}
+      <div class="days-hint">${hint}</div>
+      ${days}
+      <div style="margin-top:14px">${extendBtn}</div>
+      ${chartHtml}
+      <div style="margin-top:22px;display:flex;gap:12px;flex-wrap:wrap">
+        <button class="btn sm" onclick="shareTracker('${t.id}')">🔗 Нәтижемен бөлісу</button>
+        <button class="btn ghost sm" onclick="editTracker('${t.id}')">✏️ Атын өзгерту</button>
+        <button class="btn danger sm" onclick="delTracker('${t.id}',true)">🗑️ Жою</button>
+      </div>
+    </div>`;
+  if(ty!=='check') drawDetailChart(t);
+}
+function handleDay(id,i){
+  const t = trackers.find(x=>x.id===id);
+  const ty = dtype(t);
+  const before = bestStreak(t);
+  if(ty==='count'){
+    let v=+t.days[i]||0; v = (v>=(t.goal||1)) ? 0 : v+1; t.days[i]=v;
+  } else if(ty==='value'){
+    const cur = (t.days[i]!=null)? t.days[i] : '';
+    const inp = prompt(`${i+1}-күн мәні (${t.unit||''}):`, cur);
+    if(inp===null) return;
+    t.days[i] = inp.trim()===''? null : +inp;
+  } else {
+    t.days[i]=!t.days[i];
+  }
+  save();
+  const after = bestStreak(t);
+  const nb = BADGES.filter(x=>after>=x.n && before<x.n)[0];
+  if(nb) toast(`${nb.emo} Жаңа белгі: ${nb.label} қатар!`);
+  renderDetail(t);
+}
+function editTracker(id){
+  const t = trackers.find(x=>x.id===id);
+  const name = prompt('Трекердің жаңа аты:', t.name);
+  if(name && name.trim()){ t.name=name.trim(); save(); renderMine(); if(document.getElementById('detail').classList.contains('active')) renderDetail(t); }
+}
+function delTracker(id, backToList){
+  if(!confirm('Бұл трекерді архивке жібереміз бе? (кейін қалпына келтіруге болады)')) return;
+  const t = trackers.find(x=>x.id===id);
+  if(t){ t.archivedAt = todayStr(); archived.push(t); saveArchived(); }
+  trackers = trackers.filter(x=>x.id!==id);
+  save(); toast('🗂 Архивке жіберілді');
+  if(backToList) showView('mine'); else renderMine();
+}
+/* ---- Архив ---- */
+function restoreTracker(id){
+  const t = archived.find(x=>x.id===id);
+  if(t){ delete t.archivedAt; trackers.push(t); save(); }
+  archived = archived.filter(x=>x.id!==id); saveArchived();
+  toast('♻️ Қалпына келтірілді'); renderArchive();
+}
+function purgeTracker(id){
+  if(!confirm('Біржола жоямыз ба? Бұны қайтару мүмкін емес.')) return;
+  archived = archived.filter(x=>x.id!==id); saveArchived(); renderArchive();
+}
+function clearArchive(){
+  if(!archived.length) return;
+  if(!confirm('Архивтегі барлық трекерді біржола жоямыз ба?')) return;
+  archived=[]; saveArchived(); renderArchive();
+}
+function renderArchive(){
+  const el=document.getElementById('archiveList');
+  if(!archived.length){
+    el.innerHTML=`<div class="empty"><span class="em">🗂</span>Архив бос.<br>Жойылған трекерлер осында сақталады.</div>`;
+    return;
+  }
+  el.innerHTML = archived.slice().reverse().map(t=>{
+    const cat=CATEGORIES.find(c=>c.id===t.cat)||CATEGORIES[6];
+    return `<div class="tcard">
+      <div class="tcard-top">
+        <div class="icon" style="background:${cat.color}22;color:${cat.color}">${t.emo}</div>
+        <div class="ttl"><h3>${t.name}</h3><div class="tag">${cat.emo} ${cat.name}${t.archivedAt?` · жойылды ${fmtDate(t.archivedAt)}`:''}</div></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:14px">
+        <button class="btn sm" onclick="restoreTracker('${t.id}')">♻️ Қалпына келтіру</button>
+        <button class="btn danger sm" onclick="purgeTracker('${t.id}')">🗑️ Біржола жою</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function shareTracker(id){
+  const t = trackers.find(x=>x.id===id);
+  const doneCount = successDays(t);
+  const text = `📈 "${t.name}" трекері: ${totalDays(t)} күннің ${doneCount}-і орындалды (${completion(t)}%)! 🔥 Қатар: ${currentStreak(t)} күн.`;
+  if(navigator.share){
+    navigator.share({title:'ÖZGERIS', text}).catch(()=>{});
+  } else if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(()=>toast('📋 Нәтиже көшірілді')).catch(()=>toast(text));
+  } else { toast('Нәтиже: '+text); }
+}
+
+/* ============================================================
+   SPECIAL: ортақ бас (детал шапкасы)
+   ============================================================ */
+function detailHeader(t, statsHtml){
+  const cat = CATEGORIES.find(c=>c.id===t.cat)||CATEGORIES[6];
+  return `<div class="detail-head">
+      <div class="icon" style="background:${cat.color}22;color:${cat.color}">${t.emo}</div>
+      <div><h1>${t.name}</h1><div class="tag">${cat.emo} ${cat.name} · басталды ${fmtDate(t.start)}</div></div>
+      ${statsHtml||''}
+    </div>`;
+}
+function detailFooter(t){
+  return `<div style="margin-top:22px;display:flex;gap:12px;flex-wrap:wrap">
+      <button class="btn ghost sm" onclick="editTracker('${t.id}')">✏️ Атын өзгерту</button>
+      <button class="btn danger sm" onclick="delTracker('${t.id}',true)">🗑️ Жою</button>
+    </div>`;
+}
+
+/* ============================================================
+   SPECIAL: Ұйқы трекері (жату/тұру + көңіл-күй + талдау)
+   ============================================================ */
+function sleepHours(d){
+  if(!d || d.bed==null || d.wake==null) return null;
+  let h = (d.wake - d.bed)/60; if(h<0) h+=24; // түн ауысса
+  return Math.round(h*10)/10;
+}
+function sleepAssess(h){
+  if(h==null) return {t:'',c:'var(--muted)'};
+  if(h<5) return {t:'Тым аз ұйықтадың — денең демалмайды 😴',c:'#f0a5a5'};
+  if(h<7) return {t:'Сәл жетіспейді — 7+ сағат мақсат ет',c:'var(--warn)'};
+  if(h<=9) return {t:'Ұйқың өте жақсы! 👏',c:'var(--good)'};
+  return {t:'Тым көп ұйықтадың — ұйқыны қысқарту қажет',c:'var(--warn)'};
+}
+function isSleepOk(d){ const h=sleepHours(d); return h!=null && h>=7 && h<=9; }
+function renderSleep(t){
+  const passed=daysPassed(t);
+  const okDays=t.days.filter(isSleepOk).length;
+  const pct=Math.round(okDays/totalDays(t)*100);
+  const logged=t.days.filter(d=>sleepHours(d)!=null);
+  const avg=logged.length? Math.round(logged.reduce((s,d)=>s+sleepHours(d),0)/logged.length*10)/10 : 0;
+  const cells=t.days.map((d,i)=>{
+    const h=sleepHours(d); const ok=isSleepOk(d);
+    let cls='day'+(ok?' done':'')+(i===passed-1?' today':'');
+    let style='',label;
+    if(h!=null){ const col=gradeColor(h<7?h/7:(h<=9?1:Math.max(0.4,1-(h-9)/9))); style=` style="background:${col};border-color:${col};color:#08120c"`; label=`<b>${h}</b>`; }
+    else label=`<span style="color:var(--faint)">${(i%30)+1}</span>`;
+    return `<div class="${cls}"${style} onclick="openSleepDay('${t.id}',${i})">${label}</div>`;
+  });
+  const days=monthGrid(cells);
+  const months=Math.ceil(t.days.length/30);
+  document.getElementById('detailBody').innerHTML=`
+    <div class="detail-card">
+      ${detailHeader(t,`<div class="detail-stats">
+        <div class="stat"><div class="num">${avg||'—'}</div><div class="lbl">Орташа сағат</div></div>
+        <div class="stat"><div class="num">${pct}%</div><div class="lbl">Сапалы ұйқы</div></div>
+        <div class="stat"><div class="num">🔥 ${okDays}</div><div class="lbl">Жақсы күн</div></div>
+      </div>`)}
+      <div class="progressbar"><span style="width:${pct}%"></span></div>
+      <div class="days-hint">Ұяшықты бас — жату/тұру уақыты мен көңіл-күйіңді жаз. Талдау автоматты шығады.</div>
+      ${days}
+      <div style="margin-top:14px">
+        <button class="btn ghost sm" onclick="extendTracker('${t.id}')">➕ Тағы 1 ай қосу</button>
+        <span style="color:var(--muted);font-size:13px;margin-left:8px">Қазір: ${months} ай (${t.days.length} күн)</span>
+      </div>
+      <div class="days-hint" style="margin-top:24px">📈 Ұйқы динамикасы (сағат)</div>
+      <canvas id="sleepChart" height="200" style="margin-top:6px"></canvas>
+      ${detailFooter(t)}
+    </div>`;
+  drawSleepChart(t);
+}
+function drawSleepChart(t){
+  const cv=document.getElementById('sleepChart'); if(!cv) return;
+  const {ctx,w,h}=setupCanvas(cv); ctx.clearRect(0,0,w,h);
+  const vals=t.days.map(sleepHours);
+  const nums=vals.filter(v=>v!=null);
+  const pad={l:30,r:12,t:12,b:26}, cw=w-pad.l-pad.r, ch=h-pad.t-pad.b;
+  if(!nums.length){ ctx.fillStyle='#64748b';ctx.font='14px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('Дерек жоқ',w/2,h/2);return; }
+  const maxV=Math.max(12,...nums);
+  const xAt=i=>pad.l+(i/29)*cw, yAt=v=>pad.t+ch-(v/maxV*ch);
+  ctx.font='11px system-ui';ctx.textAlign='right';ctx.textBaseline='middle';
+  for(let g=0;g<=maxV;g+=3){const y=yAt(g);ctx.strokeStyle='#2c2c2a';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();ctx.fillStyle='#898781';ctx.fillText(g,pad.l-6,y);}
+  // 7-9 аймақ
+  ctx.fillStyle='rgba(12,163,12,.12)';ctx.fillRect(pad.l,yAt(9),cw,yAt(7)-yAt(9));
+  const pts=vals.map((v,i)=>v==null?null:[xAt(i),yAt(v)]).filter(Boolean);
+  ctx.beginPath();pts.forEach((p,k)=>k?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.strokeStyle='#3987e5';ctx.lineWidth=2;ctx.stroke();
+  pts.forEach(p=>{ctx.beginPath();ctx.arc(p[0],p[1],3.5,0,Math.PI*2);ctx.fillStyle='#3987e5';ctx.fill();ctx.strokeStyle='#1a2130';ctx.lineWidth=2;ctx.stroke();});
+}
+function openSleepDay(id,i){
+  const t=trackers.find(x=>x.id===id); const d=t.days[i]||{};
+  sleepCtx={id,i};
+  document.getElementById('slDay').textContent=`${i+1}-күн`;
+  document.getElementById('slBed').value = d.bed!=null? minToTime(d.bed):'23:00';
+  document.getElementById('slWake').value = d.wake!=null? minToTime(d.wake):'07:00';
+  setMood(d.mood||0);
+  updateSleepPreview();
+  document.getElementById('sleepModal').classList.add('open');
+}
+let sleepCtx=null, sleepMood=0;
+function minToTime(m){ const hh=String(Math.floor(m/60)).padStart(2,'0'); const mm=String(m%60).padStart(2,'0'); return hh+':'+mm; }
+function timeToMin(s){ const [h,m]=s.split(':').map(Number); return h*60+m; }
+function setMood(n){ sleepMood=n; document.querySelectorAll('#slMood .star').forEach((s,k)=>s.classList.toggle('on',k<n)); }
+function updateSleepPreview(){
+  const bed=timeToMin(document.getElementById('slBed').value);
+  const wake=timeToMin(document.getElementById('slWake').value);
+  const h=sleepHours({bed,wake}); const a=sleepAssess(h);
+  document.getElementById('slPreview').innerHTML=`<b>${h} сағат</b> ұйықтадың. <span style="color:${a.c}">${a.t}</span>`;
+}
+function saveSleepDay(){
+  const {id,i}=sleepCtx; const t=trackers.find(x=>x.id===id);
+  t.days[i]={bed:timeToMin(document.getElementById('slBed').value), wake:timeToMin(document.getElementById('slWake').value), mood:sleepMood};
+  save(); document.getElementById('sleepModal').classList.remove('open'); renderSleep(t);
+}
+
+/* ============================================================
+   SPECIAL: Ағылшын сөздер (eng/kaz — менің үйренгендерім)
+   ============================================================ */
+// Бизнеске қатысты ағылшын сөздері (қазақша аудармасымен)
+const BIZ_WORDS=[
+  ['Profit','Пайда'],['Revenue','Түсім'],['Investment','Инвестиция'],['Budget','Бюджет'],['Market','Нарық'],
+  ['Customer','Тұтынушы'],['Client','Клиент'],['Sales','Сатылым'],['Income','Табыс'],['Expense','Шығын'],
+  ['Loss','Зиян'],['Growth','Өсу'],['Strategy','Стратегия'],['Meeting','Кездесу'],['Deal','Мәміле'],
+  ['Contract','Келісімшарт'],['Partner','Серіктес'],['Brand','Бренд'],['Product','Өнім'],['Service','Қызмет'],
+  ['Demand','Сұраныс'],['Supply','Ұсыныс'],['Price','Баға'],['Cost','Құн'],['Value','Құндылық'],
+  ['Goal','Мақсат'],['Team','Команда'],['Manager','Менеджер'],['Employee','Қызметкер'],['Salary','Жалақы'],
+  ['Negotiation','Келіссөз'],['Competition','Бәсеке'],['Competitor','Бәсекелес'],['Marketing','Маркетинг'],['Advertising','Жарнама'],
+  ['Finance','Қаржы'],['Invoice','Шот-фактура'],['Payment','Төлем'],['Discount','Жеңілдік'],['Stock','Қор'],
+  ['Share','Акция'],['Risk','Тәуекел'],['Loan','Несие'],['Debt','Қарыз'],['Asset','Актив'],
+  ['Capital','Капитал'],['Entrepreneur','Кәсіпкер'],['Startup','Стартап'],['Founder','Құрылтайшы'],['Productivity','Өнімділік'],
+  ['Efficiency','Тиімділік'],['Quality','Сапа'],['Deadline','Мерзім'],['Task','Тапсырма'],['Report','Есеп'],
+  ['Leadership','Көшбасшылық'],['Innovation','Инновация'],['Opportunity','Мүмкіндік'],['Networking','Байланыс орнату'],['Turnover','Айналым'],
+  ['Wholesale','Көтерме сауда'],['Retail','Бөлшек сауда'],['Warehouse','Қойма'],['Delivery','Жеткізу'],['Order','Тапсырыс']
+];
+function renderEnglish(t){
+  const words=t.words||[];
+  document.getElementById('detailBody').innerHTML=`
+    <div class="detail-card">
+      ${detailHeader(t,`<div class="detail-stats"><div class="stat"><div class="num">${words.length}</div><div class="lbl">Үйренген сөз</div></div></div>`)}
+      <div class="box" style="background:var(--panel-2);margin-bottom:16px">
+        <div class="box-head"><h3>🎁 Бүгінгі сөздер</h3></div>
+        <div style="color:var(--muted);font-size:14px;margin-bottom:12px">Бизнеске қатысты 2 жаңа сөз ал (қайталанбайды) — бірден тізімге сақталады.</div>
+        <button class="btn" onclick="giveWords('${t.id}')">📩 Бүгінгі 2 сөз алу</button>
+      </div>
+      <div class="days-hint">Немесе өз сөзіңді жаз:</div>
+      <div class="row">
+        <div><label>English</label><input id="enWord" placeholder="apple" onkeydown="if(event.key==='Enter')addWord('${t.id}')"></div>
+        <div><label>Қазақша</label><input id="kkWord" placeholder="алма" onkeydown="if(event.key==='Enter')addWord('${t.id}')"></div>
+      </div>
+      <button class="btn" onclick="addWord('${t.id}')">＋ Сөз қосу</button>
+      <h3 style="margin-top:24px">📚 Менің үйренгендерім (${words.length})</h3>
+      <div id="wordList">${words.length? words.slice().reverse().map(wRow).join('') :
+        `<div style="color:var(--faint);padding:14px 0">Әзірге сөз жоқ</div>`}</div>
+      ${detailFooter(t)}
+    </div>`;
+}
+function wRow(w){
+  return `<div class="tx"><span style="flex:1">${w.given?'🎁 ':''}<b>${w.en}</b> — ${w.kk}
+    <br><small style="color:var(--faint)">${w.date}</small></span>
+    <span class="del" onclick="delWord('${w.id}')">×</span></div>`;
+}
+function giveWords(id){
+  const t=trackers.find(x=>x.id===id); t.words=t.words||[];
+  const known=new Set(t.words.map(w=>w.en.toLowerCase()));
+  const pool=BIZ_WORDS.filter(([en])=>!known.has(en.toLowerCase()));
+  if(!pool.length){ toast('🎉 Барлық бизнес-сөзді үйрендің!'); return; }
+  // кездейсоқ 2 (қайталанбайтын)
+  const pick=[];
+  for(let i=0;i<2 && pool.length;i++){
+    const idx=Math.floor(Math.random()*pool.length);
+    pick.push(pool.splice(idx,1)[0]);
+  }
+  pick.forEach(([en,kk])=> t.words.push({id:uid(),en,kk,date:todayStr(),given:true}));
+  save(); renderEnglish(t);
+  toast('🎁 '+pick.map(p=>p[0]).join(', ')+' қосылды');
+}
+function addWord(id){
+  const t=trackers.find(x=>x.id===id);
+  const en=document.getElementById('enWord').value.trim(), kk=document.getElementById('kkWord').value.trim();
+  if(!en||!kk){ toast('Екі бағанды да толтыр'); return; }
+  t.words=t.words||[]; t.words.push({id:uid(),en,kk,date:todayStr()}); save(); renderEnglish(t);
+}
+function delWord(wid){
+  const t=trackers.find(x=>x.kind==='english' && (x.words||[]).some(w=>w.id===wid));
+  if(!t) return; t.words=t.words.filter(w=>w.id!==wid); save(); renderEnglish(t);
+}
+
+/* ============================================================
+   SPECIAL: Подкаст (аты + инсайт)
+   ============================================================ */
+function renderPodcast(t){
+  const items=t.items||[];
+  document.getElementById('detailBody').innerHTML=`
+    <div class="detail-card">
+      ${detailHeader(t,`<div class="detail-stats"><div class="stat"><div class="num">${items.length}</div><div class="lbl">Инсайт</div></div></div>`)}
+      <div class="days-hint">Тыңдаған подкастыңды және одан алған инсайтыңды жаз.</div>
+      <label>Подкаст аты</label>
+      <input id="pcName" placeholder="Мысалы: Lex Fridman #123">
+      <label>Алған инсайтың</label>
+      <input id="pcInsight" placeholder="Не үйрендің?">
+      <button class="btn" onclick="addPodcast('${t.id}')">＋ Қосу</button>
+      <h3 style="margin-top:24px">💡 Инсайттар (${items.length})</h3>
+      <div class="ins-grid">${items.length? items.slice().reverse().map(pcCard).join('') :
+        `<div style="color:var(--faint);padding:14px 0">Әзірге инсайт жоқ</div>`}</div>
+      ${detailFooter(t)}
+    </div>`;
+}
+function pcCard(it){
+  return `<div class="ins-card">
+    <div class="ins-name">🎧 ${it.name}</div>
+    <div class="ins-text">${it.insight}</div>
+    <div class="ins-foot"><small style="color:var(--faint)">${it.date}</small>
+    <span class="del" onclick="delPodcast('${it.id}')">×</span></div>
+  </div>`;
+}
+function addPodcast(id){
+  const t=trackers.find(x=>x.id===id);
+  const name=document.getElementById('pcName').value.trim(), insight=document.getElementById('pcInsight').value.trim();
+  if(!name||!insight){ toast('Атын және инсайтты жаз'); return; }
+  t.items=t.items||[]; t.items.push({id:uid(),name,insight,date:todayStr()}); save(); renderPodcast(t);
+}
+function delPodcast(iid){
+  const t=trackers.find(x=>x.kind==='podcast' && (x.items||[]).some(it=>it.id===iid));
+  if(!t) return; t.items=t.items.filter(it=>it.id!==iid); save(); renderPodcast(t);
+}
+
+/* ============================================================
+   SPECIAL: Витаминдер (7-ге дейін, 3 ай)
+   ============================================================ */
+function renderVitamins(t){
+  const vits=t.vits||[];
+  document.getElementById('detailBody').innerHTML=`
+    <div class="detail-card">
+      ${detailHeader(t,'')}
+      <div class="vit-desc">
+        <b>ВИТАМИН ҚАБЫЛДАУ ТРЕКЕРІ</b><br>
+        Витаминдер қабылдау әдетін қалыптастыру үшін трекерді қолданыңыз. Витамин атауын жазып,
+        қай уақытта бастағаныңызды және қанша күн қабылдау қажет, яғни мерзімін жазып, күнделікті ✓ белгісін қойып отырыңыз.
+        Тек өзіңіздің ғана емес, отбасы мүшелерінің де витамин қабылдау әдетін енгізіп отырсаңыз болады —
+        бұл трекерде <b>7 витаминге дейін</b> толтыруға болады.
+      </div>
+      ${vits.length? vits.map((v,vi)=>vitBlock(t,v,vi)).join('') : `<div style="color:var(--faint);padding:14px 0">Әзірге витамин жоқ</div>`}
+      ${vits.length<7 ? `
+      <div class="box" style="margin-top:16px;background:var(--panel-2)">
+        <div class="row">
+          <div><label>Қандай витамин</label><input id="vName" placeholder="Vitamin D"></div>
+          <div><label>Бастаған уақыт</label><input id="vStart" type="date" value="${todayStr()}"></div>
+        </div>
+        <label>Қабылдау мерзімі (күн)</label><input id="vDur" type="number" placeholder="90">
+        <button class="btn" onclick="addVit('${t.id}')">＋ Витамин қосу</button>
+      </div>`:'<div style="color:var(--warn);margin-top:12px">Ең көбі 7 витамин.</div>'}
+      <div class="box" style="margin-top:16px">
+        <div class="box-head"><h3>📖 Витаминдер бойынша білім</h3></div>
+        <div style="color:var(--muted);font-size:14px">Бұл бөлімге кейін мазмұн (мақалалар/кеңестер) қосылады. Орны дайын.</div>
+      </div>
+      ${detailFooter(t)}
+    </div>`;
+}
+function vitBlock(t,v,vi){
+  const months=[0,1,2];
+  const monthsHtml=months.map(m=>{
+    const cells=Array.from({length:30},(_,k)=>{
+      const idx=m*30+k; const on=v.days&&v.days[idx];
+      const within = idx < (v.dur||90);
+      return `<div class="vday ${on?'on':''} ${within?'':'off'}" onclick="toggleVit('${t.id}',${vi},${idx})">${k+1}</div>`;
+    }).join('');
+    return `<div class="vmonth"><div class="vmonth-t">${m+1} ай</div><div class="vgrid">${cells}</div></div>`;
+  }).join('');
+  const done=(v.days||[]).filter(Boolean).length;
+  return `<div class="vit">
+    <div class="vit-head">
+      <div><b>💊 ${v.name}</b><div class="tag">Басталды: ${fmtDate(v.start)} · мерзім ${v.dur} күн · белгіленген ${done}</div></div>
+      <span class="del" onclick="delVit('${t.id}',${vi})">×</span>
+    </div>
+    ${monthsHtml}
+  </div>`;
+}
+function addVit(id){
+  const t=trackers.find(x=>x.id===id);
+  const name=document.getElementById('vName').value.trim();
+  const start=document.getElementById('vStart').value||todayStr();
+  const dur=+document.getElementById('vDur').value||90;
+  if(!name){ toast('Витамин атауын жаз'); return; }
+  t.vits=t.vits||[]; if(t.vits.length>=7){ toast('Ең көбі 7'); return; }
+  t.vits.push({name,start,dur,days:new Array(90).fill(false)}); save(); renderVitamins(t);
+}
+function toggleVit(id,vi,idx){
+  const t=trackers.find(x=>x.id===id); const v=t.vits[vi];
+  v.days=v.days||new Array(90).fill(false); v.days[idx]=!v.days[idx]; save(); renderVitamins(t);
+}
+function delVit(id,vi){
+  if(!confirm('Витаминді жоямыз ба?')) return;
+  const t=trackers.find(x=>x.id===id); t.vits.splice(vi,1); save(); renderVitamins(t);
+}
+
+/* ============================================================
+   SPECIAL: Көңіл-күй (эмодзи тренд)
+   ============================================================ */
+const MOODS=['','😢','😕','😐','🙂','😄']; // 1..5
+function renderMood(t){
+  const passed=daysPassed(t);
+  const logged=t.days.filter(v=>v!=null);
+  const avg=logged.length? Math.round(logged.reduce((s,v)=>s+v,0)/logged.length*10)/10 : 0;
+  const goodDays=t.days.filter(v=>v>=4).length;
+  const cells=t.days.map((v,i)=>{
+    let cls='day'+(v>=4?' done':'')+(i===passed-1?' today':'');
+    let style='',label;
+    if(v!=null){ const col=gradeColor((v-1)/4); style=` style="background:${col};border-color:${col}"`; label=`<span style="font-size:18px">${MOODS[v]}</span>`; }
+    else label=`<span style="color:var(--faint)">${(i%30)+1}</span>`;
+    return `<div class="${cls}"${style} onclick="cycleMood('${t.id}',${i})">${label}</div>`;
+  });
+  const days=monthGrid(cells);
+  const months=Math.ceil(t.days.length/30);
+  document.getElementById('detailBody').innerHTML=`
+    <div class="detail-card">
+      ${detailHeader(t,`<div class="detail-stats">
+        <div class="stat"><div class="num">${avg?MOODS[Math.round(avg)]:'—'}</div><div class="lbl">Орташа (${avg||'—'})</div></div>
+        <div class="stat"><div class="num">${goodDays}</div><div class="lbl">Жақсы күн</div></div>
+      </div>`)}
+      <div class="days-hint">Ұяшықты бас — көңіл-күйіңді таңда (😢 😕 😐 🙂 😄). Түс те өзгереді.</div>
+      ${days}
+      <div style="margin-top:14px">
+        <button class="btn ghost sm" onclick="extendTracker('${t.id}')">➕ Тағы 1 ай қосу</button>
+        <span style="color:var(--muted);font-size:13px;margin-left:8px">Қазір: ${months} ай</span>
+      </div>
+      <div class="days-hint" style="margin-top:24px">📈 Көңіл-күй динамикасы</div>
+      <canvas id="moodChart" height="200" style="margin-top:6px"></canvas>
+      ${detailFooter(t)}
+    </div>`;
+  drawMoodChart(t);
+}
+function cycleMood(id,i){
+  const t=trackers.find(x=>x.id===id);
+  let v=t.days[i]; v = v==null?1 : (v>=5? null : v+1); t.days[i]=v;
+  save(); renderMood(t);
+}
+function drawMoodChart(t){
+  const cv=document.getElementById('moodChart'); if(!cv) return;
+  const {ctx,w,h}=setupCanvas(cv); ctx.clearRect(0,0,w,h);
+  const vals=t.days.map(v=>v==null?null:v);
+  if(!vals.some(v=>v!=null)){ ctx.fillStyle='#64748b';ctx.font='14px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('Дерек жоқ',w/2,h/2);return; }
+  const pad={l:30,r:12,t:12,b:26}, cw=w-pad.l-pad.r, ch=h-pad.t-pad.b, n=vals.length;
+  const xAt=i=>pad.l+(i/Math.max(1,n-1))*cw, yAt=v=>pad.t+ch-((v-1)/4*ch);
+  ctx.font='11px system-ui';ctx.textAlign='right';ctx.textBaseline='middle';
+  for(let g=1;g<=5;g++){const y=yAt(g);ctx.strokeStyle='#2c2c2a';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();ctx.fillStyle='#898781';ctx.fillText(MOODS[g],pad.l-6,y);}
+  const pts=vals.map((v,i)=>v==null?null:[xAt(i),yAt(v)]).filter(Boolean);
+  ctx.beginPath();pts.forEach((p,k)=>k?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.strokeStyle='#199e70';ctx.lineWidth=2;ctx.stroke();
+  pts.forEach(p=>{ctx.beginPath();ctx.arc(p[0],p[1],3.5,0,Math.PI*2);ctx.fillStyle='#199e70';ctx.fill();ctx.strokeStyle='#1a2130';ctx.lineWidth=2;ctx.stroke();});
+}
+
+/* ============================================================
+   SPECIAL: Мазасыздық (GAD-7 калькуляторы)
+   ============================================================ */
+const GAD_Q=[
+  'Жүйкеленуді, мазасыздықты немесе шиеленісті сезіну',
+  'Уайымды тоқтата немесе бақылай алмау',
+  'Түрлі нәрселерге тым көп уайымдау',
+  'Бой жаза алмау, тынышталудың қиындауы',
+  'Орнында отыра алмайтындай мазасыздану',
+  'Тез ашуланшақ немесе тітіркенгіш болу',
+  'Бірдеңе жаман болатындай қорқыныш сезіну'
+];
+const GAD_OPT=['Мүлдем емес','Бірнеше күн','Күндердің жартысынан көбі','Күн сайын дерлік'];
+function gadBand(s){
+  if(s<=4) return {t:'Минималды мазасыздық',c:'var(--good)',a:'Жақсы! Ағымдағы жағдайың тұрақты. Осы қалпыңды сақта.'};
+  if(s<=9) return {t:'Жеңіл мазасыздық',c:'var(--s4)',a:'Демалу, дем алу жаттығулары мен ұйқыға көңіл бөл. Жағдайды бақылап отыр.'};
+  if(s<=14) return {t:'Орташа мазасыздық',c:'var(--warn)',a:'Маманмен (психолог) сөйлесуді ойластырған жөн. Стресс көздерін азайт.'};
+  return {t:'Ауыр мазасыздық',c:'var(--crit)',a:'Маманға (психолог/дәрігер) жүгінген дұрыс. Жалғыз қалма, жақыныңмен бөліс.'};
+}
+function renderAnxiety(t){
+  const tests=t.tests||[];
+  const last=tests[tests.length-1];
+  document.getElementById('detailBody').innerHTML=`
+    <div class="detail-card">
+      ${detailHeader(t, last?`<div class="detail-stats"><div class="stat"><div class="num" style="color:${gadBand(last.score).c}">${last.score}</div><div class="lbl">Соңғы балл /21</div></div></div>`:'')}
+      <div class="vit-desc">
+        <b>GAD-7 — мазасыздықты өлшеу</b><br>
+        Соңғы 2 аптада мына жайттар сізді қаншалықты мазалады? 7 сұраққа жауап беріп, мазасыздық деңгейіңізді біліңіз.
+        <br><small style="color:var(--warn)">⚠️ Бұл — скрининг құралы, медициналық диагноз емес. Балл жоғары болса, маманға жүгініңіз.</small>
+      </div>
+      <button class="btn" onclick="openGAD('${t.id}')">📝 Тест тапсыру</button>
+      ${last?`<div class="gad-result" style="border-color:${gadBand(last.score).c};margin-top:16px">
+        <div class="gr-top"><b>Соңғы нәтиже: ${last.score}/21</b> <span style="color:${gadBand(last.score).c};font-weight:700">${gadBand(last.score).t}</span></div>
+        <div style="color:var(--muted);font-size:14px;margin-top:6px">${gadBand(last.score).a}</div>
+      </div>`:''}
+      ${tests.length>1?`<div class="days-hint" style="margin-top:24px">📈 Балл динамикасы (0–21)</div><canvas id="gadChart" height="200" style="margin-top:6px"></canvas>`:''}
+      ${tests.length?`<h3 style="margin-top:24px">Тарих (${tests.length})</h3>
+        <div>${tests.slice().reverse().map(gadRow).join('')}</div>`:''}
+      ${detailFooter(t)}
+    </div>`;
+  if(tests.length>1) drawGadChart(t);
+}
+function gadRow(r){
+  const b=gadBand(r.score);
+  return `<div class="tx"><span style="flex:1">${fmtDate(r.date)} — <b style="color:${b.c}">${r.score}/21</b> · ${b.t}</span>
+    <span class="del" onclick="delGad('${r.id}')">×</span></div>`;
+}
+let gadCtx=null;
+function openGAD(id){
+  gadCtx={id, answers:new Array(7).fill(null)};
+  document.getElementById('gadBody').innerHTML=GAD_Q.map((q,i)=>`
+    <div class="gad-q" id="gadq${i}">
+      <div class="gad-qt">${i+1}. ${q}</div>
+      <div class="gad-opts">${GAD_OPT.map((o,v)=>`<button class="gad-opt" onclick="pickGad(${i},${v},this)">${v} — ${o}</button>`).join('')}</div>
+    </div>`).join('');
+  document.getElementById('gadScore').textContent='';
+  document.getElementById('gadModal').classList.add('open');
+}
+function pickGad(qi,val,el){
+  gadCtx.answers[qi]=val;
+  const wrap=document.getElementById('gadq'+qi);
+  wrap.querySelectorAll('.gad-opt').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+  const done=gadCtx.answers.filter(a=>a!=null).length;
+  document.getElementById('gadScore').textContent=`Жауап берілді: ${done}/7`;
+}
+function saveGAD(){
+  if(gadCtx.answers.some(a=>a==null)){ toast('Барлық сұраққа жауап бер'); return; }
+  const score=gadCtx.answers.reduce((s,a)=>s+a,0);
+  const t=trackers.find(x=>x.id===gadCtx.id);
+  t.tests=t.tests||[]; t.tests.push({id:uid(),date:todayStr(),score,answers:gadCtx.answers});
+  save(); document.getElementById('gadModal').classList.remove('open');
+  const b=gadBand(score); toast(`Нәтиже: ${score}/21 — ${b.t}`); renderAnxiety(t);
+}
+function delGad(rid){
+  const t=trackers.find(x=>x.kind==='anxiety' && (x.tests||[]).some(r=>r.id===rid));
+  if(!t) return; t.tests=t.tests.filter(r=>r.id!==rid); save(); renderAnxiety(t);
+}
+function drawGadChart(t){
+  const cv=document.getElementById('gadChart'); if(!cv) return;
+  const {ctx,w,h}=setupCanvas(cv); ctx.clearRect(0,0,w,h);
+  const tests=t.tests; const pad={l:28,r:12,t:12,b:26}, cw=w-pad.l-pad.r, ch=h-pad.t-pad.b, n=tests.length;
+  const xAt=i=>pad.l+(i/Math.max(1,n-1))*cw, yAt=v=>pad.t+ch-(v/21*ch);
+  ctx.font='11px system-ui';ctx.textAlign='right';ctx.textBaseline='middle';
+  [0,5,10,15,21].forEach(g=>{const y=yAt(g);ctx.strokeStyle='#2c2c2a';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();ctx.fillStyle='#898781';ctx.fillText(g,pad.l-6,y);});
+  const pts=tests.map((r,i)=>[xAt(i),yAt(r.score)]);
+  ctx.beginPath();pts.forEach((p,k)=>k?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.strokeStyle='#e66767';ctx.lineWidth=2;ctx.stroke();
+  pts.forEach((p,i)=>{ctx.beginPath();ctx.arc(p[0],p[1],4,0,Math.PI*2);ctx.fillStyle=gadBand(tests[i].score).c.startsWith('var')?'#e66767':gadBand(tests[i].score).c;ctx.fill();ctx.strokeStyle='#1a2130';ctx.lineWidth=2;ctx.stroke();});
+}
+
+/* ============================================================
+   SPECIAL: Эмоция күнделігі
+   ============================================================ */
+const EMOTIONS=['😀 Қуаныш','😌 Тыныштық','🙏 Ризашылық','💪 Сенімділік','😢 Мұң','😠 Ашу','😨 Қорқыныш','😰 Мазасыздық','😴 Шаршау','😔 Жалғыздық','🤩 Шабыт','😐 Бейтараптық'];
+function renderEmotion(t){
+  const entries=t.entries||[];
+  const chosen=t._draft||[];
+  // жиілік
+  const freq={};
+  entries.forEach(e=>(e.emotions||[]).forEach(em=>freq[em]=(freq[em]||0)+1));
+  const top=Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,3);
+  document.getElementById('detailBody').innerHTML=`
+    <div class="detail-card">
+      ${detailHeader(t,`<div class="detail-stats"><div class="stat"><div class="num">${entries.length}</div><div class="lbl">Жазба</div></div></div>`)}
+      <div class="days-hint">Бүгінгі эмоцияларыңды таңда, не болғанын жаз.</div>
+      <div class="emo-pick" id="emoPick">${EMOTIONS.map(e=>`<span class="emo-tag ${chosen.includes(e)?'sel':''}" onclick="toggleEmo('${t.id}','${e}')">${e}</span>`).join('')}</div>
+      <label style="margin-top:12px">Не болды? Неге осылай сезіндің?</label>
+      <textarea id="emoText" rows="3" style="width:100%;background:var(--bg);border:1px solid var(--line);color:var(--text);border-radius:9px;padding:10px 12px;font-family:inherit;font-size:15px"></textarea>
+      <button class="btn" style="margin-top:12px" onclick="addEmotion('${t.id}')">＋ Күнделікке қосу</button>
+      ${top.length?`<div style="margin-top:16px;color:var(--muted);font-size:14px">Жиі кездесетін: ${top.map(([e,n])=>`${e} (${n})`).join(', ')}</div>`:''}
+      <h3 style="margin-top:24px">📔 Жазбалар (${entries.length})</h3>
+      <div>${entries.length? entries.slice().reverse().map(emoCard).join('') : `<div style="color:var(--faint);padding:12px 0">Әзірге жазба жоқ</div>`}</div>
+      ${detailFooter(t)}
+    </div>`;
+}
+function emoCard(e){
+  return `<div class="grat-card">
+    <div class="grat-date">📅 ${fmtDate(e.date)} <span class="del" onclick="delEmotion('${e.id}')">×</span></div>
+    <div style="margin:6px 0">${(e.emotions||[]).map(em=>`<span class="emo-tag sel" style="cursor:default">${em}</span>`).join(' ')}</div>
+    ${e.text?`<div class="grat-a">${e.text}</div>`:''}
+  </div>`;
+}
+function toggleEmo(id,em){
+  const t=trackers.find(x=>x.id===id);
+  t._draft=t._draft||[];
+  if(t._draft.includes(em)) t._draft=t._draft.filter(x=>x!==em); else t._draft.push(em);
+  // мәтінді сақтап қалу
+  const txt=document.getElementById('emoText').value;
+  renderEmotion(t);
+  document.getElementById('emoText').value=txt;
+}
+function addEmotion(id){
+  const t=trackers.find(x=>x.id===id);
+  const emotions=t._draft||[]; const text=document.getElementById('emoText').value.trim();
+  if(!emotions.length && !text){ toast('Эмоция таңда немесе жаз'); return; }
+  t.entries=t.entries||[]; t.entries.push({id:uid(),date:todayStr(),emotions:[...emotions],text});
+  t._draft=[]; save(); renderEmotion(t);
+}
+function delEmotion(eid){
+  const t=trackers.find(x=>x.kind==='emotion' && (x.entries||[]).some(e=>e.id===eid));
+  if(!t) return; t.entries=t.entries.filter(e=>e.id!==eid); save(); renderEmotion(t);
+}
+
+/* ============================================================
+   SPECIAL: Күнделікті жоспар (уақытпен + талдау + тарих)
+   ============================================================ */
+let planDate=null, curPlanId=null;
+function renderPlan(t){
+  curPlanId=t.id;
+  if(!planDate) planDate=todayStr();
+  const all=t.plans||[];
+  const day=all.filter(p=>p.date===planDate).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+  const done=day.filter(p=>p.done).length, total=day.length, notDone=total-done;
+  const pct=total? Math.round(done/total*100):0;
+  // тарих: күндер (бүгінгіден басқа да)
+  const dates=[...new Set(all.map(p=>p.date))].sort().reverse();
+  document.getElementById('detailBody').innerHTML=`
+    <div class="detail-card">
+      ${detailHeader(t,`<div class="detail-stats">
+        <div class="stat"><div class="num" style="color:var(--good)">${done}</div><div class="lbl">Орындалды</div></div>
+        <div class="stat"><div class="num" style="color:#f0a5a5">${notDone}</div><div class="lbl">Орындалмады</div></div>
+      </div>`)}
+      <label>Қай күнге жоспарлайсың?</label>
+      <input type="date" id="planDate" value="${planDate}" onchange="setPlanDate(this.value)" style="max-width:220px">
+      <div class="row" style="margin-top:10px;align-items:flex-end">
+        <div style="max-width:130px;flex:0 0 130px"><label>Уақыт</label><input type="time" id="planTime" value="09:00"></div>
+        <div style="flex:1"><label>Жоспар</label><input type="text" id="planText" placeholder="Мысалы: Ағылшын сабағы"></div>
+        <button class="btn" style="max-width:120px" onclick="addPlan('${t.id}')">＋ Қосу</button>
+      </div>
+
+      <h3 style="margin-top:22px">📋 ${fmtDate(planDate)} жоспары</h3>
+      <div>${day.length? day.map(p=>planRow(t.id,p)).join('') : `<div style="color:var(--faint);padding:12px 0">Бұл күнге жоспар жоқ</div>`}</div>
+
+      ${total?`<div class="box" style="margin-top:16px;background:var(--panel-2)">
+        <div class="box-head"><h3>📊 Талдау</h3></div>
+        <div class="progressbar"><span style="width:${pct}%"></span></div>
+        <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:14px">
+          <span style="color:var(--good)">✅ Орындалды: <b>${done}</b></span>
+          <span style="color:#f0a5a5">⬜ Орындалмады: <b>${notDone}</b></span>
+          <span><b>${pct}%</b></span>
+        </div>
+      </div>`:''}
+
+      <h3 style="margin-top:24px">🗂 Жоспарлар (тарих)</h3>
+      <div>${dates.length? dates.map(d=>planHistCard(t,d)).join('') : `<div style="color:var(--faint);padding:12px 0">Әзірге сақталған жоспар жоқ</div>`}</div>
+      ${detailFooter(t)}
+    </div>`;
+}
+function planRow(tid,p){
+  return `<div class="goal-item ${p.done?'done':''}">
+    <span class="gcheck" onclick="togglePlan('${tid}','${p.id}')">${p.done?'✅':'⬜'}</span>
+    <span class="plan-time">${p.time||''}</span>
+    <span class="gtext">${p.text}</span>
+    <span class="del" onclick="delPlan('${tid}','${p.id}')">×</span>
+  </div>`;
+}
+function planHistCard(t,d){
+  const items=t.plans.filter(p=>p.date===d).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+  const done=items.filter(p=>p.done).length;
+  return `<div class="grat-card">
+    <div class="grat-date">📅 ${fmtDate(d)} <span style="color:var(--muted);font-weight:600">${done}/${items.length} орындалды</span></div>
+    ${items.map(p=>`<div style="font-size:14px;padding:3px 0;color:${p.done?'var(--good)':'var(--muted)'}">
+      ${p.done?'✅':'⬜'} <b style="color:var(--faint)">${p.time||''}</b> ${p.text}</div>`).join('')}
+  </div>`;
+}
+function setPlanDate(v){ planDate=v; const t=trackers.find(x=>x.id===curPlanId); if(t) renderPlan(t); }
+function addPlan(id){
+  const t=trackers.find(x=>x.id===id);
+  const time=document.getElementById('planTime').value;
+  const text=document.getElementById('planText').value.trim();
+  if(!text){ toast('Жоспарды жаз'); return; }
+  t.plans=t.plans||[]; t.plans.push({id:uid(),date:planDate,time,text,done:false});
+  save(); renderPlan(t);
+}
+function togglePlan(tid,pid){
+  curPlanId=tid; const t=trackers.find(x=>x.id===tid);
+  const p=t.plans.find(x=>x.id===pid); if(p){ p.done=!p.done; save(); renderPlan(t); }
+}
+function delPlan(tid,pid){
+  curPlanId=tid; const t=trackers.find(x=>x.id===tid);
+  t.plans=t.plans.filter(x=>x.id!==pid); save(); renderPlan(t);
+}
+
+/* ============================================================
+   CATEGORY PAGE: Мақсаттар (Үлкен/Кіші) + Жоспарлар (айлық/апталық/күндік)
+   ============================================================ */
+let planTab='daily', planDaily=null, planMonth=null;
+const MONTHS_KK=['Қаңтар','Ақпан','Наурыз','Сәуір','Мамыр','Маусым','Шілде','Тамыз','Қыркүйек','Қазан','Қараша','Желтоқсан'];
+function monthName(ym){ if(!ym) return 'Ай белгіленбеген'; const [y,m]=ym.split('-').map(Number); return (MONTHS_KK[m-1]||'')+' '+y; }
+function curMonth(){ return todayStr().slice(0,7); }
+function goalItemRow(kindArg,g){
+  // kindArg: 'big' | 'small' | plan tab key
+  return `<div class="goal-item ${g.done?'done':''}">
+    <span class="gcheck" onclick="toggleGoalItem('${kindArg}','${g.id}')">${g.done?'✅':'⬜'}</span>
+    <span class="gtext">${g.text}</span>
+    <span class="del" onclick="delGoalItem('${kindArg}','${g.id}')">×</span>
+  </div>`;
+}
+function goalGroup(title,kindArg,arr,ph){
+  return `<div class="box" style="margin-bottom:16px">
+    <div class="box-head"><h3>${title}</h3></div>
+    <div class="row" style="margin-bottom:0">
+      <input id="gInput_${kindArg}" placeholder="${ph}" onkeydown="if(event.key==='Enter')addGoalItem('${kindArg}')">
+      <button class="btn" style="max-width:120px" onclick="addGoalItem('${kindArg}')">Қосу</button>
+    </div>
+    <div style="margin-top:12px">${arr.length? arr.map(g=>goalItemRow(kindArg,g)).join('') :
+      `<div style="color:var(--faint);padding:10px 0">Әзірге жазба жоқ</div>`}</div>
+  </div>`;
+}
+function analysisBox(items,label){
+  if(!items.length) return '';
+  const done=items.filter(p=>p.done).length, pct=Math.round(done/items.length*100);
+  return `<div class="box" style="margin-bottom:16px;background:var(--panel-2)">
+    <div class="box-head"><h3>📊 ${label||'Талдау'}</h3></div>
+    <div class="progressbar"><span style="width:${pct}%"></span></div>
+    <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:14px">
+      <span style="color:var(--good)">✅ Орындалды: <b>${done}</b></span>
+      <span style="color:#f0a5a5">⬜ Орындалмады: <b>${items.length-done}</b></span>
+      <span><b>${pct}%</b></span>
+    </div></div>`;
+}
+function plansSection(){
+  const period=planTab;
+  const bucket=goals.plans[period]||[];
+  if(period==='weekly'){
+    return goalGroup('Апталық жоспар','plan_weekly',bucket,'Апта жоспарын жаз...') + analysisBox(bucket);
+  }
+  // daily / monthly — датамен топталады
+  const isDaily = period==='daily';
+  if(isDaily && !planDaily) planDaily=todayStr();
+  if(!isDaily && !planMonth) planMonth=curMonth();
+  const sel = isDaily? planDaily : planMonth;
+  const selItems = bucket.filter(p=>(p.key||'')===sel);
+  const input = isDaily
+    ? `<input type="date" value="${planDaily}" onchange="setDailyDate(this.value)" style="max-width:220px">`
+    : `<input type="month" value="${planMonth}" onchange="setPlanMonth(this.value)" style="max-width:220px">`;
+  const selLabel = isDaily? fmtDate(planDaily) : monthName(planMonth);
+  const keys=[...new Set(bucket.map(p=>p.key||''))].sort().reverse();
+  const history = keys.length? keys.map(k=>{
+    const items=bucket.filter(p=>(p.key||'')===k);
+    const dn=items.filter(p=>p.done).length;
+    const lbl = isDaily? (k?fmtDate(k):'Күні белгіленбеген') : monthName(k);
+    return `<div class="grat-card">
+      <div class="grat-date">📅 ${lbl} <span style="color:var(--muted);font-weight:600">${dn}/${items.length} орындалды</span></div>
+      ${items.map(p=>goalItemRow('plan_'+period,p)).join('')}
+    </div>`;
+  }).join('') : `<div style="color:var(--faint);padding:10px 0">Әзірге жоспар жоқ</div>`;
+  return `
+    <div class="box" style="margin-bottom:16px">
+      <div class="box-head"><h3>${isDaily?'Күндік':'Айлық'} жоспар</h3></div>
+      <label>${isDaily?'Қай күн':'Қай ай'}</label>${input}
+      <div class="row" style="margin-top:10px;margin-bottom:0">
+        <input id="datedPlanInput" placeholder="${selLabel} — жоспар жаз..." onkeydown="if(event.key==='Enter')addDatedPlan('${period}')">
+        <button class="btn" style="max-width:120px" onclick="addDatedPlan('${period}')">Қосу</button>
+      </div>
+    </div>
+    ${analysisBox(selItems, selLabel+' — талдау')}
+    <h3 style="margin:18px 0 10px">🗂 ${isDaily?'Күндер':'Айлар'} бойынша</h3>
+    ${history}`;
+}
+function renderGoalsPage(){
+  const box=document.getElementById('catExtra');
+  const tabs=[['monthly','Айлық'],['weekly','Апталық'],['daily','Күндік']];
+  box.innerHTML=`
+    <div class="section-t">🎯 Мақсаттар</div>
+    ${goalGroup('🌟 Үлкен мақсаттар','big',goals.big,'Үлкен мақсат жаз... (мыс. Умраға бару)')}
+    ${goalGroup('⭐ Кіші мақсаттар','small',goals.small,'Кіші мақсат жаз... (мыс. Кітап оқу)')}
+
+    <div class="section-t" style="margin-top:26px">🗓️ Жоспарлар</div>
+    <div class="tabs">${tabs.map(([k,n])=>`<button class="tab ${k===planTab?'active':''}" onclick="setPlanTab('${k}')">${n}</button>`).join('')}</div>
+    ${plansSection()}`;
+}
+function setPlanTab(k){ planTab=k; renderGoalsPage(); }
+function setDailyDate(v){ planDaily=v; renderGoalsPage(); }
+function setPlanMonth(v){ planMonth=v; renderGoalsPage(); }
+function addDatedPlan(period){
+  const el=document.getElementById('datedPlanInput');
+  const text=el.value.trim(); if(!text){ toast('Жоспар жаз'); return; }
+  const key = period==='daily'? planDaily : planMonth;
+  goals.plans[period].push({id:uid(),text,done:false,key});
+  saveGoals(); renderGoalsPage();
+}
+// kindArg: 'big','small', немесе 'plan_<period>'
+function goalBucket(kindArg){
+  if(kindArg==='big') return goals.big;
+  if(kindArg==='small') return goals.small;
+  if(kindArg.startsWith('plan_')) return goals.plans[kindArg.slice(5)];
+  return null;
+}
+function addGoalItem(kindArg){
+  const el=document.getElementById('gInput_'+kindArg);
+  const text=el.value.trim(); if(!text){ toast('Мәтін жаз'); return; }
+  goalBucket(kindArg).push({id:uid(),text,done:false});
+  saveGoals(); renderGoalsPage();
+}
+function toggleGoalItem(kindArg,id){
+  const g=goalBucket(kindArg).find(x=>x.id===id); if(g){ g.done=!g.done; saveGoals(); renderGoalsPage(); }
+}
+function delGoalItem(kindArg,id){
+  const b=goalBucket(kindArg); const i=b.findIndex(x=>x.id===id); if(i>=0){ b.splice(i,1); saveGoals(); renderGoalsPage(); }
+}
+
+/* ============================================================
+   CATEGORY PAGE: Шүкіршілік
+   ============================================================ */
+const GRAT_Q=[
+  'Бүгін Алла маған қандай мүмкіндіктер берді?',
+  'Бүгін мені қуантқан ең кішкентай нәрсе не болды?',
+  'Бүгін мен өзіммен мақтанатындай не істедім?'
+];
+function renderGratitudePage(){
+  const box=document.getElementById('catExtra');
+  box.innerHTML=`
+    <div class="box" style="margin-bottom:16px">
+      <div class="box-head"><h3>🤲 Бүгінгі шүкіршілік</h3></div>
+      ${GRAT_Q.map((q,i)=>`<label>${q}</label><input id="grat${i}" placeholder="Жауабыңды жаз...">`).join('')}
+      <button class="btn" onclick="saveGratitude()">Сақтау</button>
+    </div>
+    <div class="box">
+      <div class="box-head"><h3>📖 Шүкіршілік беті (${gratitude.length})</h3></div>
+      <div>${gratitude.length? gratitude.slice().reverse().map(gratCard).join('') :
+        `<div style="color:var(--faint);padding:10px 0">Әзірге жазба жоқ</div>`}</div>
+    </div>`;
+}
+function gratCard(g){
+  return `<div class="grat-card">
+    <div class="grat-date">📅 ${fmtDate(g.date)} <span class="del" onclick="delGrat('${g.id}')">×</span></div>
+    ${[g.a1,g.a2,g.a3].map((a,i)=> a?`<div class="grat-q">${GRAT_Q[i]}</div><div class="grat-a">${a}</div>`:'').join('')}
+  </div>`;
+}
+function saveGratitude(){
+  const a1=document.getElementById('grat0').value.trim();
+  const a2=document.getElementById('grat1').value.trim();
+  const a3=document.getElementById('grat2').value.trim();
+  if(!a1&&!a2&&!a3){ toast('Кемінде бір жауап жаз'); return; }
+  gratitude.push({id:uid(),date:todayStr(),a1,a2,a3}); saveGrat(); toast('🤲 Сақталды'); renderGratitudePage();
+}
+function delGrat(gid){ gratitude=gratitude.filter(x=>x.id!==gid); saveGrat(); renderGratitudePage(); }
+
+/* ============================================================
+   Кездейсоқ тапсырма
+   ============================================================ */
+function randomTask(){
+  closeNav();
+  const i=Math.floor((Date.now()/1000)%RANDOM_TASKS.length);
+  document.getElementById('rtText').textContent=RANDOM_TASKS[i];
+  document.getElementById('rtModal').classList.add('open');
+}
+function anotherTask(){
+  let i=Math.floor((Date.now()/7)%RANDOM_TASKS.length);
+  document.getElementById('rtText').textContent=RANDOM_TASKS[i];
+}
+
+/* ============================================================
+   FINANCE — табыс/шығын бөлек + жеке калькулятор
+   ============================================================ */
+function renderFinance(){
+  // күн өрістерін бүгінге қой
+  if(!document.getElementById('incDate').value) document.getElementById('incDate').value = todayStr();
+  if(!document.getElementById('expDate').value) document.getElementById('expDate').value = todayStr();
+  // автотолтыру тізімдері (бұрын енгізілген атаулар)
+  document.getElementById('incNames').innerHTML = [...new Set(txs.filter(t=>t.type==='in').map(t=>t.cat))].map(c=>`<option value="${c}">`).join('');
+  document.getElementById('expNames').innerHTML = [...new Set(txs.filter(t=>t.type==='out').map(t=>t.cat))].map(c=>`<option value="${c}">`).join('');
+  renderTxLists(); renderFinSummary(); renderCalc();
+}
+
+function addIncome(){
+  const amount = +document.getElementById('incAmount').value;
+  const name = document.getElementById('incName').value.trim() || 'Табыс';
+  const date = document.getElementById('incDate').value || todayStr();
+  if(!amount || amount<=0){ toast('Соманы дұрыс енгіз'); return; }
+  txs.push({id:uid(), type:'in', cat:name, amount, date});
+  saveTx();
+  document.getElementById('incAmount').value=''; document.getElementById('incName').value='';
+  renderFinance();
+}
+function addExpense(){
+  const amount = +document.getElementById('expAmount').value;
+  const name = document.getElementById('expName').value.trim() || 'Шығын';
+  const date = document.getElementById('expDate').value || todayStr();
+  if(!amount || amount<=0){ toast('Соманы дұрыс енгіз'); return; }
+  txs.push({id:uid(), type:'out', cat:name, amount, date});
+  saveTx();
+  document.getElementById('expAmount').value=''; document.getElementById('expName').value='';
+  renderFinance();
+}
+function delTx(id){ txs=txs.filter(x=>x.id!==id); saveTx(); renderFinance(); }
+function editTxDate(id,val){ const t=txs.find(x=>x.id===id); if(t){ t.date=val; saveTx(); renderFinSummary(); } }
+
+function txRow(t){
+  return `<div class="tx">
+    <div style="flex:1;min-width:0">
+      <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.cat}</div>
+      <input type="date" class="mini-date" value="${t.date}" onchange="editTxDate('${t.id}',this.value)">
+    </div>
+    <span class="amt ${t.type==='in'?'in':'out'}">${t.type==='in'?'+':'−'}${fmt(t.amount)}</span>
+    <span class="del" onclick="delTx('${t.id}')">×</span>
+  </div>`;
+}
+function renderTxLists(){
+  const inc = txs.filter(t=>t.type==='in').sort((a,b)=>b.date.localeCompare(a.date));
+  const exp = txs.filter(t=>t.type==='out').sort((a,b)=>b.date.localeCompare(a.date));
+  document.getElementById('incList').innerHTML = inc.length? inc.map(txRow).join('') : `<div style="color:var(--faint);padding:14px 0">Әзірге табыс жоқ</div>`;
+  document.getElementById('expList').innerHTML = exp.length? exp.map(txRow).join('') : `<div style="color:var(--faint);padding:14px 0">Әзірге шығын жоқ</div>`;
+}
+function renderFinSummary(){
+  const totalIn = txs.filter(t=>t.type==='in').reduce((s,t)=>s+t.amount,0);
+  const totalOut= txs.filter(t=>t.type==='out').reduce((s,t)=>s+t.amount,0);
+  const bal = totalIn-totalOut;
+  document.getElementById('totalIn').textContent=fmt(totalIn);
+  document.getElementById('totalOut').textContent=fmt(totalOut);
+  document.getElementById('incSum').textContent=fmt(totalIn);
+  document.getElementById('expSum').textContent=fmt(totalOut);
+  document.getElementById('balance').textContent=fmt(bal);
+  document.getElementById('balance').style.color = bal>=0?'var(--good)':'#f0a5a5';
+  drawFinPie();
+}
+
+/* ---------- Бөлу калькуляторы (атын да, процентін де өзі қояды) ---------- */
+function renderCalc(){
+  document.getElementById('calcAmount').value = calcCfg.amount || '';
+  const box = document.getElementById('calcRows');
+  box.innerHTML = calcCfg.rows.map((r,i)=>`
+    <div class="calc-row">
+      <input class="c-name" type="text" value="${(r.name||'').replace(/"/g,'&quot;')}" placeholder="Бөлік аты" oninput="updateCalc()">
+      <input class="c-pct" type="number" value="${r.pct}" min="0" max="100" placeholder="%" oninput="updateCalc()">
+      <span class="c-amt" data-i="${i}"></span>
+      <span class="c-del" onclick="removeCalcRow(${i})">🗑️</span>
+    </div>`).join('');
+  updateCalc();
+}
+function updateCalc(){
+  const amount = +document.getElementById('calcAmount').value || 0;
+  const rowsEl = document.querySelectorAll('#calcRows .calc-row');
+  let sum = 0;
+  rowsEl.forEach((el,i)=>{
+    const name = el.querySelector('.c-name').value;
+    const pct = +el.querySelector('.c-pct').value || 0;
+    calcCfg.rows[i] = {name, pct};
+    sum += pct;
+    el.querySelector('.c-amt').textContent = fmt(amount*pct/100);
+  });
+  calcCfg.amount = amount;
+  Store.set('calcCfg', calcCfg);
+  const tot = document.getElementById('calcTotal');
+  const cls = sum===100 ? 'ok' : 'bad';
+  const msg = sum===100 ? '✅ Дәл 100%' : (sum<100 ? `⚠️ ${100-sum}% жетпейді` : `⚠️ ${sum-100}% артық`);
+  tot.innerHTML = `<span>Жалпы процент: <span class="${cls}">${sum}%</span> <small style="color:var(--muted)">${msg}</small></span>
+                   <span>Бөлінген: <b>${fmt(amount*Math.min(sum,100)/100)}</b></span>`;
+}
+function addCalcRow(){ calcCfg.rows.push({name:'',pct:0}); renderCalc(); }
+function removeCalcRow(i){ calcCfg.rows.splice(i,1); if(!calcCfg.rows.length) calcCfg.rows.push({name:'',pct:0}); renderCalc(); }
+function autoBalance(){
+  const sum = calcCfg.rows.reduce((s,r)=>s+(+r.pct||0),0);
+  if(sum<=0){ // тең бөлу
+    const p = Math.floor(100/calcCfg.rows.length);
+    calcCfg.rows.forEach(r=>r.pct=p);
+    calcCfg.rows[0].pct += 100 - p*calcCfg.rows.length;
+  } else { // масштабтап 100-ге келтіру
+    let acc=0;
+    calcCfg.rows.forEach((r,i)=>{
+      if(i<calcCfg.rows.length-1){ r.pct=Math.round(r.pct/sum*100); acc+=r.pct; }
+      else r.pct = 100-acc;
+    });
+  }
+  renderCalc();
+}
+
+/* ============================================================
+   CHARTS (canvas)
+   ============================================================ */
+const PALETTE = ['#3987e5','#d95926','#199e70','#c98500','#d55181','#9085e9','#e66767','#008300'];
+
+function setupCanvas(cv){
+  const dpr = window.devicePixelRatio||1;
+  const rect = cv.getBoundingClientRect();
+  const w = rect.width||cv.width, h = +cv.getAttribute('height');
+  cv.width=w*dpr; cv.height=h*dpr;
+  const ctx=cv.getContext('2d'); ctx.scale(dpr,dpr);
+  return {ctx,w,h};
+}
+
+function drawFinPie(){
+  const cv=document.getElementById('finPie');
+  const ctx=cv.getContext('2d');
+  const dpr=window.devicePixelRatio||1;
+  cv.width=240*dpr; cv.height=240*dpr; ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,240,240);
+  const out = txs.filter(t=>t.type==='out');
+  const legend=document.getElementById('finLegend');
+  if(!out.length){
+    ctx.fillStyle='#64748b'; ctx.font='14px system-ui'; ctx.textAlign='center';
+    ctx.fillText('Шығын деректері жоқ',120,120);
+    legend.innerHTML=''; return;
+  }
+  const byCat={};
+  out.forEach(t=> byCat[t.cat]=(byCat[t.cat]||0)+t.amount);
+  const entries=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
+  const total=entries.reduce((s,e)=>s+e[1],0);
+  let ang=-Math.PI/2;
+  const cx=120,cy=120,r=95,ir=55;
+  entries.forEach(([cat,val],i)=>{
+    const slice=val/total*Math.PI*2;
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r,ang,ang+slice);
+    ctx.closePath();
+    ctx.fillStyle=PALETTE[i%PALETTE.length];
+    ctx.fill();
+    // 2px surface gap
+    ctx.lineWidth=2; ctx.strokeStyle='#1a2130'; ctx.stroke();
+    ang+=slice;
+  });
+  // donut hole
+  ctx.beginPath(); ctx.arc(cx,cy,ir,0,Math.PI*2); ctx.fillStyle='#1a2130'; ctx.fill();
+  ctx.fillStyle='#eef2f8'; ctx.font='700 20px system-ui'; ctx.textAlign='center';
+  ctx.fillText(fmt(total).replace(' ₸',''),cx,cy-2);
+  ctx.fillStyle='#94a1b8'; ctx.font='12px system-ui'; ctx.fillText('₸ шығын',cx,cy+16);
+
+  legend.innerHTML=entries.map(([cat,val],i)=>`
+    <span><i style="background:${PALETTE[i%PALETTE.length]}"></i>
+    ${cat} — <b style="color:var(--text)">${Math.round(val/total*100)}%</b>
+    <small style="color:var(--faint)">${fmt(val)}</small></span>`).join('');
+}
+
+function drawBar(){
+  const cv=document.getElementById('barChart');
+  const {ctx,w,h}=setupCanvas(cv);
+  ctx.clearRect(0,0,w,h);
+  // категория бойынша орташа completion
+  const data=CATEGORIES.filter(c=>!['finance','goal','gratitude'].includes(c.id)).map((c,i)=>{
+    const ts=trackers.filter(t=>t.cat===c.id && isDayBased(t));
+    const avg=ts.length? Math.round(ts.reduce((s,t)=>s+completion(t),0)/ts.length):0;
+    return {name:c.name, val:avg, color:PALETTE[i%PALETTE.length], count:ts.length};
+  });
+  const pad={l:44,r:16,t:14,b:56};
+  const cw=w-pad.l-pad.r, ch=h-pad.t-pad.b;
+  // grid + y-axis (0..100)
+  ctx.font='11px system-ui'; ctx.textAlign='right'; ctx.textBaseline='middle';
+  for(let g=0;g<=100;g+=25){
+    const y=pad.t+ch-(g/100*ch);
+    ctx.strokeStyle='#2c2c2a'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(w-pad.r,y); ctx.stroke();
+    ctx.fillStyle='#898781'; ctx.fillText(g+'%',pad.l-8,y);
+  }
+  const bw=cw/data.length;
+  data.forEach((d,i)=>{
+    const bh=d.val/100*ch;
+    const x=pad.l+i*bw+bw*0.2, bwid=bw*0.6;
+    const y=pad.t+ch-bh;
+    ctx.fillStyle=d.color;
+    roundRect(ctx,x,y,bwid,bh,4,true); // rounded top
+    // value label
+    ctx.fillStyle='#eef2f8'; ctx.font='700 12px system-ui'; ctx.textAlign='center'; ctx.textBaseline='bottom';
+    ctx.fillText(d.val+'%',x+bwid/2,y-4);
+    // x label
+    ctx.fillStyle='#94a1b8'; ctx.font='11px system-ui'; ctx.textBaseline='top';
+    wrapLabel(ctx,d.name,x+bwid/2,pad.t+ch+8,bw);
+    ctx.fillStyle='#64748b'; ctx.font='10px system-ui';
+    ctx.fillText(d.count+' трекер',x+bwid/2,pad.t+ch+24);
+  });
+}
+
+function drawLine(){
+  const cv=document.getElementById('lineChart');
+  const {ctx,w,h}=setupCanvas(cv);
+  ctx.clearRect(0,0,w,h);
+  // әр күн бойынша (1..30) орындалған әдет саны
+  const counts=new Array(30).fill(0);
+  const dayTrackers=trackers.filter(isDayBased);
+  dayTrackers.forEach(t=> t.days.forEach((d,i)=>{ if(isDaySuccess(t,d)) counts[i]++; }));
+  const maxDay=Math.max(1,dayTrackers.length);
+  const pad={l:32,r:16,t:14,b:34};
+  const cw=w-pad.l-pad.r, ch=h-pad.t-pad.b;
+  // grid
+  ctx.font='11px system-ui'; ctx.textAlign='right'; ctx.textBaseline='middle';
+  for(let g=0;g<=maxDay;g+=Math.max(1,Math.ceil(maxDay/4))){
+    const y=pad.t+ch-(g/maxDay*ch);
+    ctx.strokeStyle='#2c2c2a'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(w-pad.r,y); ctx.stroke();
+    ctx.fillStyle='#898781'; ctx.fillText(g,pad.l-6,y);
+  }
+  const activeDays = 30;
+  if(!trackers.length){
+    ctx.fillStyle='#64748b'; ctx.font='14px system-ui'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('Деректер жиналуда...',w/2,h/2); return;
+  }
+  const xAt=i=>pad.l+(i/29)*cw;
+  const yAt=v=>pad.t+ch-(v/maxDay*ch);
+  // area
+  ctx.beginPath(); ctx.moveTo(xAt(0),yAt(counts[0]));
+  for(let i=1;i<activeDays;i++) ctx.lineTo(xAt(i),yAt(counts[i]));
+  ctx.lineTo(xAt(activeDays-1),pad.t+ch); ctx.lineTo(xAt(0),pad.t+ch); ctx.closePath();
+  const grad=ctx.createLinearGradient(0,pad.t,0,pad.t+ch);
+  grad.addColorStop(0,'rgba(57,135,229,.35)'); grad.addColorStop(1,'rgba(57,135,229,0)');
+  ctx.fillStyle=grad; ctx.fill();
+  // line
+  ctx.beginPath(); ctx.moveTo(xAt(0),yAt(counts[0]));
+  for(let i=1;i<activeDays;i++) ctx.lineTo(xAt(i),yAt(counts[i]));
+  ctx.strokeStyle='#3987e5'; ctx.lineWidth=2; ctx.stroke();
+  // dots
+  for(let i=0;i<activeDays;i++){
+    ctx.beginPath(); ctx.arc(xAt(i),yAt(counts[i]),3.5,0,Math.PI*2);
+    ctx.fillStyle='#3987e5'; ctx.fill();
+    ctx.strokeStyle='#1a2130'; ctx.lineWidth=2; ctx.stroke();
+  }
+  // x labels
+  ctx.fillStyle='#898781'; ctx.font='11px system-ui'; ctx.textAlign='center'; ctx.textBaseline='top';
+  [1,10,20,30].forEach(d=> ctx.fillText(d+'-күн',xAt(d-1),pad.t+ch+8));
+}
+
+function drawDetailChart(t){
+  const cv=document.getElementById('detailChart');
+  if(!cv) return;
+  const {ctx,w,h}=setupCanvas(cv);
+  ctx.clearRect(0,0,w,h);
+  const ty=dtype(t);
+  const vals=t.days.map(v=> (v==null||v==='')?null:+v);
+  const nums=vals.filter(v=>v!=null);
+  const pad={l:34,r:12,t:12,b:26};
+  const cw=w-pad.l-pad.r, ch=h-pad.t-pad.b;
+  if(!nums.length){
+    ctx.fillStyle='#64748b';ctx.font='14px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('Дерек жоқ — ұяшықты басып мән қос',w/2,h/2);return;
+  }
+  let maxV=Math.max(...nums, t.goal||0, t.goalMax||0);
+  maxV=Math.ceil(maxV*1.15)||1;
+  const xAt=i=>pad.l+(i/29)*cw;
+  const yAt=v=>pad.t+ch-(v/maxV*ch);
+  // grid
+  ctx.font='11px system-ui';ctx.textAlign='right';ctx.textBaseline='middle';
+  for(let g=0;g<=maxV;g+=Math.max(1,Math.ceil(maxV/4))){
+    const y=yAt(g);
+    ctx.strokeStyle='#2c2c2a';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();
+    ctx.fillStyle='#898781';ctx.fillText(g,pad.l-6,y);
+  }
+  // мақсат сызығы
+  const goalLine = t.goal!=null?t.goal : (t.goalMin!=null?t.goalMin:null);
+  if(goalLine!=null && goalLine<=maxV){
+    const y=yAt(goalLine);
+    ctx.strokeStyle='#0ca30c';ctx.lineWidth=1.5;ctx.setLineDash([5,4]);
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='#0ca30c';ctx.textAlign='left';ctx.fillText('мақсат',pad.l+4,y-8);
+  }
+  if(ty==='count'){
+    // bars
+    const bw=cw/30;
+    vals.forEach((v,i)=>{ if(v==null)return;
+      const bh=v/maxV*ch, x=xAt(i)-bw*0.35, y=pad.t+ch-bh;
+      ctx.fillStyle = isDaySuccess(t,v)?'#199e70':'#3987e5';
+      roundRect(ctx,x,y,bw*0.7,bh,3,true);
+    });
+  } else {
+    // line through logged points
+    const pts=vals.map((v,i)=>v==null?null:[xAt(i),yAt(v)]).filter(Boolean);
+    ctx.beginPath();pts.forEach((p,k)=> k?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));
+    ctx.strokeStyle='#3987e5';ctx.lineWidth=2;ctx.stroke();
+    pts.forEach(p=>{ctx.beginPath();ctx.arc(p[0],p[1],3.5,0,Math.PI*2);ctx.fillStyle='#3987e5';ctx.fill();
+      ctx.strokeStyle='#1a2130';ctx.lineWidth=2;ctx.stroke();});
+  }
+  ctx.fillStyle='#898781';ctx.font='11px system-ui';ctx.textAlign='center';ctx.textBaseline='top';
+  [1,10,20,30].forEach(d=>ctx.fillText(d+'',xAt(d-1),pad.t+ch+8));
+}
+function roundRect(ctx,x,y,w,h,r,topOnly){
+  if(h<0.5){ctx.fillRect(x,y,w,Math.max(h,0));return;}
+  r=Math.min(r,w/2,h);
+  ctx.beginPath();
+  ctx.moveTo(x,y+h);
+  ctx.lineTo(x,y+r); ctx.arcTo(x,y,x+r,y,r);
+  ctx.lineTo(x+w-r,y); ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h);
+  ctx.closePath(); ctx.fill();
+}
+function wrapLabel(ctx,text,x,y,maxw){
+  const words=text.split(' '); let line='',yy=y;
+  for(const wd of words){
+    if(ctx.measureText(line+wd).width>maxw && line){ ctx.fillText(line.trim(),x,yy); line=wd+' '; yy+=13; }
+    else line+=wd+' ';
+  }
+  ctx.fillText(line.trim(),x,yy);
+}
+
+/* ============================================================
+   ANALYTICS
+   ============================================================ */
+function healthStats(){
+  const hs=trackers.filter(t=>t.cat==='health' && isDayBased(t));
+  if(!hs.length) return null;
+  const index=Math.round(hs.reduce((s,t)=>s+completion(t),0)/hs.length);
+  let recS=0,recT=0;
+  hs.forEach(t=>{ const p=daysPassed(t); for(let i=Math.max(0,p-7);i<p;i++){ recT++; if(isDaySuccess(t,t.days[i])) recS++; } });
+  const recent = recT? Math.round(recS/recT*100): index;
+  return {index, recent, delta: recent-index, count:hs.length};
+}
+function renderHealthPanel(){
+  const el=document.getElementById('healthPanel');
+  const hs=healthStats();
+  if(!hs){ el.innerHTML=''; return; }
+  el.innerHTML=`
+    <div class="health-panel">
+      <div class="gauge-wrap">
+        <canvas id="healthGauge" width="180" height="110"></canvas>
+        <div class="gtext"><div class="gv" id="hgv">${hs.index}</div><div class="gl">/ 100</div></div>
+      </div>
+      <div class="hp-info">
+        <h3>❤️ Денсаулық индексі</h3>
+        <div style="color:var(--muted);font-size:14px;margin-bottom:8px">${hs.count} денсаулық трекерінің орташа орындалуы.</div>
+        <div class="delta" style="color:${hs.delta>0?'var(--good)':hs.delta<0?'#f0a5a5':'var(--muted)'}">
+          ${hs.delta>0?'▲ ':hs.delta<0?'▼ ':'■ '}Соңғы аптада денсаулығың ${Math.abs(hs.delta)}%-ға ${hs.delta>0?'жақсарды':hs.delta<0?'төмендеді':'тұрақты'}
+        </div>
+      </div>
+    </div>`;
+  drawGauge(document.getElementById('healthGauge'), hs.index);
+}
+function drawGauge(cv,val){
+  const {ctx,w,h}=setupCanvas(cv);
+  ctx.clearRect(0,0,w,h);
+  const cx=w/2, cy=h-6, r=Math.min(w/2-10, h-16);
+  const col = val>=70?'#0ca30c':val>=40?'#fab219':'#d03b3b';
+  ctx.lineCap='round'; ctx.lineWidth=14;
+  ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,2*Math.PI);ctx.strokeStyle='#2c2c2a';ctx.stroke();
+  ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,Math.PI+(val/100)*Math.PI);ctx.strokeStyle=col;ctx.stroke();
+}
+function renderAchievements(){
+  const el=document.getElementById('achievements');
+  if(!trackers.length){ el.innerHTML=''; return; }
+  const counts={7:0,21:0,30:0};
+  trackers.forEach(t=>{ const b=bestStreak(t); BADGES.forEach(x=>{ if(b>=x.n) counts[x.n]++; }); });
+  el.innerHTML=`<div class="ach-row">
+    ${BADGES.map(x=>`<div class="ach"><span class="ae">${x.emo}</span>
+      <div><div class="an">${counts[x.n]}</div><div class="al">${x.label} қатар алды</div></div></div>`).join('')}
+  </div>`;
+}
+function renderAnalytics(){
+  const kpi=document.getElementById('kpis');
+  renderHealthPanel(); renderAchievements();
+  if(!trackers.length){
+    kpi.innerHTML='';
+    document.getElementById('derived').innerHTML=
+      `<div class="empty"><span class="em">📊</span>Талдау үшін алдымен трекер қос.</div>`;
+    // бос диаграммалар
+    drawBar(); drawLine();
+    return;
+  }
+  const formed = trackers.filter(t=>completion(t)>=80 && daysPassed(t)>=7).length;
+  const avgAll = Math.round(trackers.reduce((s,t)=>s+completion(t),0)/trackers.length);
+  const best = Math.max(...trackers.map(bestStreak));
+  const totalDone = trackers.reduce((s,t)=>s+successDays(t),0);
+
+  kpi.innerHTML=`
+    <div class="kpi"><div class="big">${trackers.length}</div><div class="lbl">Белсенді трекер</div></div>
+    <div class="kpi"><div class="big" style="color:var(--s3)">${formed}</div><div class="lbl">Қалыптасқан әдет</div><div class="sub">≥80% & 7+ күн</div></div>
+    <div class="kpi"><div class="big">${avgAll}%</div><div class="lbl">Орташа тұрақтылық</div></div>
+    <div class="kpi"><div class="big">🔥 ${best}</div><div class="lbl">Ең ұзын қатар</div></div>
+    <div class="kpi"><div class="big">${totalDone}</div><div class="lbl">Барлығы орындалған күн</div></div>`;
+
+  drawBar(); drawLine();
+
+  // Туынды метрикалар — категория бойынша "неше %-ға артты"
+  const rows=CATEGORIES.filter(c=>!['finance','goal','gratitude'].includes(c.id)).map(c=>{
+    const ts=trackers.filter(t=>t.cat===c.id && isDayBased(t));
+    if(!ts.length) return null;
+    const avg=Math.round(ts.reduce((s,t)=>s+completion(t),0)/ts.length);
+    return {name:c.name,emo:c.emo,avg,count:ts.length};
+  }).filter(Boolean);
+
+  document.getElementById('derived').innerHTML = `
+    <div class="chart-box">
+      <h3>Қорытынды тұжырым</h3>
+      <div class="cd">Әр саладағы прогресіңе негізделген</div>
+      ${rows.map(r=>`
+        <div class="split-item">
+          <span class="k">${r.emo} ${r.name} <small style="color:var(--faint)">(${r.count} трекер)</small></span>
+          <span class="v" style="color:${r.avg>=70?'var(--good)':r.avg>=40?'var(--warn)':'#f0a5a5'}">
+            ${r.name} бойынша ${r.avg}%-ға дамыдың</span>
+        </div>`).join('')}
+    </div>`;
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+let toastTimer;
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.remove('show'),2200);
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+renderCatTiles();
+// Сессияны тексеру — кіріп қойған болса, аккаунтқа автоматты кіру
+(function(){
+  const sess = Store.getGlobal('app_session', null);
+  if(sess && getUsers().some(u=>u.email===sess)){ loginAs(sess); }
+  else { document.getElementById('authScreen').style.display='flex'; }
+})();
+window.addEventListener('resize',()=>{
+  if(document.getElementById('analytics').classList.contains('active')){ drawBar(); drawLine(); }
+  if(document.getElementById('finance').classList.contains('active')){ drawFinPie(); }
+});
+</script>
+</body>
+</html>
