@@ -22,8 +22,26 @@
 ## Деректер сақтау
 - **Auth**: `api/register.js`/`api/login.js` — email+пароль (bcrypt хэшпен, `users` кестесі),
   сәтті кіргенде JWT токен қайтарады (180 күн жарамды). Токен `Store.setGlobal('app_token', ...)`
-  ішінде localStorage-та сақталады, әр `/api/data` сұранысында `Authorization: Bearer <token>`
+  ішінде localStorage-та сақталады, әр сұранысында `Authorization: Bearer <token>`
   ретінде жіберіледі (`authToken()`, `apiCall()`).
+- **Access control (ақылы SaaS моделі)**: `users.active` — аккаунтқа толық доступ бар ма (жаңа
+  тіркелген адамда әдепкі `false`). `users.is_admin` — админ құқығы. JWT-де сақталмайды, әр сезімтал
+  сұраныста DB-ден тексеріледі (`api/_admin.js`-тегі `requireAdmin`, `api/data.js`-тегі `active` тексеру).
+  Логин/тіркелуден кейін клиент `/api/me` шақырып ағымдағы статусты алады (`loginAs()`):
+  - `active=false` → `#pendingScreen` көрсетіледі (негізгі UI жабық, тек «Сатып алу» / «Шығу»).
+  - `is_admin=true` → навигацияда `#adminNavLink` көрінеді, `#admin` view қолжетімді болады.
+  Бірінші admin қолмен тағайындалады (`schema.sql` соңындағы SQL комментарийі немесе Neon SQL Editor-де
+  `update users set is_admin=true, active=true where email=...`).
+- **Admin панель**: `#admin` view, `renderAdmin()` — `GET /api/admin/users` арқылы барлық
+  пайдаланушыны кесте етіп көрсетеді. Әрекеттер: «Доступ беру/алу» (`toggleAccess` →
+  `POST /api/admin/grant`), «Пароль ысыру» (`resetPassPrompt` → `POST /api/admin/reset-password`,
+  админ жаңа парольді қолмен енгізеді, bcrypt-пен қайта хэшталады). Барлық admin route
+  `requireAdmin()`-мен қорғалған — тек `is_admin=true` жол ғана шақыра алады.
+- **Сатып алу (WhatsApp)**: nav-дағы «🛒 Сатып алу» батырмасы және pending экрандағы батырма
+  `buyClick()`-ті шақырады — ол `https://wa.me/77002723715?text=...` сілтемесін жаңа бетте ашады
+  (пайдаланушының email-і хабарламаға қосылады). Бұл нағыз автоматты жіберу емес — WhatsApp
+  ашылады, хабарлама дайын тұрады, адам өзі «Жіберу» басуы керек (браузерден серверсіз толық
+  автоматты WhatsApp жіберу мүмкін емес, ол үшін WhatsApp Business API/Meta тіркелуі керек).
 - **Дерек**: `api/data.js` — бір адамға бір жол (`user_data(user_id uuid pk, data jsonb, updated_at)`),
   GET/PUT арқылы. Клиент жағында:
   - `fetchCloud()` — кіргенде базадан тартып, `DATA_KEYS` тізіміндегі әр кілтті localStorage-қа құяды.
@@ -47,13 +65,14 @@
 - `#category` — категория ішіндегі карточкалар (`#cardGrid`) + арнайы беттер (мақсат/шүкіршілік)
 - `#mine` — «Менің трекерлерім» (ықшам карточка тор)
 - `#detail` — бір трекердің толық беті (`#detailBody`)
-- `#archive`, `#finance`, `#analytics`
+- `#archive`, `#finance`, `#analytics`, `#admin` (пайдаланушыларды басқару, тек `is_admin`)
+- `#pendingScreen` — доступ күту экраны (overlay, `active=false` кезде)
 - Модальдар: `#modal` (жаңа трекер), `#sleepModal`, `#gadModal`, `#welcomeModal` (манифест), `#rtModal` (кездейсоқ тапсырма)
 
 `<script>` негізгі блоктар (жоғарыдан төмен):
 1. **Store** — localStorage қабаты
 2. **CLOUD API** — `API_BASE`, `DATA_KEYS`, `apiCall/fetchCloud/syncToCloud/scheduleSync` (Neon+Vercel `api/`-мен байланыс)
-3. **AUTH** — `currentUser`, `doRegister/doLogin/loginAs/logout`
+3. **AUTH** — `currentUser`, `isAdmin`, `doRegister/doLogin/loginAs/logout`, `togglePw`, `buyClick`
 4. **DATA MODEL** — `CATEGORIES`, `TEMPLATES`, `EMOJIS`, `FIN_CATS`
 5. **STATE** — `trackers, archived, hiddenTpl, userTpl, txs, calcCfg, goals, gratitude` + `loadUserData()`
 6. **Есептеу көмекшілері** — `daysPassed, totalDays, monthGrid, dtype, isDayBased, isDaySuccess,
@@ -70,7 +89,8 @@
 14. **Диаграммалар** — `setupCanvas, drawFinPie, drawBar, drawLine, drawDetailChart, drawSleepChart,
     drawMoodChart, drawGadChart, drawGauge`
 15. **Талдау** — `renderAnalytics, healthStats, renderHealthPanel, renderAchievements`
-16. **INIT** — сессия тексеру, `renderCatTiles`
+16. **ADMIN** — `renderAdmin, toggleAccess, resetPassPrompt` (тек `is_admin` пайдаланушыға көрінеді)
+17. **INIT** — сессия тексеру, `renderCatTiles`
 
 ## Трекер деректер моделі
 ```js
@@ -104,13 +124,14 @@ in-memory), сосын Playwright сол серверге қарсы index.html 
 өзгерту → debounce sync → reload → cloud-тан қалпына келу) тексереді.
 
 ## Деплой (Vercel)
-Repo GitHub-қа қосылған, Vercel авто-деплой етеді. Бірақ мыналарсыз backend 500 қайтарады:
-1. Neon-да жоба ашып, `schema.sql`-ды SQL Editor-де бір рет орындау.
-2. Neon connection string-ті Vercel Project Settings → Environment Variables → `DATABASE_URL`.
-3. Кездейсоқ ұзын құпия жол → `JWT_SECRET` (мыс. `openssl rand -hex 32`).
-4. Env var қосқаннан кейін Vercel-де жаңа деплой шығару керек (Redeploy) — олар келесі build-те ғана қолданылады.
+Repo GitHub-қа қосылған, Vercel авто-деплой етеді (жанды сайт: `ozgerisozindiozgert-swart.vercel.app`).
+`DATABASE_URL`/`JWT_SECRET` Vercel-де орнатылған, `schema.sql` Neon-да орындалған — жұмыс істеп тұр.
+Схема өзгерсе (жаңа баған қосу т.б.), `schema.sql`-ды жаңарту **жеткіліксіз** — production базаға
+да қолмен ALTER TABLE орындау керек (Neon SQL Editor немесе `@neondatabase/serverless` арқылы
+скрипт, connection string-ті ешбір repo файлына жазбай).
 
 ## Не істеуге болады (келесі қадамдар)
-- Төлем жүйесі (Stripe/Kaspi) — ақылы жазылым
-- Пароль қалпына келтіру, профиль баптаулары
+- Төлем жүйесі (Stripe/Kaspi) — қазір WhatsApp-қа қолмен хабарласу + admin панельден қолмен
+  доступ беру арқылы жұмыс істейді; толық автоматтандыру үшін төлем provider керек.
+- Profile баптаулары (өз атыңды/паролыңды өзің өзгерту)
 - Витаминдер бойынша білім контенті (орны дайын)

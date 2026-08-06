@@ -400,6 +400,31 @@
   .user-badge{color:var(--muted);font-size:14px;font-weight:600;display:flex;align-items:center;margin-left:8px}
   .logout-btn{background:none;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:600;margin-left:12px}
   .logout-btn:hover{color:#f0a5a5;border-color:var(--crit)}
+  .pw-wrap{position:relative}
+  .pw-wrap input{padding-right:44px}
+  .pw-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);margin-top:-7px;background:none;border:none;
+    cursor:pointer;font-size:16px;padding:6px;opacity:.7;line-height:1}
+  .pw-eye:hover{opacity:1}
+  .buy-nav{background:var(--grad)!important;color:#fff!important;border-radius:8px;padding:8px 16px!important;font-weight:700!important}
+
+  /* PENDING (доступ күту) screen */
+  #pendingScreen{position:fixed;inset:0;z-index:500;background:radial-gradient(circle at 30% 20%,#16233b,#0f1420 60%);
+    display:flex;align-items:center;justify-content:center;padding:20px}
+  .pending-card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:36px;max-width:440px;width:100%;text-align:center}
+  .pending-card .pe{font-size:44px;margin-bottom:14px}
+  .pending-card h2{font-size:21px;margin-bottom:10px}
+  .pending-card p{color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:22px}
+  .pending-card .btn{margin-bottom:10px}
+
+  /* ADMIN panel */
+  .admin-table{width:100%;border-collapse:collapse;font-size:14px}
+  .admin-table th{text-align:left;color:var(--muted);font-size:12px;font-weight:700;padding:10px 12px;border-bottom:1px solid var(--line)}
+  .admin-table td{padding:12px;border-bottom:1px solid var(--line);vertical-align:middle}
+  .admin-table tr:last-child td{border-bottom:none}
+  .status-pill{padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700}
+  .status-pill.on{color:var(--good);background:#0ca30c22}
+  .status-pill.off{color:var(--warn);background:#fab21922}
+  .admin-acts{display:flex;gap:8px;flex-wrap:wrap}
 
   /* gratitude */
   .grat-card{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
@@ -426,7 +451,10 @@
       <label>Email</label>
       <input id="logEmail" type="email" placeholder="you@mail.com">
       <label>Пароль</label>
-      <input id="logPass" type="password" placeholder="••••••" onkeydown="if(event.key==='Enter')doLogin()">
+      <div class="pw-wrap">
+        <input id="logPass" type="password" placeholder="••••••" onkeydown="if(event.key==='Enter')doLogin()">
+        <button type="button" class="pw-eye" onclick="togglePw('logPass',this)">👁</button>
+      </div>
       <div class="auth-err" id="authErr"></div>
       <button class="btn" onclick="doLogin()">Кіру</button>
       <div class="auth-alt">Аккаунтың жоқ па? <span onclick="authSwitch('register')">Тіркел</span></div>
@@ -438,7 +466,10 @@
       <label>Email</label>
       <input id="regEmail" type="email" placeholder="you@mail.com">
       <label>Пароль</label>
-      <input id="regPass" type="password" placeholder="кемінде 4 таңба" onkeydown="if(event.key==='Enter')doRegister()">
+      <div class="pw-wrap">
+        <input id="regPass" type="password" placeholder="кемінде 4 таңба" onkeydown="if(event.key==='Enter')doRegister()">
+        <button type="button" class="pw-eye" onclick="togglePw('regPass',this)">👁</button>
+      </div>
       <div class="auth-err"></div>
       <button class="btn" onclick="doRegister()">Тіркелу</button>
       <div class="auth-alt">Аккаунтың бар ма? <span onclick="authSwitch('login')">Кір</span></div>
@@ -456,11 +487,25 @@
       <a class="rt-nav" onclick="randomTask()">🎲 Тапсырма</a>
       <a data-view="finance">Қаржы</a>
       <a data-view="analytics">Талдау</a>
+      <a data-view="admin" id="adminNavLink" style="display:none">🛠 Админ</a>
+      <a class="buy-nav" onclick="buyClick()">🛒 Сатып алу</a>
       <span class="user-badge" id="userBadge"></span>
       <button class="logout-btn" onclick="logout()">Шығу</button>
     </nav>
   </div>
 </header>
+
+<!-- ============ PENDING ACCESS SCREEN ============ -->
+<div id="pendingScreen" style="display:none">
+  <div class="pending-card">
+    <div class="pe">🔒</div>
+    <h2>Аккаунтыңа әлі доступ берілмеген</h2>
+    <p>ÖZGERIS-ті толық пайдалану үшін жазылымды рәсімдеу керек. Төмендегі батырма арқылы
+      WhatsApp-қа жазып, төлемді рәсімдеңіз — доступ жылдам беріледі.</p>
+    <button class="btn" onclick="buyClick()">🛒 Сатып алу (WhatsApp)</button>
+    <button class="btn ghost" onclick="logout()">Шығу</button>
+  </div>
+</div>
 
 <!-- ============ HOME / CATEGORIES ============ -->
 <section id="home" class="view active">
@@ -617,6 +662,20 @@
       </div>
     </div>
     <div id="derived" style="margin-top:24px"></div>
+  </div>
+</section>
+
+<!-- ============ ADMIN ============ -->
+<section id="admin" class="view">
+  <div class="container">
+    <h1 class="page-title">🛠 Админ панель</h1>
+    <p class="page-sub">Пайдаланушыларға доступ беру/алу, парольді ысырып тастау.</p>
+    <div class="box" style="overflow-x:auto">
+      <table class="admin-table" id="adminTable">
+        <thead><tr><th>Аты</th><th>Email</th><th>Статус</th><th>Тіркелген</th><th></th></tr></thead>
+        <tbody id="adminBody"></tbody>
+      </table>
+    </div>
   </div>
 </section>
 
@@ -825,25 +884,53 @@ async function doLogin(){
     await loginAs(email);
   }catch(e){ authErr(e.message); }
 }
+let isAdmin = false;
 async function loginAs(email){
   currentUser=email;
   Store.setGlobal('app_session', email);
+  document.getElementById('authScreen').style.display='none';
+
+  let me = null;
+  try{ me = (await apiCall('/me', 'GET')).user; }catch(e){ /* backend қолжетімсіз — pending экраны көрсетеміз */ }
+
+  isAdmin = !!(me && me.is_admin);
+  document.getElementById('adminNavLink').style.display = isAdmin ? '' : 'none';
+  if(me) Store.setGlobal('app_name', me.name);
+
+  if(!me || !me.active){
+    document.getElementById('pendingScreen').style.display='flex';
+    return;
+  }
+  document.getElementById('pendingScreen').style.display='none';
+
   await fetchCloud();   // базадан деректі тартып, локал кэшке құяды
   loadUserData();
-  const name = Store.getGlobal('app_name', email);
-  document.getElementById('userBadge').textContent='👤 '+name;
-  document.getElementById('authScreen').style.display='none';
+  document.getElementById('userBadge').textContent='👤 '+me.name;
   renderCatTiles();
   showView('home');
   if(!Store.get('seenWelcome', false)) showWelcome();  // алғаш кіргенде манифест
 }
 function showWelcome(){ document.getElementById('welcomeModal').classList.add('open'); }
 function closeWelcome(){ document.getElementById('welcomeModal').classList.remove('open'); Store.set('seenWelcome', true); scheduleSync(); }
+function togglePw(id, btn){
+  const el = document.getElementById(id);
+  const show = el.type === 'password';
+  el.type = show ? 'text' : 'password';
+  btn.textContent = show ? '🙈' : '👁';
+}
+function buyClick(){
+  const who = currentUser ? `\nEmail: ${currentUser}` : '';
+  const msg = encodeURIComponent(`Сәлем! ÖZGERIS қосымшасына доступ сатып алғым келеді.${who}`);
+  window.open(`https://wa.me/77002723715?text=${msg}`, '_blank');
+}
 function logout(){
   currentUser=null;
+  isAdmin=false;
   Store.setGlobal('app_session', null);
   Store.setGlobal('app_token', null);
   Store.setGlobal('app_name', null);
+  document.getElementById('pendingScreen').style.display='none';
+  document.getElementById('adminNavLink').style.display='none';
   document.getElementById('authScreen').style.display='flex';
   authSwitch('login');
   ['logEmail','logPass','regName','regEmail','regPass'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
@@ -1058,7 +1145,43 @@ function showView(v){
   if(v==='finance') renderFinance();
   if(v==='analytics') renderAnalytics();
   if(v==='archive') renderArchive();
+  if(v==='admin') renderAdmin();
   window.scrollTo(0,0);
+}
+
+/* ============================================================
+   ADMIN — пайдаланушыларды басқару (доступ беру/алу, пароль ысыру)
+   ============================================================ */
+async function renderAdmin(){
+  const body = document.getElementById('adminBody');
+  body.innerHTML = '<tr><td colspan="5">Жүктелуде...</td></tr>';
+  try{
+    const r = await apiCall('/admin/users', 'GET');
+    body.innerHTML = r.users.map(u=>`
+      <tr>
+        <td>${u.name}</td>
+        <td>${u.email}${u.is_admin?' <span class="status-pill on">админ</span>':''}</td>
+        <td><span class="status-pill ${u.active?'on':'off'}">${u.active?'белсенді':'күтуде'}</span></td>
+        <td>${new Date(u.created_at).toLocaleDateString('kk-KZ')}</td>
+        <td><div class="admin-acts">
+          <button class="btn ghost sm" onclick="toggleAccess('${u.id}',${!u.active})">${u.active?'Доступ алу':'Доступ беру'}</button>
+          <button class="btn ghost sm" onclick="resetPassPrompt('${u.id}','${u.email}')">Пароль ысыру</button>
+        </div></td>
+      </tr>`).join('') || '<tr><td colspan="5">Пайдаланушы жоқ</td></tr>';
+  }catch(e){
+    body.innerHTML = `<tr><td colspan="5">Қате: ${e.message}</td></tr>`;
+  }
+}
+async function toggleAccess(userId, active){
+  try{ await apiCall('/admin/grant', 'POST', {userId, active}); toast(active?'Доступ берілді':'Доступ алынды'); renderAdmin(); }
+  catch(e){ toast('Қате: '+e.message); }
+}
+async function resetPassPrompt(userId, email){
+  const p = prompt(`${email} үшін жаңа пароль (кемінде 4 таңба):`);
+  if(!p) return;
+  if(p.length<4){ toast('Пароль кемінде 4 таңба болу керек'); return; }
+  try{ await apiCall('/admin/reset-password', 'POST', {userId, newPass:p}); toast('Пароль ауыстырылды'); }
+  catch(e){ toast('Қате: '+e.message); }
 }
 
 /* ============================================================

@@ -6,6 +6,9 @@ module.exports = async (req, res) => {
   if (!payload) return res.status(401).json({ error: 'unauthorized' });
 
   try {
+    const acc = await sql`select active from users where id = ${payload.uid}`;
+    if (!acc[0] || !acc[0].active) return res.status(403).json({ error: 'Аккаунтқа доступ әлі берілмеген' });
+
     if (req.method === 'GET') {
       const rows = await sql`select data from user_data where user_id = ${payload.uid}`;
       return res.status(200).json({ data: rows[0] ? rows[0].data : {} });

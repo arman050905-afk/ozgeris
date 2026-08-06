@@ -8,8 +8,13 @@ create table if not exists users (
   name       text not null,
   email      text not null unique,
   pass_hash  text not null,
+  is_admin   boolean not null default false,
+  active     boolean not null default false, -- төлем расталғанша аккаунт күтуде тұрады
   created_at timestamptz not null default now()
 );
+
+-- Бірінші admin-ды қолмен тағайында (өз email-ыңды қой):
+-- update users set is_admin = true, active = true where email = 'сенің email-ың';
 
 create table if not exists user_data (
   user_id    uuid primary key references users(id) on delete cascade,
