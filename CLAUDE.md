@@ -6,20 +6,34 @@
 қараңғы (dark) тема. Мақсат — адамдарға сату (SaaS).
 
 ## Технология (маңызды!)
-- **Бір ғана файл**: `index.html` — таза HTML + CSS + vanilla JS. **Framework жоқ, build жоқ, npm жоқ.**
-- Іске қосу: `index.html`-ты браузерде ашу жеткілікті (немесе Vercel-ге статик сайт ретінде деплой).
+- **Фронтенд бір ғана файл**: `index.html` — таза HTML + CSS + vanilla JS. **Framework жоқ, build жоқ.**
+- **Backend**: `api/` папкасындағы шағын Vercel serverless функциялар (`register.js`, `login.js`,
+  `data.js`, ортақ көмекшілер `_db.js`/`_auth.js`) — Node.js, `package.json`-дағы 3 тәуелділік қана
+  (`@neondatabase/serverless`, `bcryptjs`, `jsonwebtoken`). npm/build тек backend үшін керек, фронтенд
+  өзгеріссіз таза HTML/CSS/JS болып қалады.
+- Іске қосу: локалда `index.html`-ты ашу — UI көрінеді, бірақ cloud auth/sync backend-сіз жұмыс
+  істемейді (`fetch('/api/...')` қатесі шығады, error хабары UI-де көрсетіледі). Толық жұмыс үшін
+  Vercel-ге деплой керек (GitHub-тан авто-деплой қосулы).
 - Диаграммалар — таза `<canvas>` (сыртқы кітапхана жоқ).
-- Жалғыз сыртқы тәуелділік: Supabase JS SDK (CDN арқылы, база қосылғанда ғана).
+- Дерекқор: **Neon** (serverless Postgres). Схема — `schema.sql` (Neon SQL Editor-де бір рет орындау
+  керек). Vercel-де `DATABASE_URL` және `JWT_SECRET` env var орнатылуы міндетті — соларсыз `api/*`
+  функциялары бірден 500 қатесін қайтарады (`_db.js`/`_auth.js` ішінде тексеріледі).
 
-## Деректер сақтау (екі режим)
-Файл басындағы `SUPABASE_URL` / `SUPABASE_ANON_KEY` конфигіне қарай:
-- **Толтырылмаса (CLOUD=false)**: бәрі `localStorage`-та сақталады (демо режим).
-- **Толтырылса (CLOUD=true)**: Supabase Auth (email+пароль) + `user_data` кестесі (jsonb).
-  Деректер localStorage-та кэштеледі әрі базаға debounce-пен синхрондалады (`scheduleSync`/`syncToCloud`).
+## Деректер сақтау
+- **Auth**: `api/register.js`/`api/login.js` — email+пароль (bcrypt хэшпен, `users` кестесі),
+  сәтті кіргенде JWT токен қайтарады (180 күн жарамды). Токен `Store.setGlobal('app_token', ...)`
+  ішінде localStorage-та сақталады, әр `/api/data` сұранысында `Authorization: Bearer <token>`
+  ретінде жіберіледі (`authToken()`, `apiCall()`).
+- **Дерек**: `api/data.js` — бір адамға бір жол (`user_data(user_id uuid pk, data jsonb, updated_at)`),
+  GET/PUT арқылы. Клиент жағында:
+  - `fetchCloud()` — кіргенде базадан тартып, `DATA_KEYS` тізіміндегі әр кілтті localStorage-қа құяды.
+  - `scheduleSync()`/`syncToCloud()` — өзгеріс болғанда (debounce ~1.2с) ағымдағы жад күйін
+    (`trackers, archived, hiddenTpl, userTpl, txs, calcCfg, goals, gratitude, seenWelcome`) толығымен
+    PUT арқылы жібереді. Әр `save*()` функциясы соңында `scheduleSync()` шақырылады.
+  - `cloudOk` — соңғы синхрон сәтті ме, соны white-flag ретінде сақтайды (backend қолжетімсіз болса
+    да қолданушы localStorage кэшімен жұмыс істей береді).
 - `Store` — localStorage үстіндегі қабат. `Store.get/set(key)` кілтті ағымдағы қолданушыға
-  байлайды (`u:<userId>:<key>`). `Store.getGlobal/setGlobal` — қолданушыдан тәуелсіз (сессия/аккаунттар).
-- Supabase кестесі (SQL қажет болса): `user_data(user_id uuid pk, data jsonb, updated_at)` + RLS
-  (әр адам тек `auth.uid() = user_id` жолын көреді).
+  байлайды (`u:<userId>:<key>`). `Store.getGlobal/setGlobal` — қолданушыдан тәуелсіз (сессия/токен).
 
 ## Кодтың құрылымы (бәрі index.html ішінде)
 `<head><style>`: CSS. `:root` айнымалылары — түстер (`--bg,--panel,--line,--text,--muted`,
@@ -37,9 +51,9 @@
 - Модальдар: `#modal` (жаңа трекер), `#sleepModal`, `#gadModal`, `#welcomeModal` (манифест), `#rtModal` (кездейсоқ тапсырма)
 
 `<script>` негізгі блоктар (жоғарыдан төмен):
-1. **Supabase конфигі** — URL/KEY, `sb`, `fetchCloud/syncToCloud/scheduleSync`
-2. **Store** — localStorage қабаты
-3. **AUTH** — `currentUser`, `doRegister/doLogin/onAuthed/loginAs/logout`
+1. **Store** — localStorage қабаты
+2. **CLOUD API** — `API_BASE`, `DATA_KEYS`, `apiCall/fetchCloud/syncToCloud/scheduleSync` (Neon+Vercel `api/`-мен байланыс)
+3. **AUTH** — `currentUser`, `doRegister/doLogin/loginAs/logout`
 4. **DATA MODEL** — `CATEGORIES`, `TEMPLATES`, `EMOJIS`, `FIN_CATS`
 5. **STATE** — `trackers, archived, hiddenTpl, userTpl, txs, calcCfg, goals, gratitude` + `loadUserData()`
 6. **Есептеу көмекшілері** — `daysPassed, totalDays, monthGrid, dtype, isDayBased, isDaySuccess,
@@ -75,20 +89,28 @@
 
 ## Конвенциялар
 - UI мәтіні — **қазақша**. Түстер тек `:root` айнымалылары арқылы.
-- Жаңа сақталатын дерек қосқанда `DATA_KEYS` тізіміне (Supabase конфигі жанында) кілтін қосу керек,
-  әйтпесе базаға синхрондалмайды.
+- Жаңа сақталатын дерек қосқанда `DATA_KEYS` тізіміне (CLOUD API блогында) **және** `syncToCloud()`
+  ішіндегі `data` объектісіне кілтін қосу керек, әйтпесе базаға синхрондалмайды.
 - Күн ұяшықтарының түсі `gradeColor(0..1)` — қызыл→сары→жасыл градиент.
 - Жаңа деректі өзгерткен сайын тиісті `save*()` шақыру керек (мыс. `save()` трекерлер үшін,
-  `saveGoals()`, `saveTx()` т.б.) — олар localStorage-қа жазып, база синхронын іске қосады.
+  `saveGoals()`, `saveTx()` т.б.) — олар localStorage-қа жазып, соңында `scheduleSync()` шақырып,
+  база синхронын іске қосады. Жаңа `save*()` жазсаң, соңына `scheduleSync()` қосуды ұмытпа.
 
 ## Тестілеу
-Playwright бар. Мысалы:
-```js
-// браузерде index.html-ды file:// арқылы ашып, тіркеліп, әрекеттерді тексеру
-```
+Playwright бар. `api/*` нағыз Neon/JWT env var-сыз локалда жұмыс істемейтіндіктен, backend-ті
+тексеру үшін тесттерде нағыз API-мен бірдей контракты бар (`/api/register`, `/api/login`,
+`/api/data` GET/PUT) жеңіл mock Node HTTP сервер қолдану ыңғайлы (нағыз auth/DB логикасыз, тек
+in-memory), сосын Playwright сол серверге қарсы index.html ашып, толық ағынды (тіркелу → дерек
+өзгерту → debounce sync → reload → cloud-тан қалпына келу) тексереді.
+
+## Деплой (Vercel)
+Repo GitHub-қа қосылған, Vercel авто-деплой етеді. Бірақ мыналарсыз backend 500 қайтарады:
+1. Neon-да жоба ашып, `schema.sql`-ды SQL Editor-де бір рет орындау.
+2. Neon connection string-ті Vercel Project Settings → Environment Variables → `DATABASE_URL`.
+3. Кездейсоқ ұзын құпия жол → `JWT_SECRET` (мыс. `openssl rand -hex 32`).
+4. Env var қосқаннан кейін Vercel-де жаңа деплой шығару керек (Redeploy) — олар келесі build-те ғана қолданылады.
 
 ## Не істеуге болады (келесі қадамдар)
-- Supabase базасын жалғау (конфигті толтыру + SQL кесте) — деректі серверде сақтау
 - Төлем жүйесі (Stripe/Kaspi) — ақылы жазылым
 - Пароль қалпына келтіру, профиль баптаулары
 - Витаминдер бойынша білім контенті (орны дайын)

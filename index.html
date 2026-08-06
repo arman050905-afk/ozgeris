@@ -749,11 +749,50 @@ const Store = (() => {
 })();
 
 /* ============================================================
-   AUTH — кіру/тіркелу (қазірге localStorage; кейін Supabase)
+   CLOUD API — Neon (Postgres) негізіндегі Vercel serverless backend.
+   Әр адамның деректері /api/data арқылы сақталады, localStorage — кэш.
+   ============================================================ */
+const API_BASE = '/api';
+const DATA_KEYS = ['trackers','archived','hiddenTpl','userTpl','txs','calcCfg','goals','gratitude','seenWelcome'];
+let cloudOk = true; // backend қолжетімсіз болса, локал кэшпен жұмыс жалғасады
+function authToken(){ return Store.getGlobal('app_token', null); }
+async function apiCall(path, method, body){
+  const headers = {'Content-Type':'application/json'};
+  const t = authToken();
+  if(t) headers.Authorization = 'Bearer '+t;
+  const res = await fetch(API_BASE+path, {method, headers, body: body?JSON.stringify(body):undefined});
+  let json = {}; try{ json = await res.json(); }catch(e){}
+  if(!res.ok) throw new Error(json.error || 'Қате шықты, қайта көр');
+  return json;
+}
+// Кіргенде базадан деректі тартып, локал кэшке құяды (loadUserData содан оқиды)
+async function fetchCloud(){
+  try{
+    const r = await apiCall('/data', 'GET');
+    const data = r.data || {};
+    DATA_KEYS.forEach(k=>{ if(data[k]!==undefined) Store.set(k, data[k]); });
+    cloudOk = true;
+  }catch(e){ cloudOk = false; }
+}
+// Ағымдағы жад күйін базаға жібереді (save*() функциялары шақырады, debounce-пен)
+let syncTimer;
+function scheduleSync(){
+  if(!currentUser) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(syncToCloud, 1200);
+}
+async function syncToCloud(){
+  if(!currentUser) return;
+  const data = { trackers, archived, hiddenTpl, userTpl, txs, calcCfg, goals, gratitude,
+    seenWelcome: Store.get('seenWelcome', false) };
+  try{ await apiCall('/data', 'PUT', {data}); cloudOk = true; }
+  catch(e){ cloudOk = false; }
+}
+
+/* ============================================================
+   AUTH — кіру/тіркелу (Neon базасына Vercel API арқылы)
    ============================================================ */
 let currentUser = null;
-function getUsers(){ return Store.getGlobal('app_users', []); }
-function setUsers(u){ Store.setGlobal('app_users', u); }
 function authSwitch(mode){
   document.getElementById('authLogin').style.display  = mode==='login'?'block':'none';
   document.getElementById('authRegister').style.display = mode==='register'?'block':'none';
@@ -762,41 +801,49 @@ function authSwitch(mode){
   document.querySelectorAll('.auth-err').forEach(e=>e.textContent='');
 }
 function authErr(msg){ document.querySelectorAll('.auth-err').forEach(e=>e.textContent=msg); }
-function doRegister(){
+async function doRegister(){
   const name=document.getElementById('regName').value.trim();
   const email=document.getElementById('regEmail').value.trim().toLowerCase();
   const pass=document.getElementById('regPass').value;
   if(!name||!email||!pass){ authErr('Барлық өрісті толтыр'); return; }
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ authErr('Email дұрыс емес'); return; }
   if(pass.length<4){ authErr('Пароль кемінде 4 таңба'); return; }
-  const users=getUsers();
-  if(users.some(u=>u.email===email)){ authErr('Бұл email тіркелген — кіріп көр'); return; }
-  users.push({name,email,pass}); setUsers(users);   // ⚠️ пароль ашық — база қосылғанда қауіпсіз болады
-  loginAs(email);
+  try{
+    const r = await apiCall('/register', 'POST', {name, email, pass});
+    Store.setGlobal('app_token', r.token);
+    Store.setGlobal('app_name', r.user.name);
+    await loginAs(email);
+  }catch(e){ authErr(e.message); }
 }
-function doLogin(){
+async function doLogin(){
   const email=document.getElementById('logEmail').value.trim().toLowerCase();
   const pass=document.getElementById('logPass').value;
-  const u=getUsers().find(x=>x.email===email);
-  if(!u || u.pass!==pass){ authErr('Email не пароль қате'); return; }
-  loginAs(email);
+  try{
+    const r = await apiCall('/login', 'POST', {email, pass});
+    Store.setGlobal('app_token', r.token);
+    Store.setGlobal('app_name', r.user.name);
+    await loginAs(email);
+  }catch(e){ authErr(e.message); }
 }
-function loginAs(email){
+async function loginAs(email){
   currentUser=email;
   Store.setGlobal('app_session', email);
+  await fetchCloud();   // базадан деректі тартып, локал кэшке құяды
   loadUserData();
-  const u=getUsers().find(x=>x.email===email);
-  document.getElementById('userBadge').textContent='👤 '+((u&&u.name)||email);
+  const name = Store.getGlobal('app_name', email);
+  document.getElementById('userBadge').textContent='👤 '+name;
   document.getElementById('authScreen').style.display='none';
   renderCatTiles();
   showView('home');
   if(!Store.get('seenWelcome', false)) showWelcome();  // алғаш кіргенде манифест
 }
 function showWelcome(){ document.getElementById('welcomeModal').classList.add('open'); }
-function closeWelcome(){ document.getElementById('welcomeModal').classList.remove('open'); Store.set('seenWelcome', true); }
+function closeWelcome(){ document.getElementById('welcomeModal').classList.remove('open'); Store.set('seenWelcome', true); scheduleSync(); }
 function logout(){
   currentUser=null;
   Store.setGlobal('app_session', null);
+  Store.setGlobal('app_token', null);
+  Store.setGlobal('app_name', null);
   document.getElementById('authScreen').style.display='flex';
   authSwitch('login');
   ['logEmail','logPass','regName','regEmail','regPass'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
@@ -850,12 +897,12 @@ let txs = [];        // [{id,type:'in'|'out',cat,amount,date}]
 let calcCfg = {amount:0, rows:[]};
 let goals = {big:[], small:[], plans:{monthly:[], weekly:[], daily:[]}};
 let gratitude = [];  // [{id,date,a1,a2,a3}]
-function saveArchived(){ Store.set('archived', archived); }
-function saveHidden(){ Store.set('hiddenTpl', hiddenTpl); }
-function saveUserTpl(){ Store.set('userTpl', userTpl); }
+function saveArchived(){ Store.set('archived', archived); scheduleSync(); }
+function saveHidden(){ Store.set('hiddenTpl', hiddenTpl); scheduleSync(); }
+function saveUserTpl(){ Store.set('userTpl', userTpl); scheduleSync(); }
 function tplKey(cat,name){ return cat+'|'+name; }
-function saveGoals(){ Store.set('goals', goals); }
-function saveGrat(){ Store.set('gratitude', gratitude); }
+function saveGoals(){ Store.set('goals', goals); scheduleSync(); }
+function saveGrat(){ Store.set('gratitude', gratitude); scheduleSync(); }
 
 // Ағымдағы қолданушының деректерін жүктеу (кіргеннен кейін шақырылады)
 function loadUserData(){
@@ -903,8 +950,8 @@ const RANDOM_TASKS = [
 let activeCat = 'health';
 let selectedEmoji = EMOJIS[0];
 
-function save(){ Store.set('trackers', trackers); }
-function saveTx(){ Store.set('txs', txs); }
+function save(){ Store.set('trackers', trackers); scheduleSync(); }
+function saveTx(){ Store.set('txs', txs); scheduleSync(); }
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 function todayStr(){ return new Date().toISOString().slice(0,10); }
 function fmt(n){ return Math.round(n).toLocaleString('ru-RU')+' ₸'; }
@@ -2243,7 +2290,7 @@ function updateCalc(){
     el.querySelector('.c-amt').textContent = fmt(amount*pct/100);
   });
   calcCfg.amount = amount;
-  Store.set('calcCfg', calcCfg);
+  Store.set('calcCfg', calcCfg); scheduleSync();
   const tot = document.getElementById('calcTotal');
   const cls = sum===100 ? 'ok' : 'bad';
   const msg = sum===100 ? '✅ Дәл 100%' : (sum<100 ? `⚠️ ${100-sum}% жетпейді` : `⚠️ ${sum-100}% артық`);
@@ -2597,7 +2644,8 @@ renderCatTiles();
 // Сессияны тексеру — кіріп қойған болса, аккаунтқа автоматты кіру
 (function(){
   const sess = Store.getGlobal('app_session', null);
-  if(sess && getUsers().some(u=>u.email===sess)){ loginAs(sess); }
+  const tok = Store.getGlobal('app_token', null);
+  if(sess && tok){ loginAs(sess); }
   else { document.getElementById('authScreen').style.display='flex'; }
 })();
 window.addEventListener('resize',()=>{
