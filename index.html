@@ -1892,7 +1892,39 @@ function renderVitamins(t){
       </div>`:'<div style="color:var(--warn);margin-top:12px">Ең көбі 7 витамин.</div>'}
       <div class="box" style="margin-top:16px">
         <div class="box-head"><h3>${ic('book2')} Витаминдер бойынша білім</h3></div>
-        <div style="color:var(--muted);font-size:14px">Бұл бөлімге кейін мазмұн (мақалалар/кеңестер) қосылады. Орны дайын.</div>
+        <div style="font-size:14px;line-height:1.7">
+          <p style="margin:0 0 12px;font-weight:700;letter-spacing:.02em">ВИТАМИН МАҢЫЗДЫЛЫҒЫ</p>
+          <p style="color:var(--muted);margin:0 0 14px">Нашар экология, стресс, ластық және құнарсыз тағамдарға толы "дамыған" әлемде витаминдер денсаулығымыз бен әл-ауқатымызды сақтауда өте маңызды рөл атқарады. Витаминдер өміріміздің ажырамас бір бөлігі болып табылады және дене мен организмдеріміздің қалыпты жұмыс жасауына көп әсерін тигізеді.</p>
+          <p style="color:var(--muted);margin:0 0 10px">Егер сіз үнемі шаршаңқылық, әлсіздік, ұйқысыздық немесе қандай да бір істі жасауға деген ынтасыздықты сезінсеңіз, бұлар көп жағдайда ағзадағы витаминдер тапшылығынан болады. Витаминдер сізге не береді?</p>
+          <ul style="list-style:none;padding:0;margin:0 0 18px;display:grid;gap:7px">
+            <li style="color:var(--good)">${ic('checkCircle')} <span style="color:var(--text)">Иммунитет күшейеді</span></li>
+            <li style="color:var(--good)">${ic('checkCircle')} <span style="color:var(--text)">Вирус, бактериялардан сақтайды</span></li>
+            <li style="color:var(--good)">${ic('checkCircle')} <span style="color:var(--text)">Энергия, күш береді</span></li>
+            <li style="color:var(--good)">${ic('checkCircle')} <span style="color:var(--text)">Тері, шаш, тырнақ сау болады</span></li>
+            <li style="color:var(--good)">${ic('checkCircle')} <span style="color:var(--text)">Жүрек-қан тамырлары ауруларын алдын алады</span></li>
+            <li style="color:var(--good)">${ic('checkCircle')} <span style="color:var(--text)">Сүйектер мен тістер сау болады</span></li>
+            <li style="color:var(--good)">${ic('checkCircle')} <span style="color:var(--text)">Жақсы көңіл-күйде боласыз</span></li>
+            <li style="color:var(--good)">${ic('checkCircle')} <span style="color:var(--text)">Есте сақтау қабілеті күшейеді</span></li>
+            <li style="color:var(--good)">${ic('checkCircle')} <span style="color:var(--text)">Ұйқыңыз қанып жүреді</span></li>
+          </ul>
+          <p style="margin:0 0 10px;font-weight:700">Ең көп қолданылатын витаминдер тізімі</p>
+          <ul style="list-style:none;padding:0;margin:0 0 18px;display:grid;gap:10px;color:var(--muted)">
+            <li><b style="color:var(--text)">${ic('pill')} Витамин D3</b> — сүйек пен тістердің саулығына жауап береді, кальцийдің сіңуіне көмектеседі, иммунитетті арттырады.</li>
+            <li><b style="color:var(--text)">${ic('pill')} Витамин C</b> — иммундық жүйені нығайтады, теріні жақсартады, шаршауды азайтады.</li>
+            <li><b style="color:var(--text)">${ic('pill')} Витамин B12</b> — энергия өндіруге және жүйке жүйесінің қалыпты жұмысына қажет.</li>
+            <li><b style="color:var(--text)">${ic('pill')} Магний</b> — бұлшықеттердің, жүрек пен жүйке жүйесінің жұмысын реттейді, ұйқының сапасын жақсартады.</li>
+            <li><b style="color:var(--text)">${ic('pill')} Цинк</b> — тері мен шаштың саулығын сақтайды, иммундық жүйені қолдайды.</li>
+            <li><b style="color:var(--text)">${ic('pill')} Йод</b> — қалқанша бездің жұмысын жақсартады, энергия мен метаболизмді реттейді.</li>
+            <li><b style="color:var(--text)">${ic('pill')} Омега-3</b> — ми мен жүрек-қан тамырлары жүйесін қорғайды, көңіл-күйді тұрақтандырады.</li>
+            <li><b style="color:var(--text)">${ic('pill')} Темір</b> — қан түзілуіне және ағзаға оттегі жеткізуге қатысады, әлсіздік пен бас айналудың алдын алады.</li>
+            <li><b style="color:var(--text)">${ic('pill')} Коллаген</b> — тері серпімділігін сақтайды, буындар мен сүйектерді нығайтады.</li>
+          </ul>
+          <div style="background:var(--panel-2);border-radius:12px;padding:16px">
+            <b style="color:var(--warn)">${ic('alertTriangle')} Маңызды ескерту</b>
+            <p style="color:var(--muted);margin:10px 0 0">Витаминдерді қабылдамас бұрын міндетті түрде дәрігермен кеңесіңіз. Әр адамның ағзасы әртүрлі, сондықтан қандай витаминдер жетіспейтінін білу үшін анализдер тапсырған жөн.</p>
+            <p style="color:var(--muted);margin:10px 0 0">Содан кейін ғана өзіңіздің жеке жоспарыңызды құрып, жоғарыдағы витамин трекерінде күн сайын қабылдауды белгілеңіз. Бұл сізге тәртіп пен жүйелілікті сақтауға көмектеседі — ал нәтиже алғашқы айдың өзінде-ақ сезіле бастайды.</p>
+          </div>
+        </div>
       </div>
       ${detailFooter(t)}
     </div>`;
