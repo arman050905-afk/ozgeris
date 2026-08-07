@@ -217,11 +217,14 @@
   .calc-total{display:flex;justify-content:space-between;align-items:center;padding-top:12px;margin-top:6px;border-top:1px solid var(--line);font-weight:700}
   .calc-total .ok{color:var(--good)}
   .calc-total .bad{color:var(--warn)}
-  .piggy-grid{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
-  .piggy-chip{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:12px 16px;
-    font-weight:700;font-size:15px;cursor:pointer;transition:.2s;min-width:44px;min-height:44px;
-    display:flex;align-items:center;justify-content:center;color:var(--text)}
-  .piggy-chip:hover{border-color:var(--s3);color:var(--s3);transform:translateY(-2px)}
+  .piggy-img{width:100%;aspect-ratio:16/7;object-fit:cover;border-radius:14px;margin-bottom:16px;display:block;background:var(--panel-2)}
+  .piggy-name{font-size:19px;font-weight:800;margin-bottom:10px}
+  .piggy-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:6px;margin-bottom:16px;
+    background:var(--panel-2);border:1px solid var(--line);border-radius:14px;padding:10px}
+  .piggy-chip{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 4px;
+    font-weight:700;font-size:13px;cursor:pointer;transition:.2s;aspect-ratio:1/1;
+    display:flex;align-items:center;justify-content:center;color:var(--text);text-align:center}
+  .piggy-chip:hover{border-color:var(--s3);color:var(--s3);transform:scale(1.06)}
   .piggy-chip.gone{opacity:0;transform:scale(.4);pointer-events:none}
   .piggy-total{display:flex;justify-content:space-between;align-items:center;background:var(--panel-2);
     border-radius:12px;padding:14px 18px;font-size:15px;margin-top:6px}
@@ -1035,7 +1038,7 @@ let txs = [];        // [{id,type:'in'|'out',cat,amount,date}]
 let calcCfg = {amount:0, rows:[]};
 let goals = {big:[], small:[], plans:{monthly:[], weekly:[], daily:[]}};
 let gratitude = [];  // [{id,date,a1,a2,a3}]
-let piggy = null;    // {target, pieces:[{id,amount,done}], createdAt} | null
+let piggy = null;    // {name, target, pieces:[{id,amount,done}], createdAt, image} | null
 function saveArchived(){ Store.set('archived', archived); scheduleSync(); }
 function saveHidden(){ Store.set('hiddenTpl', hiddenTpl); scheduleSync(); }
 function saveUserTpl(){ Store.set('userTpl', userTpl); scheduleSync(); }
@@ -2455,11 +2458,23 @@ function genPiggyPieces(target){
   return pieces;
 }
 function savePiggy(){ Store.set('piggy', piggy); scheduleSync(); }
-function startPiggy(){
+async function fetchGoalImage(name){
+  try{
+    const r = await fetch('/api/goal-image?q='+encodeURIComponent(name));
+    if(!r.ok) return null;
+    const d = await r.json();
+    return d.image || null;
+  }catch(e){ return null; }
+}
+async function startPiggy(){
+  const name = document.getElementById('piggyName').value.trim();
   const amount = +document.getElementById('piggyTarget').value;
+  if(!name){ toast('Мақсат атауын жаз'); return; }
   if(!amount || amount<=0){ toast('Соманы дұрыс енгіз'); return; }
-  piggy = { target:amount, pieces: genPiggyPieces(amount), createdAt: todayStr() };
+  piggy = { name, target:amount, pieces: genPiggyPieces(amount), createdAt: todayStr(), image:null };
   savePiggy(); renderPiggy();
+  const img = await fetchGoalImage(name);
+  if(piggy && piggy.name===name){ piggy.image = img; savePiggy(); renderPiggy(); }
 }
 function collectPiece(id){
   if(!piggy) return;
@@ -2477,7 +2492,9 @@ function renderPiggy(){
   if(!body) return;
   if(!piggy){
     body.innerHTML = `
-      <div style="color:var(--muted);font-size:14px;margin-bottom:14px">Мақсат сомаңды жаз — біз оны ұсақ-ұсақ бөліктерге (500-100 000 ₸ аралығында, араластырып) бөліп береміз. Әр бөлікті нақты өмірде жинаған сайын үстінен бас — сол бөлік жоғалады, ал жиналған сома өседі.</div>
+      <div style="color:var(--muted);font-size:14px;margin-bottom:14px">Мақсатыңды жаз (мыс: iPhone 17, Дубайға саяхат) және сомасын көрсет — біз оны ұсақ-ұсақ бөліктерге бөліп, суретін тауып береміз. Әр бөлікті нақты өмірде жинаған сайын үстінен бас — сол бөлік жоғалады, ал жиналған сома өседі.</div>
+      <label>Мақсат атауы</label>
+      <input type="text" id="piggyName" placeholder="Мыс: iPhone 17, Дубайға саяхат">
       <label>Мақсат сома (₸)</label>
       <input type="number" id="piggyTarget" placeholder="100000">
       <button class="btn" onclick="startPiggy()">${ic('piggyBank')} Бастау</button>`;
@@ -2487,6 +2504,8 @@ function renderPiggy(){
   const pct = Math.min(100, Math.round(collected/piggy.target*100));
   const left = piggy.pieces.filter(p=>!p.done);
   body.innerHTML = `
+    ${piggy.image? `<img class="piggy-img" src="${piggy.image}" alt="${piggy.name.replace(/"/g,'&quot;')}">` : ''}
+    <div class="piggy-name">${ic('target')} ${piggy.name||''}</div>
     <div class="progressbar"><span style="width:${pct}%"></span></div>
     <div style="display:flex;justify-content:space-between;margin:10px 0 16px;font-size:14px">
       <span style="color:var(--muted)">Мақсат: <b style="color:var(--text)">${fmt(piggy.target)}</b></span>
