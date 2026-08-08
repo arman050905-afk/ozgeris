@@ -547,6 +547,7 @@
       <a data-view="mine">Менің трекерлерім</a>
       <a class="rt-nav" onclick="randomTask()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='4' y='4' width='16' height='16' rx='3'/><circle cx='8' cy='8' r='1.2' fill='currentColor' stroke='none'/><circle cx='16' cy='8' r='1.2' fill='currentColor' stroke='none'/><circle cx='12' cy='12' r='1.2' fill='currentColor' stroke='none'/><circle cx='8' cy='16' r='1.2' fill='currentColor' stroke='none'/><circle cx='16' cy='16' r='1.2' fill='currentColor' stroke='none'/></svg> Тапсырма</a>
       <a data-view="finance">Қаржы</a>
+      <a data-view="debts">Қарыз</a>
       <a data-view="analytics">Талдау</a>
       <a data-view="admin" id="adminNavLink" style="display:none"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M12,3 L19,6 L19,12 L12,20 L5,12 L5,6 Z'/></svg> Админ</a>
       <a class="buy-nav" id="buyNavBtn" onclick="buyClick()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M4,4 H6 L8,15 H18 L20,8 H7'/><circle cx='9' cy='19' r='1.4' fill='currentColor' stroke='none'/><circle cx='17' cy='19' r='1.4' fill='currentColor' stroke='none'/></svg> Сатып алу</a>
@@ -708,6 +709,34 @@
   </div>
 </section>
 
+<!-- ============ DEBTS (қарыз) ============ -->
+<section id="debts" class="view">
+  <div class="container">
+    <h1 class="page-title"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='3' x2='12' y2='20'/><line x1='4' y1='7' x2='20' y2='7'/><circle cx='4' cy='13' r='3'/><circle cx='20' cy='13' r='3'/><line x1='4' y1='7' x2='4' y2='10'/><line x1='20' y1='7' x2='20' y2='10'/></svg> Қарыз</h1>
+    <p class="page-sub">Кімге қарызсың, кім саған қарыз — бәрі бір жерден көрінеді.</p>
+
+    <div class="box" style="margin-bottom:20px">
+      <div style="display:flex;gap:14px;flex-wrap:wrap">
+        <div class="stat" style="flex:1"><div class="num" style="color:var(--good)" id="debtOwedSum">0 ₸</div><div class="lbl">Маған қарыз</div></div>
+        <div class="stat" style="flex:1"><div class="num" style="color:#f0a5a5" id="debtIoweSum">0 ₸</div><div class="lbl">Мен қарызбын</div></div>
+        <div class="stat" style="flex:1"><div class="num" id="debtNetSum">0 ₸</div><div class="lbl">Таза баланс</div></div>
+      </div>
+    </div>
+
+    <div class="top-bar" style="justify-content:space-between;align-items:center">
+      <div class="tabs" id="debtTabs"></div>
+      <button class="btn sm" onclick="openDebtModal()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='5' x2='12' y2='19'/><line x1='5' y1='12' x2='19' y2='12'/></svg> Жаңа қарыз</button>
+    </div>
+
+    <div id="debtList" class="grid"></div>
+
+    <div id="debtClosedWrap" style="margin-top:30px">
+      <h3 style="margin-bottom:14px;color:var(--muted);font-size:15px"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='9'/><polyline points='8,12 11,15 16,9'/></svg> Жабылған қарыздар</h3>
+      <div id="debtClosedList" class="grid"></div>
+    </div>
+  </div>
+</section>
+
 <!-- ============ ANALYTICS ============ -->
 <section id="analytics" class="view">
   <div class="container">
@@ -776,6 +805,25 @@
     <div class="modal-actions">
       <button class="btn ghost" onclick="closeCreate()">Болдырмау</button>
       <button class="btn" onclick="saveCustom()">Жасау</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ DEBT MODAL ============ -->
+<div class="modal-bg" id="debtModal">
+  <div class="modal">
+    <h3 id="debtModalTitle">Жаңа қарыз қосу</h3>
+    <label>Кім (аты)</label>
+    <input id="dPerson" placeholder="Мысалы: Асхат">
+    <label>Сома (₸)</label>
+    <input id="dAmount" type="number" placeholder="100000" min="0">
+    <div class="row">
+      <div><label>Алынған күні</label><input id="dDate" type="date"></div>
+      <div><label>Қайтару мерзімі</label><input id="dDue" type="date"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeDebtModal()">Болдырмау</button>
+      <button class="btn" onclick="saveDebt()">Қосу</button>
     </div>
   </div>
 </div>
@@ -899,7 +947,7 @@ function toggleTheme(){
    Әр адамның деректері /api/data арқылы сақталады, localStorage — кэш.
    ============================================================ */
 const API_BASE = '/api';
-const DATA_KEYS = ['trackers','archived','hiddenTpl','userTpl','txs','calcCfg','goals','gratitude','seenWelcome','piggy'];
+const DATA_KEYS = ['trackers','archived','hiddenTpl','userTpl','txs','calcCfg','goals','gratitude','seenWelcome','piggy','debts'];
 let cloudOk = true; // backend қолжетімсіз болса, локал кэшпен жұмыс жалғасады
 function authToken(){ return Store.getGlobal('app_token', null); }
 async function apiCall(path, method, body){
@@ -929,7 +977,7 @@ function scheduleSync(){
 }
 async function syncToCloud(){
   if(!currentUser) return;
-  const data = { trackers, archived, hiddenTpl, userTpl, txs, calcCfg, goals, gratitude, piggy,
+  const data = { trackers, archived, hiddenTpl, userTpl, txs, calcCfg, goals, gratitude, piggy, debts,
     seenWelcome: Store.get('seenWelcome', false) };
   try{ await apiCall('/data', 'PUT', {data}); cloudOk = true; }
   catch(e){ cloudOk = false; }
@@ -1083,12 +1131,14 @@ let calcCfg = {amount:0, rows:[]};
 let goals = {big:[], small:[], plans:{monthly:[], weekly:[], daily:[]}};
 let gratitude = [];  // [{id,date,a1,a2,a3}]
 let piggy = null;    // {name, target, pieces:[{id,amount,done}], createdAt, image} | null
+let debts = [];      // [{id,type:'iowe'|'owed',person,amount,paid,date,due,closedAt}]
 function saveArchived(){ Store.set('archived', archived); scheduleSync(); }
 function saveHidden(){ Store.set('hiddenTpl', hiddenTpl); scheduleSync(); }
 function saveUserTpl(){ Store.set('userTpl', userTpl); scheduleSync(); }
 function tplKey(cat,name){ return cat+'|'+name; }
 function saveGoals(){ Store.set('goals', goals); scheduleSync(); }
 function saveGrat(){ Store.set('gratitude', gratitude); scheduleSync(); }
+function saveDebts(){ Store.set('debts', debts); scheduleSync(); }
 
 // Ағымдағы қолданушының деректерін жүктеу (кіргеннен кейін шақырылады)
 function loadUserData(){
@@ -1114,6 +1164,7 @@ function loadUserData(){
   if(!goals.plans) goals.plans={monthly:[],weekly:[],daily:[]};
   gratitude = Store.get('gratitude', []);
   piggy = Store.get('piggy', null);
+  debts = Store.get('debts', []);
 }
 
 // Кездейсоқ тапсырмалар (адамды қызықтыру үшін)
@@ -1243,6 +1294,7 @@ function showView(v){
   if(navLink) navLink.classList.add('active');
   if(v==='mine') renderMine();
   if(v==='finance') renderFinance();
+  if(v==='debts') renderDebts();
   if(v==='analytics') renderAnalytics();
   if(v==='archive') renderArchive();
   if(v==='admin') renderAdmin();
@@ -2563,6 +2615,102 @@ function renderPiggy(){
       <b>${fmt(collected)}</b>
     </div>
     <button class="btn ghost sm" style="margin-top:14px" onclick="resetPiggy()">${ic('refresh')} Жаңа мақсат бастау</button>`;
+}
+
+/* ---------- Қарыз (мен қарызбын / маған қарыз) ---------- */
+let debtTab = 'iowe';
+function switchDebtTab(k){ debtTab = k; renderDebts(); }
+function debtRemaining(d){ return Math.max(0, d.amount - d.paid); }
+function debtPct(d){ return d.amount ? Math.min(100, Math.round(d.paid/d.amount*100)) : 100; }
+
+function openDebtModal(){
+  document.getElementById('dPerson').value = '';
+  document.getElementById('dAmount').value = '';
+  document.getElementById('dDate').value = todayStr();
+  document.getElementById('dDue').value = '';
+  document.getElementById('debtModalTitle').textContent = debtTab==='iowe' ? 'Жаңа қарыз (мен қарызбын)' : 'Жаңа қарыз (маған қарыз)';
+  document.getElementById('debtModal').classList.add('open');
+}
+function closeDebtModal(){ document.getElementById('debtModal').classList.remove('open'); }
+function saveDebt(){
+  const person = document.getElementById('dPerson').value.trim();
+  const amount = +document.getElementById('dAmount').value;
+  const date = document.getElementById('dDate').value || todayStr();
+  const due = document.getElementById('dDue').value || '';
+  if(!person){ toast('Атын жаз'); return; }
+  if(!amount || amount<=0){ toast('Соманы дұрыс енгіз'); return; }
+  debts.push({id:uid(), type:debtTab, person, amount, paid:0, date, due, closedAt:null});
+  saveDebts(); closeDebtModal(); renderDebts();
+}
+function payDebt(id){
+  const d = debts.find(x=>x.id===id);
+  if(!d || d.closedAt) return;
+  const rem = debtRemaining(d);
+  const raw = prompt(`${d.person} — қанша төледі(ң)? (қалды: ${fmt(rem)})`, rem);
+  if(raw===null) return;
+  const amt = +raw;
+  if(!amt || amt<=0){ toast('Соманы дұрыс енгіз'); return; }
+  d.paid = Math.min(d.amount, d.paid + amt);
+  if(d.paid >= d.amount) d.closedAt = todayStr();
+  saveDebts(); renderDebts();
+}
+function delDebt(id){
+  if(!confirm('Қарызды өшіреміз бе?')) return;
+  debts = debts.filter(x=>x.id!==id);
+  saveDebts(); renderDebts();
+}
+function debtDueBadge(d){
+  if(d.closedAt || !d.due) return '';
+  const diff = Math.ceil((new Date(d.due) - new Date(todayStr())) / 86400000);
+  if(diff < 0) return `<div style="color:var(--crit);font-weight:700;font-size:13px;margin-bottom:10px">${ic('alertTriangle')} Мерзімі ${Math.abs(diff)} күн бұрын өтті</div>`;
+  if(diff <= 3) return `<div style="color:var(--warn);font-weight:700;font-size:13px;margin-bottom:10px">${ic('clock')} ${diff===0?'Мерзімі бүгін бітеді':'Мерзіміне '+diff+' күн қалды'}</div>`;
+  return '';
+}
+function debtCard(d){
+  const rem = debtRemaining(d);
+  const pct = debtPct(d);
+  const posColor = d.type==='owed' ? 'var(--good)' : 'var(--crit)';
+  return `<div class="card">
+    <div class="icon" style="background:${d.type==='owed'?'#0ca30c22':'#d03b3b22'};color:${posColor}">${ic(d.type==='owed'?'arrowDownCircle':'arrowUpCircle')}</div>
+    <h3>${d.person}</h3>
+    <div class="tag">${fmtDate(d.date)}${d.due?' · қайтару: '+fmtDate(d.due):''}</div>
+    <div class="progressbar" style="margin:12px 0 10px"><span style="width:${pct}%"></span></div>
+    <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:10px">
+      <span style="color:var(--muted)">Барлығы: <b style="color:var(--text)">${fmt(d.amount)}</b></span>
+      <span><b style="color:${posColor}">${pct}%</b></span>
+    </div>
+    ${d.closedAt
+      ? `<div style="color:var(--good);font-weight:700;margin-bottom:10px">${ic('checkCircle')} Жабылған</div>`
+      : `<div style="color:var(--muted);margin-bottom:6px">Қалды: <b style="color:var(--text)">${fmt(rem)}</b></div>${debtDueBadge(d)}`}
+    <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+      ${!d.closedAt ? `<button class="btn sm" onclick="payDebt('${d.id}')">${ic('wallet')} Төлеу</button>` : ''}
+      <span class="del" onclick="delDebt('${d.id}')" style="margin-left:auto">${ic('trash')}</span>
+    </div>
+  </div>`;
+}
+function renderDebts(){
+  const tabsEl = document.getElementById('debtTabs');
+  if(!tabsEl) return;
+  tabsEl.innerHTML = `
+    <button class="tab ${debtTab==='iowe'?'active':''}" onclick="switchDebtTab('iowe')">Мен қарызбын</button>
+    <button class="tab ${debtTab==='owed'?'active':''}" onclick="switchDebtTab('owed')">Маған қарыз</button>`;
+
+  const active = debts.filter(d=>d.type===debtTab && !d.closedAt);
+  const closed = debts.filter(d=>d.type===debtTab && d.closedAt);
+  document.getElementById('debtList').innerHTML = active.length
+    ? active.map(debtCard).join('')
+    : `<div class="empty" style="padding:20px 0"><span class="em">${ic('wallet')}</span>Әзірге қарыз жоқ</div>`;
+  document.getElementById('debtClosedWrap').style.display = closed.length ? 'block' : 'none';
+  document.getElementById('debtClosedList').innerHTML = closed.map(debtCard).join('');
+
+  const owedSum = debts.filter(d=>d.type==='owed' && !d.closedAt).reduce((s,d)=>s+debtRemaining(d),0);
+  const ioweSum = debts.filter(d=>d.type==='iowe' && !d.closedAt).reduce((s,d)=>s+debtRemaining(d),0);
+  document.getElementById('debtOwedSum').textContent = fmt(owedSum);
+  document.getElementById('debtIoweSum').textContent = fmt(ioweSum);
+  const net = owedSum - ioweSum;
+  const netEl = document.getElementById('debtNetSum');
+  netEl.textContent = (net>=0?'+':'') + fmt(net);
+  netEl.style.color = net>=0 ? 'var(--good)' : '#f0a5a5';
 }
 
 function addIncome(){
