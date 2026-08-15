@@ -102,8 +102,9 @@
     (апта/ай/жыл period), `renderFinBudget`+`renderCalc` (лимит + бөлу калькуляторы), `renderFinGoals`
     (`finGoals` — ескі `piggy`-нің жалғасы, мерзіммен), `renderFinCashflow`+`monthBuckets`,
     `renderFinInvest` (`investments`, баға қолмен), `renderDebts` (ескі `debts` логикасы өзгеріссіз),
-    `renderFinAI`+`computeRuleInsights` (тегін, клиентте) + `askAiAdvice` (`/api/ai-advice`, LLM),
-    `enablePush/disablePush/renderPushSection` (браузер push, `sw.js` + `/api/push/*`)
+    `renderFinAI`+`computeRuleInsights` (жедел, тегін) + `generateManagerReport`/`askAiAdvice`
+    (толық қорытынды — бәрі клиентте есептеледі, сыртқы AI API жоқ, толығымен тегін),
+    `enablePush/disablePush/renderPushSection` (браузер push, `sw.js` + `/api/push.js`)
 14. **Диаграммалар** — `setupCanvas, drawFinPie, drawBar, drawLine, drawDetailChart, drawSleepChart,
     drawMoodChart, drawGadChart, drawGauge`
 15. **Талдау** — `renderAnalytics, healthStats, renderHealthPanel, renderAchievements`
@@ -152,15 +153,22 @@ Repo GitHub-қа қосылған, Vercel авто-деплой етеді (жа
 қаржылық мақсат атауына сурет іздейді (pexels.com/api-де тегін тіркеліп алуға болады). Орнатылмаса,
 функция жай ғана `image:null` қайтарады, UI суретсіз, бірақ қалғаны толық жұмыс істей береді.
 
-`ANTHROPIC_API_KEY` (қосымша, міндетті емес) — `api/ai-advice.js` (Қаржы→AI көмекші→«Толығырақ
-талдау сұрау») осы кілтпен Claude Haiku-ге сұраныс жібереді (`claude-haiku-4-5-20251001`).
-Орнатылмаса, 503 + Қазақша хабар қайтарады; тегін ереже-негізді талдау (`computeRuleInsights`)
-кілтсіз де жұмыс істейді. Күндік лимит — 5 шақыру/пайдаланушы (`users.ai_calls_today`,
-`schema.sql` миграциясы).
+**AI көмекші толығымен тегін** — `api/ai-advice.js` (Anthropic-қа ақылы шақыру жасайтын) 2026-08-15
+жойылды, пайдаланушы ақы төлегісі келмеді. `computeRuleInsights` (жедел) және
+`generateManagerReport` (толық қорытынды, «Талдау сұрау» батырмасы) екеуі де таза JS, желіге
+шықпайды. Қайта LLM қосу керек болса, `api/ai-advice.js`-ті осы commit тарихынан қалпына келтіруге
+болады, бірақ 12-функция лимитін ескеру керек (төменде).
+
+**Vercel Hobby жоспарының шегі**: бір деплойда көбі **12 serverless function** болуы мүмкін
+(`api/` ішіндегі `_`-мен басталмаған әр `.js` файл — бір функция, `_db.js`/`_auth.js`/`_admin.js`
+саналмайды). Асып кетсе, **бүкіл деплой сәтсіз аяқталады** және сайт ескі нұсқада тыныш қала
+береді (UI-де ешбір қате көрінбейді!) — жаңа `api/*.js` файл қосар алдында
+`find api -name "*.js" ! -name "_*" | wc -l` арқылы санды тексер. Осы себептен
+`api/push/subscribe.js`+`unsubscribe.js` бір `api/push.js`-ке біріктірілді (POST/DELETE).
 
 **Push ескертулер (бюджет асуы, қарыз мерзімі)** — толық жұмыс істеу үшін мыналар керек:
 1. Neon SQL Editor-де `schema.sql`-дың соңындағы миграция блогын орында (`push_subscriptions`
-   кестесі + `users.ai_calls_*` бағандары).
+   кестесі).
 2. Vercel env vars: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (`mailto:...`) —
    `npx web-push generate-vapid-keys` арқылы генерациялайсың; `CRON_SECRET` — кез келген құпия
    жол (Vercel Cron сұранысын `/api/cron/check-alerts`-ты қорғау үшін автоматты
