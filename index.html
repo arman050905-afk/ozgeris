@@ -890,6 +890,15 @@
         <button class="btn" id="aiAskBtn" onclick="askAiAdvice()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M9,18 H15'/><path d='M10,21 H14'/><path d='M12,3 a6,6 0 0 0 -3.5,10.9 c0.7,0.5 1,1.3 1,2.1 H14.5 c0,-0.8 0.3,-1.6 1,-2.1 A6,6 0 0 0 12,3 Z'/></svg> Талдау сұрау</button>
         <div id="aiAdviceBody" style="margin-top:16px"></div>
       </div>
+      <div class="box" style="margin-top:20px">
+        <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M21,11.5 a8.38,8.38 0 0 1 -0.9,3.8 8.5,8.5 0 0 1 -7.6,4.7 8.38,8.38 0 0 1 -3.8,-0.9 L3,21 l1.9,-5.7 a8.38,8.38 0 0 1 -0.9,-3.8 8.5,8.5 0 0 1 4.7,-7.6 8.38,8.38 0 0 1 3.8,-0.9 h0.5 a8.48,8.48 0 0 1 8,8 v0.5 Z'/></svg> Сұрақ қой</div></div>
+        <div class="cd" style="color:var(--muted);font-size:14px;margin-bottom:14px">Қаржыңыз туралы сұрақ жаз — мыс. «Бұл ай қанша жұмсадым?», «Кімге қарызбын?», «Мақсатыма жеттім бе?». Жауап бірден, тегін беріледі.</div>
+        <div class="row">
+          <input type="text" id="finQInput" placeholder="Сұрағыңды жаз..." onkeydown="if(event.key==='Enter')askFinanceQuestion()">
+          <button class="btn" id="finQBtn" style="max-width:130px" onclick="askFinanceQuestion()">Сұрау</button>
+        </div>
+        <div id="finQAHistory"></div>
+      </div>
     </div>
   </div>
 </section>
@@ -3214,6 +3223,7 @@ function renderFinAI(){
   const insights=computeRuleInsights();
   document.getElementById('aiRuleInsights').innerHTML = insights.map(t=>`<div class="split-item"><span class="k">${ic('lightbulb')} ${t}</span></div>`).join('');
   renderAiAdviceBody();
+  renderFinQAHistory();
 }
 function renderAiAdviceBody(){
   const el=document.getElementById('aiAdviceBody');
@@ -3280,6 +3290,84 @@ function askAiAdvice(){
   aiAdvice = {text: generateManagerReport(), generatedAt:new Date().toISOString()};
   Store.set('aiAdvice', aiAdvice); scheduleSync();
   renderAiAdviceBody();
+}
+
+/* ---------- Сұрақ-жауап (тегін, кілт сөзге негізделген — LLM емес) ---------- */
+function normalizeQ(q){ return q.toLowerCase().replace(/[?!.,ё]/g,' ').trim(); }
+const FIN_QA_RULES = [
+  { test:/маған\s*қарыз|кім\s*маған/, answer: ()=>{
+      const owed = debts.filter(d=>d.type==='owed'&&!d.closedAt).reduce((s,d)=>s+debtRemaining(d),0);
+      return owed>0 ? `Сізге жалпы ${fmt(owed)} қарыз бар.` : 'Сізге ешкім қарыз емес.';
+  }},
+  { test:/мен\s*қарыз|кімге\s*қарыз|борыш/, answer: ()=>{
+      const iowe = debts.filter(d=>d.type==='iowe'&&!d.closedAt).reduce((s,d)=>s+debtRemaining(d),0);
+      return iowe>0 ? `Сіз жалпы ${fmt(iowe)} қарызсыз.` : 'Сіз ешкімге қарыз емессіз.';
+  }},
+  { test:/бюджет|лимит/, answer: ()=>{
+      const over = budgetWarnings();
+      return over.length ? `Бюджет лимитінен асқан санаттар: ${over.join(', ')}.` : 'Барлық бюджет лимиттерінің шегінде тұрсыз.';
+  }},
+  { test:/ең көп|қайда кетті|қай санат/, answer: ()=>{
+      const {from,to}=periodRange('month');
+      const byCat={}; txs.filter(t=>t.type==='out'&&t.date>=from&&t.date<=to).forEach(t=>byCat[t.cat]=(byCat[t.cat]||0)+t.amount);
+      const top=Object.entries(byCat).sort((a,b)=>b[1]-a[1])[0];
+      return top ? `Ең көп шығын — «${top[0]}» санатына кетті (${fmt(top[1])}).` : 'Бұл ай шығын деректері жоқ.';
+  }},
+  { test:/мақсат|жет/, answer: ()=>{
+      if(!finGoals.length) return 'Әзірге қаржылық мақсат қоймағансыз.';
+      return finGoals.map(g=>{ const saved=finGoalSaved(g), pct=Math.round(saved/g.target*100); return `«${g.name}» — ${pct}% (${fmt(saved)} / ${fmt(g.target)})`; }).join('; ')+'.';
+  }},
+  { test:/жинақ|үнемде/, answer: ()=>{
+      const {from,to}=periodRange('month'); const inc=sumTx('in',from,to), out=sumTx('out',from,to);
+      if(!inc) return 'Бұл ай кіріс деректері жоқ.';
+      return `Осы ай кірістің ${Math.round((inc-out)/inc*100)}%-ын жинадыңыз.`;
+  }},
+  { test:/болжам|келесі ай/, answer: ()=>{
+      const buckets=monthBuckets(3); const avg=Math.round(buckets.reduce((s,b)=>s+b.net,0)/buckets.length);
+      return `Соңғы 3 айдың орташасы бойынша, келесі ай шамамен ${fmt(avg)} таза пайда күтіледі.`;
+  }},
+  { test:/инвестиц|roi/, answer: ()=>{
+      if(!investments.length) return 'Әзірге инвестиция қоспағансыз.';
+      const cost=investments.reduce((s,i)=>s+i.buyPrice*i.qty,0), val=investments.reduce((s,i)=>s+i.currentPrice*i.qty,0);
+      const roi = cost? Math.round((val-cost)/cost*1000)/10 : 0;
+      return `Инвестицияларыңыздың жалпы пайда/зияны: ${fmt(val-cost)} (ROI ${roi>=0?'+':''}${roi}%).`;
+  }},
+  { test:/өткен ай|салыстыр/, answer: ()=>{
+      const {from,to}=periodRange('month'); const {from:pf,to:pt}=prevPeriodRange('month');
+      const out=sumTx('out',from,to), pOut=sumTx('out',pf,pt);
+      if(!pOut) return 'Өткен ай деректері жеткіліксіз.';
+      return `Шығыныңыз өткен айға қарағанда ${Math.round((out-pOut)/pOut*100)>=0?'+':''}${Math.round((out-pOut)/pOut*100)}% өзгерді.`;
+  }},
+  { test:/табыс|кіріс|тапт/, answer: ()=>{
+      const {from,to}=periodRange('month'); return `Осы ай табысыңыз — ${fmt(sumTx('in',from,to))}.`;
+  }},
+  { test:/шығын|жұмсад/, answer: ()=>{
+      const {from,to}=periodRange('month'); return `Осы ай шығыныңыз — ${fmt(sumTx('out',from,to))}.`;
+  }},
+  { test:/баланс|қалды/, answer: ()=>`Жалпы балансыңыз — ${fmt(sumTx('in')-sumTx('out'))}.` },
+];
+function answerFinanceQuestion(q){
+  const norm=normalizeQ(q);
+  for(const rule of FIN_QA_RULES){ if(rule.test.test(norm)) return rule.answer(); }
+  return 'Түсінбедім. Мысалы: «Бұл ай қанша жұмсадым?», «Кімге қарызбын?», «Ең көп қайда жұмсадым?», «Бюджеттен астым ба?», «Мақсатыма жеттім бе?» деп сұрап көріңіз.';
+}
+let finQAHistory = [];
+function askFinanceQuestion(){
+  const el=document.getElementById('finQInput');
+  const q=el.value.trim();
+  if(!q) return;
+  finQAHistory.unshift({q, answer: answerFinanceQuestion(q)});
+  el.value='';
+  renderFinQAHistory();
+}
+function renderFinQAHistory(){
+  const el=document.getElementById('finQAHistory');
+  if(!el) return;
+  el.innerHTML = finQAHistory.map(item=>`
+    <div style="margin:14px 0;padding-top:14px;border-top:1px solid var(--line)">
+      <div style="font-weight:700;margin-bottom:6px">${ic('user')} ${item.q.replace(/</g,'&lt;')}</div>
+      <div style="color:var(--muted)">${ic('lightbulb')} ${item.answer.replace(/</g,'&lt;')}</div>
+    </div>`).join('');
 }
 
 /* ---------- Қарыз (мен қарызбын / маған қарыз) ---------- */
