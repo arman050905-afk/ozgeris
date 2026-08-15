@@ -2981,7 +2981,7 @@ async function enablePush(){
     if(perm!=='granted'){ toast('Рұқсат берілмеді'); return; }
     const reg = await navigator.serviceWorker.register('/sw.js');
     const sub = await reg.pushManager.subscribe({ userVisibleOnly:true, applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) });
-    await apiCall('/push/subscribe', 'POST', {subscription: sub.toJSON()});
+    await apiCall('/push', 'POST', {subscription: sub.toJSON()});
     toast('Push ескертулер қосылды');
     renderPushSection();
   }catch(e){ toast('Қате: '+e.message); }
@@ -2989,7 +2989,7 @@ async function enablePush(){
 async function disablePush(){
   try{
     const sub = await currentPushSub();
-    if(sub){ await apiCall('/push/unsubscribe', 'POST', {endpoint: sub.endpoint}); await sub.unsubscribe(); }
+    if(sub){ await apiCall('/push', 'DELETE', {endpoint: sub.endpoint}); await sub.unsubscribe(); }
     toast('Push ескертулер өшірілді');
   }catch(e){ toast('Қате: '+e.message); }
   renderPushSection();
