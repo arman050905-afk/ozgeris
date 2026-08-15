@@ -9,6 +9,7 @@ module.exports = async (req, res) => {
     hasCronSecret: !!process.env.CRON_SECRET,
     hasVapidPublic: !!process.env.VAPID_PUBLIC_KEY,
     hasVapidPrivate: !!process.env.VAPID_PRIVATE_KEY,
+    testHello: process.env.TEST_HELLO || null,
     vercelEnv: process.env.VERCEL_ENV || null,
     vercelGitBranch: process.env.VERCEL_GIT_COMMIT_REF || null,
     vercelGitSha: process.env.VERCEL_GIT_COMMIT_SHA || null,
