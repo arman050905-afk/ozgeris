@@ -73,7 +73,9 @@
 - `#category` — категория ішіндегі карточкалар (`#cardGrid`) + арнайы беттер (мақсат/шүкіршілік)
 - `#mine` — «Менің трекерлерім» (ықшам карточка тор)
 - `#detail` — бір трекердің толық беті (`#detailBody`)
-- `#archive`, `#finance`, `#analytics`, `#admin` (пайдаланушыларды басқару, тек `is_admin`)
+- `#archive`, `#finance` (қаржы — umbrella view, ішінде 10 ішкі `finTab`: Dashboard/Кірістер/
+  Шығыстар/Аналитика/Бюджет/Мақсаттар/Cash Flow/Инвестициялар/Қарыздар/AI, `#fp-*` панельдер),
+  `#analytics`, `#admin` (пайдаланушыларды басқару, тек `is_admin`)
 - `#pendingScreen` — доступ күту экраны (overlay, `active=false` кезде)
 - Модальдар: `#modal` (жаңа трекер), `#sleepModal`, `#gadModal`, `#welcomeModal` (манифест), `#rtModal` (кездейсоқ тапсырма)
 
@@ -94,7 +96,14 @@
 11. **Арнайы трекерлер (kind)** — `renderSleep, renderMood, renderAnxiety (GAD-7), renderEmotion,
     renderEnglish (+BIZ_WORDS/giveWords), renderPodcast, renderVitamins`
 12. **Категория беттері** — `renderGoalsPage/plansSection` (мақсат+жоспар), `renderGratitudePage`
-13. **Қаржы** — `renderFinance, addIncome/addExpense, renderCalc` (табыс/шығын бөлек + бөлу калькуляторы)
+13. **Қаржы (umbrella, 10 tab)** — `finTab`/`FIN_TABS`/`FIN_RENDERERS`, `switchFinTab`, `renderFinance`
+    (қаптама, `.fin-panel`-дерді ауыстырады): `renderFinDash` (басты бет), `addIncome/addExpense/
+    renderTxLists/txRow` (кіріс/шығын, іздеу/фильтр, чек-сурет base64), `renderFinAnalytics`
+    (апта/ай/жыл period), `renderFinBudget`+`renderCalc` (лимит + бөлу калькуляторы), `renderFinGoals`
+    (`finGoals` — ескі `piggy`-нің жалғасы, мерзіммен), `renderFinCashflow`+`monthBuckets`,
+    `renderFinInvest` (`investments`, баға қолмен), `renderDebts` (ескі `debts` логикасы өзгеріссіз),
+    `renderFinAI`+`computeRuleInsights` (тегін, клиентте) + `askAiAdvice` (`/api/ai-advice`, LLM),
+    `enablePush/disablePush/renderPushSection` (браузер push, `sw.js` + `/api/push/*`)
 14. **Диаграммалар** — `setupCanvas, drawFinPie, drawBar, drawLine, drawDetailChart, drawSleepChart,
     drawMoodChart, drawGadChart, drawGauge`
 15. **Талдау** — `renderAnalytics, healthStats, renderHealthPanel, renderAchievements`
@@ -139,11 +148,33 @@ Repo GitHub-қа қосылған, Vercel авто-деплой етеді (жа
 да қолмен ALTER TABLE орындау керек (Neon SQL Editor немесе `@neondatabase/serverless` арқылы
 скрипт, connection string-ті ешбір repo файлына жазбай).
 
-`PEXELS_API_KEY` (қосымша, міндетті емес) — `api/goal-image.js` осы кілт арқылы «Ақша жинау»
-мақсатына сурет іздейді (pexels.com/api-де тегін тіркеліп алуға болады). Орнатылмаса, функция
-жай ғана `image:null` қайтарады, UI суретсіз, бірақ қалғаны толық жұмыс істей береді.
+`PEXELS_API_KEY` (қосымша, міндетті емес) — `api/goal-image.js` осы кілт арқылы «Ақша жинау»/
+қаржылық мақсат атауына сурет іздейді (pexels.com/api-де тегін тіркеліп алуға болады). Орнатылмаса,
+функция жай ғана `image:null` қайтарады, UI суретсіз, бірақ қалғаны толық жұмыс істей береді.
+
+`ANTHROPIC_API_KEY` (қосымша, міндетті емес) — `api/ai-advice.js` (Қаржы→AI көмекші→«Толығырақ
+талдау сұрау») осы кілтпен Claude Haiku-ге сұраныс жібереді (`claude-haiku-4-5-20251001`).
+Орнатылмаса, 503 + Қазақша хабар қайтарады; тегін ереже-негізді талдау (`computeRuleInsights`)
+кілтсіз де жұмыс істейді. Күндік лимит — 5 шақыру/пайдаланушы (`users.ai_calls_today`,
+`schema.sql` миграциясы).
+
+**Push ескертулер (бюджет асуы, қарыз мерзімі)** — толық жұмыс істеу үшін мыналар керек:
+1. Neon SQL Editor-де `schema.sql`-дың соңындағы миграция блогын орында (`push_subscriptions`
+   кестесі + `users.ai_calls_*` бағандары).
+2. Vercel env vars: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (`mailto:...`) —
+   `npx web-push generate-vapid-keys` арқылы генерациялайсың; `CRON_SECRET` — кез келген құпия
+   жол (Vercel Cron сұранысын `/api/cron/check-alerts`-ты қорғау үшін автоматты
+   `Authorization: Bearer $CRON_SECRET` жібереді, тек env var атын дәл солай қою керек).
+3. `index.html` басындағы `const VAPID_PUBLIC_KEY = ''` жолына сол public кілтті қой (құпия емес,
+   frontend-те көрінуі қауіпсіз).
+4. `vercel.json`-дағы cron (`/api/cron/check-alerts`, күніне 1 рет) Vercel деплойда автоматты
+   іске қосылады. Кілттер орнатылмаса, cron тыныш `skipped` қайтарады, ештеңе бұзылмайды.
+Барлығы орнатылғанша Бюджет tab-ындағы «Push ескертулерді қосу» батырмасы «әлі қолжетімсіз»
+хабарын көрсетеді.
 
 ## Не істеуге болады (келесі қадамдар)
 - Төлем жүйесі (Stripe/Kaspi) — қазір WhatsApp-қа қолмен хабарласу + admin панельден қолмен
   доступ беру арқылы жұмыс істейді; толық автоматтандыру үшін төлем provider керек.
 - Profile баптаулары (өз атыңды/паролыңды өзің өзгерту)
+- Инвестициялар бөлімінде баға әзірге тек қолмен енгізіледі (сыртқы market-data API жоқ) —
+  қаласаң CoinGecko/Alpha Vantage секілді API қосуға болады.

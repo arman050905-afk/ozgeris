@@ -210,6 +210,8 @@
   /* ---------- Finance ---------- */
   .fin-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
   @media(max-width:820px){.fin-grid{grid-template-columns:1fr}}
+  .fin-panel{display:none}
+  .fin-panel.active{display:block}
   .box{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px}
   .box h3{font-size:17px;margin-bottom:16px}
   label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:600}
@@ -547,7 +549,6 @@
       <a data-view="mine">Менің трекерлерім</a>
       <a class="rt-nav" onclick="randomTask()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='4' y='4' width='16' height='16' rx='3'/><circle cx='8' cy='8' r='1.2' fill='currentColor' stroke='none'/><circle cx='16' cy='8' r='1.2' fill='currentColor' stroke='none'/><circle cx='12' cy='12' r='1.2' fill='currentColor' stroke='none'/><circle cx='8' cy='16' r='1.2' fill='currentColor' stroke='none'/><circle cx='16' cy='16' r='1.2' fill='currentColor' stroke='none'/></svg> Тапсырма</a>
       <a data-view="finance">Қаржы</a>
-      <a data-view="debts">Қарыз</a>
       <a data-view="analytics">Талдау</a>
       <a data-view="admin" id="adminNavLink" style="display:none"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M12,3 L19,6 L19,12 L12,20 L5,12 L5,6 Z'/></svg> Админ</a>
       <a class="buy-nav" id="buyNavBtn" onclick="buyClick()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M4,4 H6 L8,15 H18 L20,8 H7'/><circle cx='9' cy='19' r='1.4' fill='currentColor' stroke='none'/><circle cx='17' cy='19' r='1.4' fill='currentColor' stroke='none'/></svg> Сатып алу</a>
@@ -628,111 +629,249 @@
   </div>
 </section>
 
-<!-- ============ FINANCE ============ -->
+<!-- ============ FINANCE (umbrella: Dashboard/Кірістер/Шығыстар/Аналитика/Бюджет/
+     Мақсаттар/Cash Flow/Инвестициялар/Қарыздар/AI көмекші) ============ -->
 <section id="finance" class="view">
   <div class="container">
-    <h1 class="page-title"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='3' y='7' width='18' height='12' rx='2'/><line x1='3' y1='10.5' x2='21' y2='10.5'/><circle cx='17' cy='14' r='1.3' fill='currentColor' stroke='none'/></svg> Қаржылық сауаттылық</h1>
-    <p class="page-sub">Табыс пен шығын бөлек есептеледі. Калькулятор — жеке бөлім.</p>
+    <h1 class="page-title"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='3' y='7' width='18' height='12' rx='2'/><line x1='3' y1='10.5' x2='21' y2='10.5'/><circle cx='17' cy='14' r='1.3' fill='currentColor' stroke='none'/></svg> Қаржы</h1>
+    <p class="page-sub">Кіріс, шығын, бюджет, инвестиция, мақсат — бәрі бір жерде.</p>
 
-    <!-- Balance summary -->
-    <div class="box" style="margin-bottom:20px">
-      <label>Баланс (табыс − шығын)</label>
-      <div class="balance" id="balance">0 ₸</div>
-      <div style="display:flex;gap:20px;font-size:13px;color:var(--muted)">
-        <span>Барлық табыс: <b style="color:var(--good)" id="totalIn">0 ₸</b></span>
-        <span>Барлық шығын: <b style="color:#f0a5a5" id="totalOut">0 ₸</b></span>
+    <div class="tabs" id="finTabs" style="flex-wrap:wrap"></div>
+
+    <!-- ---------- DASHBOARD ---------- -->
+    <div id="fp-dash" class="fin-panel active">
+      <div class="box" style="margin-bottom:20px">
+        <label>Жалпы баланс</label>
+        <div class="balance" id="dashBalance">0 ₸</div>
+        <div style="display:flex;gap:20px;font-size:13px;color:var(--muted);flex-wrap:wrap">
+          <span>Осы айдағы кіріс: <b style="color:var(--good)" id="dashMonthIn">0 ₸</b></span>
+          <span>Осы айдағы шығыс: <b style="color:#f0a5a5" id="dashMonthOut">0 ₸</b></span>
+          <span>Таза пайда: <b id="dashMonthNet">0 ₸</b></span>
+        </div>
+      </div>
+      <div id="dashWarnings"></div>
+      <div class="kpis" id="dashKpis"></div>
+      <div class="charts">
+        <div class="chart-box">
+          <h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><polyline points='3,17 9,11 13,15 21,5'/><polyline points='15,5 21,5 21,11'/></svg> Соңғы 6 айдың кіріс/шығыны</h3>
+          <div class="cd">Ай сайынғы салыстыру</div>
+          <canvas id="dashCfChart" width="560" height="260"></canvas>
+        </div>
+        <div class="chart-box">
+          <h3>Ақша қайда кетті (осы ай)</h3>
+          <div class="cd">Шығын құрылымы</div>
+          <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap">
+            <canvas id="dashPie" width="200" height="200" style="max-width:200px"></canvas>
+            <div class="legend" id="dashLegend" style="flex-direction:column;gap:8px"></div>
+          </div>
+        </div>
+      </div>
+      <div class="box" style="margin-top:20px">
+        <div class="box-head"><h3>Соңғы транзакциялар</h3></div>
+        <div class="tx-list" id="dashRecentTx"></div>
+      </div>
+      <div class="box" style="margin-top:20px">
+        <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='8'/><circle cx='12' cy='12' r='4.5'/><circle cx='12' cy='12' r='1.3' fill='currentColor' stroke='none'/></svg> Қаржылық мақсаттар прогресі</h3></div>
+        <div id="dashGoalsMini"></div>
       </div>
     </div>
 
-    <!-- Income + Expense, side by side, separate -->
-    <div class="fin-grid">
-      <!-- INCOME -->
-      <div class="box">
-        <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='9'/><polyline points='8,13 12,9 16,13'/><line x1='12' y1='16' x2='12' y2='9'/></svg> Табыстар</h3><span class="sum-badge in" id="incSum">0 ₸</span></div>
+    <!-- ---------- INCOME ---------- -->
+    <div id="fp-income" class="fin-panel">
+      <div class="box" style="margin-bottom:20px">
+        <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='9'/><polyline points='8,13 12,9 16,13'/><line x1='12' y1='16' x2='12' y2='9'/></svg> Табыс қосу</h3><span class="sum-badge in" id="incSum">0 ₸</span></div>
         <div class="row">
           <div><label>Күні</label><input type="date" id="incDate"></div>
-          <div><label>Сома (₸)</label><input type="number" id="incAmount" placeholder="0" min="0"></div>
+          <div><label>Сома</label><input type="number" id="incAmount" placeholder="0" min="0"></div>
+        </div>
+        <div class="row">
+          <div><label>Валюта</label><select id="incCurrency"><option>₸</option><option>$</option><option>€</option><option>₽</option></select></div>
+          <div><label>Төлем әдісі</label><select id="incMethod"><option>Қолма-қол</option><option>Карта</option><option>Банк аударымы</option><option>Басқа</option></select></div>
         </div>
         <label>Атауы</label>
         <input type="text" id="incName" placeholder="Мысалы: Жалақы" list="incNames">
         <datalist id="incNames"></datalist>
+        <label>Сипаттама (қаласаң)</label>
+        <input type="text" id="incDesc" placeholder="Қосымша ескертпе">
         <button class="btn" onclick="addIncome()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='5' x2='12' y2='19'/><line x1='5' y1='12' x2='19' y2='12'/></svg> Табыс қосу</button>
+      </div>
+      <div class="box">
+        <div class="box-head"><h3>Тізім</h3></div>
+        <div class="row">
+          <input type="text" id="incSearch" placeholder="Іздеу..." oninput="renderTxLists()">
+          <select id="incFilterCat" onchange="renderTxLists()"><option value="">Барлық категория</option></select>
+        </div>
         <div class="tx-list" id="incList"></div>
       </div>
+    </div>
 
-      <!-- EXPENSE -->
-      <div class="box">
-        <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='9'/><polyline points='8,11 12,15 16,11'/><line x1='12' y1='8' x2='12' y2='15'/></svg> Шығындар</h3><span class="sum-badge out" id="expSum">0 ₸</span></div>
+    <!-- ---------- EXPENSE ---------- -->
+    <div id="fp-expense" class="fin-panel">
+      <div class="box" style="margin-bottom:20px">
+        <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='9'/><polyline points='8,11 12,15 16,11'/><line x1='12' y1='8' x2='12' y2='15'/></svg> Шығын қосу</h3><span class="sum-badge out" id="expSum">0 ₸</span></div>
         <div class="row">
           <div><label>Күні</label><input type="date" id="expDate"></div>
-          <div><label>Сома (₸)</label><input type="number" id="expAmount" placeholder="0" min="0"></div>
+          <div><label>Сома</label><input type="number" id="expAmount" placeholder="0" min="0"></div>
+        </div>
+        <div class="row">
+          <div><label>Валюта</label><select id="expCurrency"><option>₸</option><option>$</option><option>€</option><option>₽</option></select></div>
+          <div><label>Төлем әдісі</label><select id="expMethod"><option>Қолма-қол</option><option>Карта</option><option>Банк аударымы</option><option>Басқа</option></select></div>
         </div>
         <label>Категория</label>
         <input type="text" id="expName" placeholder="Мысалы: Тамақ" list="expNames">
         <datalist id="expNames"></datalist>
+        <label>Сипаттама (қаласаң)</label>
+        <input type="text" id="expDesc" placeholder="Қосымша ескертпе">
+        <label>Чек суреті (қаласаң, 300KB-тан аз)</label>
+        <input type="file" id="expReceipt" accept="image/*">
         <button class="btn" onclick="addExpense()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='5' x2='12' y2='19'/><line x1='5' y1='12' x2='19' y2='12'/></svg> Шығын қосу</button>
+      </div>
+      <div class="box">
+        <div class="box-head"><h3>Тізім</h3></div>
+        <div class="row">
+          <input type="text" id="expSearch" placeholder="Іздеу..." oninput="renderTxLists()">
+          <select id="expFilterCat" onchange="renderTxLists()"><option value="">Барлық категория</option></select>
+        </div>
         <div class="tx-list" id="expList"></div>
       </div>
     </div>
 
-    <!-- Expense pie -->
-    <div class="chart-box" style="margin-top:20px">
-      <h3>Ақша қайда кетті</h3>
-      <div class="cd">Шығындарды категория бойынша бөлу</div>
-      <div style="display:flex;gap:30px;align-items:center;flex-wrap:wrap">
-        <canvas id="finPie" width="240" height="240" style="max-width:240px"></canvas>
-        <div class="legend" id="finLegend" style="flex-direction:column;gap:10px"></div>
+    <!-- ---------- ANALYTICS ---------- -->
+    <div id="fp-analytics" class="fin-panel">
+      <div class="tabs" id="anaPeriodTabs"></div>
+      <div class="kpis" id="anaKpis"></div>
+      <div class="charts">
+        <div class="chart-box">
+          <h3>Категория бойынша шығын</h3>
+          <div class="cd" id="anaPeriodLabel"></div>
+          <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap">
+            <canvas id="anaPie" width="220" height="220" style="max-width:220px"></canvas>
+            <div class="legend" id="anaLegend" style="flex-direction:column;gap:8px"></div>
+          </div>
+        </div>
+        <div class="chart-box">
+          <h3>Өткен периодпен салыстыру</h3>
+          <div class="cd">Кіріс/шығын өзгерісі</div>
+          <div id="anaCompare"></div>
+        </div>
+      </div>
+      <div class="charts" style="margin-top:20px">
+        <div class="chart-box"><h3>Топ-5 шығын категориясы</h3><div id="anaTopExp"></div></div>
+        <div class="chart-box"><h3>Топ-5 кіріс категориясы</h3><div id="anaTopInc"></div></div>
       </div>
     </div>
 
-    <!-- SEPARATE CALCULATOR -->
-    <div class="box" style="margin-top:20px">
-      <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='4' y='2' width='16' height='20' rx='2'/><rect x='7' y='5' width='10' height='4' rx='1'/><circle cx='8' cy='13' r='1' fill='currentColor' stroke='none'/><circle cx='12' cy='13' r='1' fill='currentColor' stroke='none'/><circle cx='16' cy='13' r='1' fill='currentColor' stroke='none'/><circle cx='8' cy='17' r='1' fill='currentColor' stroke='none'/><circle cx='12' cy='17' r='1' fill='currentColor' stroke='none'/><circle cx='16' cy='17' r='1' fill='currentColor' stroke='none'/></svg> Бөлу калькуляторы</h3></div>
-      <div class="cd" style="color:var(--muted);font-size:14px;margin-bottom:14px">
-        Соманы жаз, бөліктердің атын мен процентін өзің қой. Жалпы процент 100% болуы керек.
+    <!-- ---------- BUDGET ---------- -->
+    <div id="fp-budget" class="fin-panel">
+      <div class="box" style="margin-bottom:20px">
+        <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='4' y='2' width='16' height='20' rx='2'/><rect x='7' y='5' width='10' height='4' rx='1'/><circle cx='8' cy='13' r='1' fill='currentColor' stroke='none'/><circle cx='12' cy='13' r='1' fill='currentColor' stroke='none'/><circle cx='16' cy='13' r='1' fill='currentColor' stroke='none'/><circle cx='8' cy='17' r='1' fill='currentColor' stroke='none'/><circle cx='12' cy='17' r='1' fill='currentColor' stroke='none'/><circle cx='16' cy='17' r='1' fill='currentColor' stroke='none'/></svg> Бюджет лимиттері</h3></div>
+        <div class="cd" style="color:var(--muted);font-size:14px;margin-bottom:14px">Әр категорияға айлық лимит қой — асып кетсең, осында және Басты бетте ескертеміз.</div>
+        <div id="budgetRows"></div>
+        <div id="pushSection" style="margin-top:16px"></div>
       </div>
-      <label>Бөлінетін сома (₸) — мыс. жалақы</label>
-      <input type="number" id="calcAmount" placeholder="200000" oninput="updateCalc()">
-      <div id="calcRows"></div>
-      <div class="calc-total" id="calcTotal"></div>
-      <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap">
-        <button class="btn ghost sm" onclick="addCalcRow()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='5' x2='12' y2='19'/><line x1='5' y1='12' x2='19' y2='12'/></svg> Жол қосу</button>
-        <button class="btn ghost sm" onclick="autoBalance()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='3' x2='12' y2='20'/><line x1='4' y1='7' x2='20' y2='7'/><circle cx='4' cy='13' r='3'/><circle cx='20' cy='13' r='3'/><line x1='4' y1='7' x2='4' y2='10'/><line x1='20' y1='7' x2='20' y2='10'/></svg> 100%-ке теңестір</button>
-      </div>
-    </div>
-
-    <!-- ============ PIGGY BANK (money saving) ============ -->
-    <div class="box" style="margin-top:20px">
-      <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><ellipse cx='10.5' cy='13' rx='9' ry='6.5'/><circle cx='19.3' cy='13.8' r='2.2'/><circle cx='20.1' cy='13' r='0.4' fill='currentColor' stroke='none'/><path d='M8,7.2 L9.3,4.5 L10.8,7'/><line x1='6' y1='19.3' x2='6' y2='21.5'/><line x1='13.5' y1='19.3' x2='13.5' y2='21.5'/><line x1='9' y1='7.3' x2='12.5' y2='7.3'/><path d='M1.3,12.5 C1,11 2,10.3 2.7,11.2 C3.3,12 2.6,13.3 1.3,12.5 Z'/></svg> Ақша жинау</h3></div>
-      <div id="piggyBody"></div>
-    </div>
-  </div>
-</section>
-
-<!-- ============ DEBTS (қарыз) ============ -->
-<section id="debts" class="view">
-  <div class="container">
-    <h1 class="page-title"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='3' x2='12' y2='20'/><line x1='4' y1='7' x2='20' y2='7'/><circle cx='4' cy='13' r='3'/><circle cx='20' cy='13' r='3'/><line x1='4' y1='7' x2='4' y2='10'/><line x1='20' y1='7' x2='20' y2='10'/></svg> Қарыз</h1>
-    <p class="page-sub">Кімге қарызсың, кім саған қарыз — бәрі бір жерден көрінеді.</p>
-
-    <div class="box" style="margin-bottom:20px">
-      <div style="display:flex;gap:14px;flex-wrap:wrap">
-        <div class="stat" style="flex:1"><div class="num" style="color:var(--good)" id="debtOwedSum">0 ₸</div><div class="lbl">Маған қарыз</div></div>
-        <div class="stat" style="flex:1"><div class="num" style="color:#f0a5a5" id="debtIoweSum">0 ₸</div><div class="lbl">Мен қарызбын</div></div>
-        <div class="stat" style="flex:1"><div class="num" id="debtNetSum">0 ₸</div><div class="lbl">Таза баланс</div></div>
+      <div class="box" style="margin-top:20px">
+        <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='4' y='2' width='16' height='20' rx='2'/><rect x='7' y='5' width='10' height='4' rx='1'/><circle cx='8' cy='13' r='1' fill='currentColor' stroke='none'/><circle cx='12' cy='13' r='1' fill='currentColor' stroke='none'/><circle cx='16' cy='13' r='1' fill='currentColor' stroke='none'/><circle cx='8' cy='17' r='1' fill='currentColor' stroke='none'/><circle cx='12' cy='17' r='1' fill='currentColor' stroke='none'/><circle cx='16' cy='17' r='1' fill='currentColor' stroke='none'/></svg> Бөлу калькуляторы</h3></div>
+        <div class="cd" style="color:var(--muted);font-size:14px;margin-bottom:14px">
+          Соманы жаз, бөліктердің атын мен процентін өзің қой. Жалпы процент 100% болуы керек.
+        </div>
+        <label>Бөлінетін сома (₸) — мыс. жалақы</label>
+        <input type="number" id="calcAmount" placeholder="200000" oninput="updateCalc()">
+        <div id="calcRows"></div>
+        <div class="calc-total" id="calcTotal"></div>
+        <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap">
+          <button class="btn ghost sm" onclick="addCalcRow()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='5' x2='12' y2='19'/><line x1='5' y1='12' x2='19' y2='12'/></svg> Жол қосу</button>
+          <button class="btn ghost sm" onclick="autoBalance()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='3' x2='12' y2='20'/><line x1='4' y1='7' x2='20' y2='7'/><circle cx='4' cy='13' r='3'/><circle cx='20' cy='13' r='3'/><line x1='4' y1='7' x2='4' y2='10'/><line x1='20' y1='7' x2='20' y2='10'/></svg> 100%-ке теңестір</button>
+        </div>
       </div>
     </div>
 
-    <div class="top-bar" style="justify-content:space-between;align-items:center">
-      <div class="tabs" id="debtTabs"></div>
-      <button class="btn sm" onclick="openDebtModal()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='5' x2='12' y2='19'/><line x1='5' y1='12' x2='19' y2='12'/></svg> Жаңа қарыз</button>
+    <!-- ---------- FINANCIAL GOALS ---------- -->
+    <div id="fp-goals" class="fin-panel">
+      <div class="box" style="margin-bottom:20px">
+        <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='5' x2='12' y2='19'/><line x1='5' y1='12' x2='19' y2='12'/></svg> Жаңа қаржылық мақсат</h3></div>
+        <label>Мақсат атауы</label>
+        <input type="text" id="fgName" placeholder="Мыс: iPhone 17, Дубайға саяхат">
+        <div class="row">
+          <div><label>Қажетті сома (₸)</label><input type="number" id="fgTarget" placeholder="100000"></div>
+          <div><label>Мерзімі</label><input type="date" id="fgDeadline"></div>
+        </div>
+        <label>Сипаттама (қаласаң)</label>
+        <input type="text" id="fgDesc" placeholder="Қосымша ескертпе">
+        <button class="btn" onclick="addFinGoal()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><ellipse cx='10.5' cy='13' rx='9' ry='6.5'/><circle cx='19.3' cy='13.8' r='2.2'/><circle cx='20.1' cy='13' r='0.4' fill='currentColor' stroke='none'/><path d='M8,7.2 L9.3,4.5 L10.8,7'/><line x1='6' y1='19.3' x2='6' y2='21.5'/><line x1='13.5' y1='19.3' x2='13.5' y2='21.5'/><line x1='9' y1='7.3' x2='12.5' y2='7.3'/><path d='M1.3,12.5 C1,11 2,10.3 2.7,11.2 C3.3,12 2.6,13.3 1.3,12.5 Z'/></svg> Мақсат бастау</button>
+      </div>
+      <div class="grid" id="finGoalsList"></div>
     </div>
 
-    <div id="debtList" class="grid"></div>
+    <!-- ---------- CASH FLOW ---------- -->
+    <div id="fp-cashflow" class="fin-panel">
+      <div class="kpis" id="cfKpis"></div>
+      <div class="chart-box" style="margin-bottom:20px">
+        <h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><polyline points='3,17 9,11 13,15 21,5'/><polyline points='15,5 21,5 21,11'/></svg> Ақша ағыны (соңғы 12 ай)</h3>
+        <div class="cd">Кіріс пен шығынды ай сайын салыстыр</div>
+        <canvas id="cfChart" width="900" height="300"></canvas>
+        <div class="legend" id="cfLegend"></div>
+      </div>
+      <div class="box"><div class="box-head"><h3>Ай бойынша кесте</h3></div><div id="cfTable"></div></div>
+    </div>
 
-    <div id="debtClosedWrap" style="margin-top:30px">
-      <h3 style="margin-bottom:14px;color:var(--muted);font-size:15px"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='9'/><polyline points='8,12 11,15 16,9'/></svg> Жабылған қарыздар</h3>
-      <div id="debtClosedList" class="grid"></div>
+    <!-- ---------- INVESTMENTS ---------- -->
+    <div id="fp-invest" class="fin-panel">
+      <div class="kpis" id="investKpis"></div>
+      <div class="box" style="margin-bottom:20px">
+        <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='5' x2='12' y2='19'/><line x1='5' y1='12' x2='19' y2='12'/></svg> Жаңа инвестиция қосу</h3></div>
+        <label>Түрі</label>
+        <select id="invType">
+          <option value="stock">Акциялар</option>
+          <option value="etf">ETF</option>
+          <option value="crypto">Криптовалюта</option>
+          <option value="gold">Алтын</option>
+          <option value="deposit">Депозит</option>
+        </select>
+        <label>Атауы</label>
+        <input type="text" id="invName" placeholder="Мыс: Kaspi.kz акциясы">
+        <div class="row">
+          <div><label>Сатып алу бағасы (₸)</label><input type="number" id="invBuyPrice" placeholder="0"></div>
+          <div><label>Саны</label><input type="number" id="invQty" placeholder="1" value="1"></div>
+        </div>
+        <label>Сатып алу күні</label>
+        <input type="date" id="invDate">
+        <button class="btn" onclick="addInvestment()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='5' x2='12' y2='19'/><line x1='5' y1='12' x2='19' y2='12'/></svg> Қосу</button>
+      </div>
+      <div class="grid" id="investList"></div>
+    </div>
+
+    <!-- ---------- ҚАРЫЗДАР ---------- -->
+    <div id="fp-debts" class="fin-panel">
+      <div class="box" style="margin-bottom:20px">
+        <div style="display:flex;gap:14px;flex-wrap:wrap">
+          <div class="stat" style="flex:1"><div class="num" style="color:var(--good)" id="debtOwedSum">0 ₸</div><div class="lbl">Маған қарыз</div></div>
+          <div class="stat" style="flex:1"><div class="num" style="color:#f0a5a5" id="debtIoweSum">0 ₸</div><div class="lbl">Мен қарызбын</div></div>
+          <div class="stat" style="flex:1"><div class="num" id="debtNetSum">0 ₸</div><div class="lbl">Таза баланс</div></div>
+        </div>
+      </div>
+      <div class="top-bar" style="justify-content:space-between;align-items:center">
+        <div class="tabs" id="debtTabs"></div>
+        <button class="btn sm" onclick="openDebtModal()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='5' x2='12' y2='19'/><line x1='5' y1='12' x2='19' y2='12'/></svg> Жаңа қарыз</button>
+      </div>
+      <div id="debtList" class="grid"></div>
+      <div id="debtClosedWrap" style="margin-top:30px">
+        <h3 style="margin-bottom:14px;color:var(--muted);font-size:15px"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='9'/><polyline points='8,12 11,15 16,9'/></svg> Жабылған қарыздар</h3>
+        <div id="debtClosedList" class="grid"></div>
+      </div>
+    </div>
+
+    <!-- ---------- AI ҚАРЖЫЛЫҚ КӨМЕКШІ ---------- -->
+    <div id="fp-ai" class="fin-panel">
+      <div class="box" style="margin-bottom:20px">
+        <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M9,18 H15'/><path d='M10,21 H14'/><path d='M12,3 a6,6 0 0 0 -3.5,10.9 c0.7,0.5 1,1.3 1,2.1 H14.5 c0,-0.8 0.3,-1.6 1,-2.1 A6,6 0 0 0 12,3 Z'/></svg> Жедел талдау</h3></div>
+        <div id="aiRuleInsights"></div>
+      </div>
+      <div class="box">
+        <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M12,2 L13.5,9.5 L21,11 L13.5,12.5 L12,20 L10.5,12.5 L3,11 L10.5,9.5 Z'/><circle cx='19' cy='5' r='1' fill='currentColor' stroke='none'/></svg> Толығырақ AI талдау</h3></div>
+        <div class="cd" style="color:var(--muted);font-size:14px;margin-bottom:14px">AI сенің қаржы деректеріңді талдап, кеңес пен болжам береді. Күніне бірнеше рет сұрауға болады.</div>
+        <button class="btn" id="aiAskBtn" onclick="askAiAdvice()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M9,18 H15'/><path d='M10,21 H14'/><path d='M12,3 a6,6 0 0 0 -3.5,10.9 c0.7,0.5 1,1.3 1,2.1 H14.5 c0,-0.8 0.3,-1.6 1,-2.1 A6,6 0 0 0 12,3 Z'/></svg> Талдау сұрау</button>
+        <div id="aiAdviceBody" style="margin-top:16px"></div>
+      </div>
     </div>
   </div>
 </section>
@@ -947,7 +1086,10 @@ function toggleTheme(){
    Әр адамның деректері /api/data арқылы сақталады, localStorage — кэш.
    ============================================================ */
 const API_BASE = '/api';
-const DATA_KEYS = ['trackers','archived','hiddenTpl','userTpl','txs','calcCfg','goals','gratitude','seenWelcome','piggy','debts'];
+// Push ескертулердің public VAPID кілті (құпия емес). Толтырылмаса, push батырмасы
+// "әлі орнатылмаған" деп ескертеді де, қалған функционал өзгеріссіз жұмыс істей береді.
+const VAPID_PUBLIC_KEY = 'BLSXz4B6YEQ8b8p4RVs_BJMeo5rxq7S_no4vdhKRLTj_8WrXPSlvQOhXrAuSb9Dg9AfDdCtKw22nHtOgcUQenMg';
+const DATA_KEYS = ['trackers','archived','hiddenTpl','userTpl','txs','calcCfg','goals','gratitude','seenWelcome','piggy','debts','budgets','finGoals','investments','aiAdvice'];
 let cloudOk = true; // backend қолжетімсіз болса, локал кэшпен жұмыс жалғасады
 function authToken(){ return Store.getGlobal('app_token', null); }
 async function apiCall(path, method, body){
@@ -978,6 +1120,7 @@ function scheduleSync(){
 async function syncToCloud(){
   if(!currentUser) return;
   const data = { trackers, archived, hiddenTpl, userTpl, txs, calcCfg, goals, gratitude, piggy, debts,
+    budgets, finGoals, investments, aiAdvice,
     seenWelcome: Store.get('seenWelcome', false) };
   try{ await apiCall('/data', 'PUT', {data}); cloudOk = true; }
   catch(e){ cloudOk = false; }
@@ -1089,7 +1232,7 @@ const CATEGORIES = [
   {id:'health',   name:'Денсаулық',            emo:'heart',     color:'var(--s8)', desc:'Ұйқы, су, витаминдер — дене саулығының әдеттері.'},
   {id:'edu',      name:'Білім',                emo:'book',      color:'var(--s1)', desc:'Ағылшын, кітап, подкаст — дағды дамыту.'},
   {id:'sport',   name:'Спорт',                emo:'dumbbell',  color:'var(--s2)', desc:'Жаттығу, қозғалыс, дене шынықтыру.'},
-  {id:'finance',  name:'Қаржылық сауаттылық',  emo:'wallet',    color:'var(--s3)', desc:'Табыс-шығын, бюджет, жинақ калькуляторы.'},
+  {id:'finance',  name:'Қаржы',                emo:'wallet',    color:'var(--s3)', desc:'Кіріс, шығын, бюджет, инвестиция, мақсат — бәрі бір жерде.'},
   {id:'goal',     name:'Мақсаттар',            emo:'target',    color:'var(--s4)', desc:'Үлкен/кіші мақсаттар және айлық/апталық/күндік жоспарлар.'},
   {id:'gratitude',name:'Шүкіршілік',           emo:'hands',     color:'var(--s5)', desc:'Күнделікті шүкіршілік сұрақтары — ішкі тыныштық.'},
   {id:'other',    name:'Басқа әдеттер',        emo:'sparkles',  color:'var(--s7)', desc:'Өз әдетіңді қолмен жаз — күн сайын орындалды/орындалмады деп белгіле.'},
@@ -1130,8 +1273,12 @@ let txs = [];        // [{id,type:'in'|'out',cat,amount,date}]
 let calcCfg = {amount:0, rows:[]};
 let goals = {big:[], small:[], plans:{monthly:[], weekly:[], daily:[]}};
 let gratitude = [];  // [{id,date,a1,a2,a3}]
-let piggy = null;    // {name, target, pieces:[{id,amount,done}], createdAt, image} | null
+let piggy = null;    // {name, target, pieces:[{id,amount,done}], createdAt, image} | null — ескі, finGoals-қа біржола көшіріледі
 let debts = [];      // [{id,type:'iowe'|'owed',person,amount,paid,date,due,closedAt}]
+let budgets = {};    // { 'Тамақ': 100000, ... } — категория атауы -> айлық лимит (₸)
+let finGoals = [];   // [{id,name,target,deadline,createdAt,image,pieces:[{id,amount,done}]}]
+let investments = [];// [{id,type:'stock'|'etf'|'crypto'|'gold'|'deposit',name,buyPrice,qty,currentPrice,buyDate}]
+let aiAdvice = null; // {text, generatedAt} — соңғы LLM талдауының кэші
 function saveArchived(){ Store.set('archived', archived); scheduleSync(); }
 function saveHidden(){ Store.set('hiddenTpl', hiddenTpl); scheduleSync(); }
 function saveUserTpl(){ Store.set('userTpl', userTpl); scheduleSync(); }
@@ -1139,6 +1286,9 @@ function tplKey(cat,name){ return cat+'|'+name; }
 function saveGoals(){ Store.set('goals', goals); scheduleSync(); }
 function saveGrat(){ Store.set('gratitude', gratitude); scheduleSync(); }
 function saveDebts(){ Store.set('debts', debts); scheduleSync(); }
+function saveBudgets(){ Store.set('budgets', budgets); scheduleSync(); }
+function saveFinGoals(){ Store.set('finGoals', finGoals); scheduleSync(); }
+function saveInvestments(){ Store.set('investments', investments); scheduleSync(); }
 
 // Ағымдағы қолданушының деректерін жүктеу (кіргеннен кейін шақырылады)
 function loadUserData(){
@@ -1163,8 +1313,17 @@ function loadUserData(){
   if(!goals.big) goals.big=[]; if(!goals.small) goals.small=[];
   if(!goals.plans) goals.plans={monthly:[],weekly:[],daily:[]};
   gratitude = Store.get('gratitude', []);
-  piggy = Store.get('piggy', null);
   debts = Store.get('debts', []);
+  budgets = Store.get('budgets', {});
+  finGoals = Store.get('finGoals', []);
+  investments = Store.get('investments', []);
+  aiAdvice = Store.get('aiAdvice', null);
+  piggy = Store.get('piggy', null);
+  if(piggy && !finGoals.length){ // ескі жалғыз "ақша жинау" мақсатын жаңа тізімге бір рет көшіру
+    finGoals.push({id:uid(), name:piggy.name, target:piggy.target, deadline:'', createdAt:piggy.createdAt||todayStr(), image:piggy.image||null, pieces:piggy.pieces||[]});
+    piggy = null;
+    Store.set('finGoals', finGoals); Store.set('piggy', null); scheduleSync();
+  }
 }
 
 // Кездейсоқ тапсырмалар (адамды қызықтыру үшін)
@@ -1294,7 +1453,6 @@ function showView(v){
   if(navLink) navLink.classList.add('active');
   if(v==='mine') renderMine();
   if(v==='finance') renderFinance();
-  if(v==='debts') renderDebts();
   if(v==='analytics') renderAnalytics();
   if(v==='archive') renderArchive();
   if(v==='admin') renderAdmin();
@@ -1341,7 +1499,7 @@ async function resetPassPrompt(userId, email){
    ============================================================ */
 function renderCatTiles(){
   document.getElementById('catGrid').innerHTML = CATEGORIES.map(c=>{
-    const count = c.id==='finance' ? ic('wallet')+' Калькулятор' : c.id==='goal' ? ic('target')+' Жоспарлау'
+    const count = c.id==='finance' ? ic('wallet')+' 10 бөлім' : c.id==='goal' ? ic('target')+' Жоспарлау'
                 : c.id==='gratitude' ? ic('hands')+' Күнделік' : TEMPLATES.filter(t=>t.cat===c.id).length+' дайын әдет';
     return `<div class="cat-tile" onclick="openCategory('${c.id}')">
       <div class="glow" style="background:${c.color}"></div>
@@ -2520,19 +2678,318 @@ function anotherTask(){
 }
 
 /* ============================================================
-   FINANCE — табыс/шығын бөлек + жеке калькулятор
+   FINANCE — umbrella (Dashboard/Кірістер/Шығыстар/Аналитика/Бюджет/
+   Мақсаттар/Cash Flow/Инвестициялар/Қарыздар/AI) — finTab арқылы ауысады
    ============================================================ */
+let finTab = 'dash';
+const FIN_TABS = [
+  ['dash','Басты бет','wallet'],
+  ['income','Кірістер','arrowUpCircle'],
+  ['expense','Шығыстар','arrowDownCircle'],
+  ['analytics','Аналитика','barChart'],
+  ['budget','Бюджет','calculator'],
+  ['goals','Мақсаттар','target'],
+  ['cashflow','Cash Flow','trend'],
+  ['invest','Инвестициялар','gem'],
+  ['debts','Қарыздар','scale'],
+  ['ai','AI көмекші','lightbulb'],
+];
+function switchFinTab(k){ finTab = k; renderFinance(); }
 function renderFinance(){
-  // күн өрістерін бүгінге қой
-  if(!document.getElementById('incDate').value) document.getElementById('incDate').value = todayStr();
-  if(!document.getElementById('expDate').value) document.getElementById('expDate').value = todayStr();
-  // автотолтыру тізімдері (бұрын енгізілген атаулар)
-  document.getElementById('incNames').innerHTML = [...new Set(txs.filter(t=>t.type==='in').map(t=>t.cat))].map(c=>`<option value="${c}">`).join('');
-  document.getElementById('expNames').innerHTML = [...new Set(txs.filter(t=>t.type==='out').map(t=>t.cat))].map(c=>`<option value="${c}">`).join('');
-  renderTxLists(); renderFinSummary(); renderCalc(); renderPiggy();
+  document.getElementById('finTabs').innerHTML = FIN_TABS.map(([k,label,icon])=>
+    `<button class="tab ${k===finTab?'active':''}" onclick="switchFinTab('${k}')">${ic(icon)} ${label}</button>`).join('');
+  document.querySelectorAll('.fin-panel').forEach(p=>p.classList.remove('active'));
+  const panel = document.getElementById('fp-'+finTab);
+  if(panel) panel.classList.add('active');
+  updateFinBadges();
+  const fn = FIN_RENDERERS[finTab];
+  if(fn) fn();
 }
 
-/* ---------- Ақша жинау (копилка): мақсатты ұсақ бөліктерге бөліп, жинау ---------- */
+/* ---------- Уақыт/сома көмекшілері (бірнеше tab бөліседі) ---------- */
+function monthKey(dateStr){ return (dateStr||'').slice(0,7); }
+const MONTH_NAMES = ['Қаң','Ақп','Нау','Сәу','Мам','Мау','Шіл','Там','Қыр','Қаз','Қар','Жел'];
+function monthLabel(key){ const [y,m]=key.split('-'); return MONTH_NAMES[(+m)-1]+' '+y.slice(2); }
+function fmtISO(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function sumTx(type, from, to){
+  return txs.filter(t=>t.type===type && (!from||t.date>=from) && (!to||t.date<=to)).reduce((s,t)=>s+t.amount,0);
+}
+function monthBuckets(n){
+  const now=new Date(); const arr=[];
+  for(let i=n-1;i>=0;i--){
+    const d=new Date(now.getFullYear(), now.getMonth()-i, 1);
+    const key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+    const inc=txs.filter(t=>t.type==='in'&&monthKey(t.date)===key).reduce((s,t)=>s+t.amount,0);
+    const out=txs.filter(t=>t.type==='out'&&monthKey(t.date)===key).reduce((s,t)=>s+t.amount,0);
+    arr.push({key, label:monthLabel(key), inc, out, net:inc-out});
+  }
+  return arr;
+}
+function periodRange(period){
+  const now=new Date(), today=todayStr();
+  if(period==='week'){
+    const d=new Date(now); const day=(d.getDay()+6)%7; d.setDate(d.getDate()-day);
+    return {from:fmtISO(d), to:today};
+  }
+  if(period==='year') return {from: now.getFullYear()+'-01-01', to:today};
+  return {from: now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-01', to:today};
+}
+function prevPeriodRange(period){
+  const now=new Date();
+  if(period==='week'){
+    const d=new Date(now); const day=(d.getDay()+6)%7; d.setDate(d.getDate()-day-7);
+    const to2=new Date(d); to2.setDate(to2.getDate()+6);
+    return {from:fmtISO(d), to:fmtISO(to2)};
+  }
+  if(period==='year') return {from:(now.getFullYear()-1)+'-01-01', to:(now.getFullYear()-1)+'-12-31'};
+  const d=new Date(now.getFullYear(), now.getMonth()-1, 1);
+  const last=new Date(now.getFullYear(), now.getMonth(), 0);
+  return {from:fmtISO(d), to:fmtISO(last)};
+}
+
+/* ---------- КІРІС / ШЫҒЫС ---------- */
+function updateFinBadges(){
+  document.getElementById('incSum').textContent = fmt(sumTx('in'));
+  document.getElementById('expSum').textContent = fmt(sumTx('out'));
+}
+function renderFinIncomeExpense(){
+  if(!document.getElementById('incDate').value) document.getElementById('incDate').value = todayStr();
+  if(!document.getElementById('expDate').value) document.getElementById('expDate').value = todayStr();
+  document.getElementById('incNames').innerHTML = [...new Set([...FIN_CATS.in, ...txs.filter(t=>t.type==='in').map(t=>t.cat)])].map(c=>`<option value="${c}">`).join('');
+  document.getElementById('expNames').innerHTML = [...new Set([...FIN_CATS.out, ...txs.filter(t=>t.type==='out').map(t=>t.cat)])].map(c=>`<option value="${c}">`).join('');
+  renderTxLists();
+}
+function addIncome(){
+  const amount = +document.getElementById('incAmount').value;
+  const name = document.getElementById('incName').value.trim() || 'Табыс';
+  const date = document.getElementById('incDate').value || todayStr();
+  const currency = document.getElementById('incCurrency').value;
+  const method = document.getElementById('incMethod').value;
+  const desc = document.getElementById('incDesc').value.trim();
+  if(!amount || amount<=0){ toast('Соманы дұрыс енгіз'); return; }
+  txs.push({id:uid(), type:'in', cat:name, amount, date, currency, method, desc});
+  saveTx();
+  document.getElementById('incAmount').value=''; document.getElementById('incName').value=''; document.getElementById('incDesc').value='';
+  renderTxLists();
+  toast('Табыс қосылды');
+}
+function addExpense(){
+  const amount = +document.getElementById('expAmount').value;
+  const name = document.getElementById('expName').value.trim() || 'Шығын';
+  const date = document.getElementById('expDate').value || todayStr();
+  const currency = document.getElementById('expCurrency').value;
+  const method = document.getElementById('expMethod').value;
+  const desc = document.getElementById('expDesc').value.trim();
+  if(!amount || amount<=0){ toast('Соманы дұрыс енгіз'); return; }
+  const fileInput = document.getElementById('expReceipt');
+  const file = fileInput.files[0];
+  const finish = (receipt)=>{
+    txs.push({id:uid(), type:'out', cat:name, amount, date, currency, method, desc, receipt: receipt||null});
+    saveTx();
+    document.getElementById('expAmount').value=''; document.getElementById('expName').value=''; document.getElementById('expDesc').value=''; fileInput.value='';
+    renderTxLists();
+    toast('Шығын қосылды');
+  };
+  if(file && file.size > 300*1024){ toast('Чек файлы тым үлкен (300KB-тан аз болу керек) — суретсіз сақталды'); finish(null); return; }
+  if(file){
+    const reader = new FileReader();
+    reader.onload = ()=> finish(reader.result);
+    reader.onerror = ()=> finish(null);
+    reader.readAsDataURL(file);
+  } else finish(null);
+}
+function delTx(id){ txs=txs.filter(x=>x.id!==id); saveTx(); renderTxLists(); }
+function editTxDate(id,val){ const t=txs.find(x=>x.id===id); if(t){ t.date=val; saveTx(); updateFinBadges(); } }
+function txRow(t){
+  return `<div class="tx">
+    <div style="flex:1;min-width:0">
+      <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.cat}${t.method?' · '+t.method:''}${t.receipt?' '+ic('clipboard'):''}</div>
+      ${t.desc?`<div style="font-size:12px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.desc}</div>`:''}
+      <input type="date" class="mini-date" value="${t.date}" onchange="editTxDate('${t.id}',this.value)">
+    </div>
+    <span class="amt ${t.type==='in'?'in':'out'}">${t.type==='in'?'+':'−'}${fmt(t.amount)}${t.currency&&t.currency!=='₸'?' '+t.currency:''}</span>
+    <span class="del" onclick="delTx('${t.id}')">${ic('x')}</span>
+  </div>`;
+}
+function renderTxLists(){
+  updateFinBadges();
+  const incSearchEl=document.getElementById('incSearch'), incCatEl=document.getElementById('incFilterCat');
+  const expSearchEl=document.getElementById('expSearch'), expCatEl=document.getElementById('expFilterCat');
+  const incSearch=(incSearchEl&&incSearchEl.value||'').toLowerCase(), incCat=incCatEl&&incCatEl.value||'';
+  const expSearch=(expSearchEl&&expSearchEl.value||'').toLowerCase(), expCat=expCatEl&&expCatEl.value||'';
+  let inc = txs.filter(t=>t.type==='in').sort((a,b)=>b.date.localeCompare(a.date));
+  let exp = txs.filter(t=>t.type==='out').sort((a,b)=>b.date.localeCompare(a.date));
+  if(incSearch) inc = inc.filter(t=> t.cat.toLowerCase().includes(incSearch) || (t.desc||'').toLowerCase().includes(incSearch));
+  if(incCat) inc = inc.filter(t=>t.cat===incCat);
+  if(expSearch) exp = exp.filter(t=> t.cat.toLowerCase().includes(expSearch) || (t.desc||'').toLowerCase().includes(expSearch));
+  if(expCat) exp = exp.filter(t=>t.cat===expCat);
+  if(incCatEl){
+    const cats=[...new Set(txs.filter(t=>t.type==='in').map(t=>t.cat))];
+    incCatEl.innerHTML = `<option value="">Барлық категория</option>`+cats.map(c=>`<option value="${c}" ${c===incCat?'selected':''}>${c}</option>`).join('');
+  }
+  if(expCatEl){
+    const cats=[...new Set(txs.filter(t=>t.type==='out').map(t=>t.cat))];
+    expCatEl.innerHTML = `<option value="">Барлық категория</option>`+cats.map(c=>`<option value="${c}" ${c===expCat?'selected':''}>${c}</option>`).join('');
+  }
+  document.getElementById('incList').innerHTML = inc.length? inc.map(txRow).join('') : `<div style="color:var(--faint);padding:14px 0">Әзірге табыс жоқ</div>`;
+  document.getElementById('expList').innerHTML = exp.length? exp.map(txRow).join('') : `<div style="color:var(--faint);padding:14px 0">Әзірге шығын жоқ</div>`;
+}
+
+/* ---------- DASHBOARD ---------- */
+function budgetWarnings(){
+  const {from,to}=periodRange('month');
+  return FIN_CATS.out.filter(cat=>{
+    const limit=budgets[cat]; if(!limit) return false;
+    const spent=txs.filter(t=>t.type==='out'&&t.cat===cat&&t.date>=from&&t.date<=to).reduce((s,t)=>s+t.amount,0);
+    return spent>limit;
+  });
+}
+function renderFinDash(){
+  const {from,to}=periodRange('month');
+  const monthIn=sumTx('in',from,to), monthOut=sumTx('out',from,to);
+  const bal=sumTx('in')-sumTx('out');
+  const balEl=document.getElementById('dashBalance');
+  balEl.textContent=fmt(bal); balEl.style.color = bal>=0?'var(--good)':'#f0a5a5';
+  document.getElementById('dashMonthIn').textContent=fmt(monthIn);
+  document.getElementById('dashMonthOut').textContent=fmt(monthOut);
+  const netEl=document.getElementById('dashMonthNet');
+  netEl.textContent=fmt(monthIn-monthOut); netEl.style.color=(monthIn-monthOut)>=0?'var(--good)':'#f0a5a5';
+
+  const warns=budgetWarnings();
+  document.getElementById('dashWarnings').innerHTML = warns.length
+    ? `<div class="box" style="margin-bottom:20px;border-color:var(--crit)">
+        ${warns.map(cat=>`<div style="color:var(--crit);font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:6px">${ic('alertTriangle')} «${cat}» санаты бойынша бюджет лимитінен асып кеттің</div>`).join('')}
+      </div>` : '';
+
+  const outTxMonth = txs.filter(t=>t.type==='out'&&t.date>=from&&t.date<=to);
+  const byCat={}; outTxMonth.forEach(t=>byCat[t.cat]=(byCat[t.cat]||0)+t.amount);
+  const topCat = Object.entries(byCat).sort((a,b)=>b[1]-a[1])[0];
+  const avgDaily = monthOut / new Date().getDate();
+  document.getElementById('dashKpis').innerHTML = `
+    <div class="kpi"><div class="big">${txs.filter(t=>t.date>=from&&t.date<=to).length}</div><div class="lbl">Осы айдағы транзакция</div></div>
+    <div class="kpi"><div class="big">${fmt(avgDaily)}</div><div class="lbl">Күндік орташа шығын</div></div>
+    <div class="kpi"><div class="big" style="font-size:20px">${topCat?topCat[0]:'—'}</div><div class="lbl">Ең көп шығын категориясы</div>${topCat?`<div class="sub">${fmt(topCat[1])}</div>`:''}</div>`;
+
+  drawFinPie('dashPie','dashLegend', outTxMonth, 200);
+  drawCashFlowChart('dashCfChart', monthBuckets(6));
+
+  const recent=[...txs].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,6);
+  document.getElementById('dashRecentTx').innerHTML = recent.length? recent.map(txRow).join('') : `<div style="color:var(--faint);padding:14px 0">Әзірге транзакция жоқ</div>`;
+
+  document.getElementById('dashGoalsMini').innerHTML = finGoals.length
+    ? finGoals.slice(0,3).map(finGoalMiniRow).join('')
+    : `<div style="color:var(--faint);padding:14px 0">Әзірге қаржылық мақсат жоқ</div>`;
+}
+
+/* ---------- АНАЛИТИКА ---------- */
+let anaPeriod = 'month';
+function switchAnaPeriod(p){ anaPeriod=p; renderFinAnalytics(); }
+function renderFinAnalytics(){
+  document.getElementById('anaPeriodTabs').innerHTML = [['week','Апталық'],['month','Айлық'],['year','Жылдық']]
+    .map(([k,n])=>`<button class="tab ${k===anaPeriod?'active':''}" onclick="switchAnaPeriod('${k}')">${n}</button>`).join('');
+  const {from,to}=periodRange(anaPeriod);
+  const {from:pfrom,to:pto}=prevPeriodRange(anaPeriod);
+  const inc=sumTx('in',from,to), out=sumTx('out',from,to), net=inc-out;
+  const pInc=sumTx('in',pfrom,pto), pOut=sumTx('out',pfrom,pto);
+  const deltaInc = pInc? Math.round((inc-pInc)/pInc*100) : (inc?100:0);
+  const deltaOut = pOut? Math.round((out-pOut)/pOut*100) : (out?100:0);
+  document.getElementById('anaKpis').innerHTML = `
+    <div class="kpi"><div class="big" style="color:var(--good)">${fmt(inc)}</div><div class="lbl">Кіріс</div></div>
+    <div class="kpi"><div class="big" style="color:#f0a5a5">${fmt(out)}</div><div class="lbl">Шығын</div></div>
+    <div class="kpi"><div class="big" style="color:${net>=0?'var(--good)':'#f0a5a5'}">${fmt(net)}</div><div class="lbl">Таза пайда</div></div>`;
+  document.getElementById('anaPeriodLabel').textContent = ({week:'Осы апта',month:'Осы ай',year:'Осы жыл'})[anaPeriod];
+  const outTx = txs.filter(t=>t.type==='out' && t.date>=from && t.date<=to);
+  drawFinPie('anaPie','anaLegend', outTx, 220);
+  document.getElementById('anaCompare').innerHTML = `
+    <div class="split-item"><span class="k">Кіріс өзгерісі</span><span class="v" style="color:${deltaInc>=0?'var(--good)':'#f0a5a5'}">${deltaInc>=0?'+':''}${deltaInc}%</span></div>
+    <div class="split-item"><span class="k">Шығын өзгерісі</span><span class="v" style="color:${deltaOut<=0?'var(--good)':'#f0a5a5'}">${deltaOut>=0?'+':''}${deltaOut}%</span></div>
+    <div class="split-item"><span class="k">Алдыңғы период таза пайда</span><span class="v">${fmt(pInc-pOut)}</span></div>`;
+  const byOut={}; outTx.forEach(t=>byOut[t.cat]=(byOut[t.cat]||0)+t.amount);
+  const byInc={}; txs.filter(t=>t.type==='in'&&t.date>=from&&t.date<=to).forEach(t=>byInc[t.cat]=(byInc[t.cat]||0)+t.amount);
+  const topList=(obj,color)=>{
+    const entries=Object.entries(obj).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    return entries.length ? entries.map(([k,v])=>`<div class="split-item"><span class="k">${k}</span><span class="v" style="color:${color}">${fmt(v)}</span></div>`).join('')
+      : `<div class="empty" style="padding:14px 0"><span class="em">${ic('inbox')}</span>Дерек жоқ</div>`;
+  };
+  document.getElementById('anaTopExp').innerHTML = topList(byOut,'#f0a5a5');
+  document.getElementById('anaTopInc').innerHTML = topList(byInc,'var(--good)');
+}
+
+/* ---------- БЮДЖЕТ ---------- */
+function setBudget(cat,val){ budgets[cat]=+val||0; saveBudgets(); renderFinBudget(); }
+function renderFinBudget(){
+  const {from,to}=periodRange('month');
+  document.getElementById('budgetRows').innerHTML = FIN_CATS.out.map(cat=>{
+    const spent = txs.filter(t=>t.type==='out'&&t.cat===cat&&t.date>=from&&t.date<=to).reduce((s,t)=>s+t.amount,0);
+    const limit = budgets[cat]||0;
+    const pct = limit? Math.min(100, Math.round(spent/limit*100)) : 0;
+    const over = limit>0 && spent>limit;
+    return `<div style="margin-bottom:18px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <b>${cat}</b>
+        <input type="number" style="width:120px;margin:0" value="${limit||''}" placeholder="Лимит жоқ" onchange="setBudget('${cat}',this.value)">
+      </div>
+      ${limit ? `<div class="progressbar"><span style="width:${pct}%;background:${over?'var(--crit)':pct>80?'var(--warn)':'var(--grad)'}"></span></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-top:4px">
+        <span>Жұмсалды: <b style="color:${over?'#f0a5a5':'var(--text)'}">${fmt(spent)}</b></span>
+        <span>${pct}%${over?` — ${ic('alertTriangle')} лимиттен асты`:''}</span>
+      </div>` : `<div style="font-size:13px;color:var(--faint)">Жұмсалды: ${fmt(spent)}</div>`}
+    </div>`;
+  }).join('');
+  renderCalc();
+  renderPushSection();
+}
+
+/* ---------- Нағыз браузер push ескертулері (бюджет асуы, қарыз мерзімі) ---------- */
+function urlBase64ToUint8Array(base64String){
+  const padding='='.repeat((4-base64String.length%4)%4);
+  const base64=(base64String+padding).replace(/-/g,'+').replace(/_/g,'/');
+  const raw=atob(base64);
+  const arr=new Uint8Array(raw.length);
+  for(let i=0;i<raw.length;i++) arr[i]=raw.charCodeAt(i);
+  return arr;
+}
+async function currentPushSub(){
+  if(!('serviceWorker' in navigator)) return null;
+  const reg = await navigator.serviceWorker.getRegistration('/sw.js');
+  if(!reg) return null;
+  return reg.pushManager.getSubscription();
+}
+async function enablePush(){
+  if(!VAPID_PUBLIC_KEY){ toast('Push ескертулер әлі орнатылмаған'); return; }
+  if(!('serviceWorker' in navigator) || !('PushManager' in window)){ toast('Бұл браузер push ескертулерді қолдамайды'); return; }
+  try{
+    const perm = await Notification.requestPermission();
+    if(perm!=='granted'){ toast('Рұқсат берілмеді'); return; }
+    const reg = await navigator.serviceWorker.register('/sw.js');
+    const sub = await reg.pushManager.subscribe({ userVisibleOnly:true, applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) });
+    await apiCall('/push/subscribe', 'POST', {subscription: sub.toJSON()});
+    toast('Push ескертулер қосылды');
+    renderPushSection();
+  }catch(e){ toast('Қате: '+e.message); }
+}
+async function disablePush(){
+  try{
+    const sub = await currentPushSub();
+    if(sub){ await apiCall('/push/unsubscribe', 'POST', {endpoint: sub.endpoint}); await sub.unsubscribe(); }
+    toast('Push ескертулер өшірілді');
+  }catch(e){ toast('Қате: '+e.message); }
+  renderPushSection();
+}
+async function renderPushSection(){
+  const el=document.getElementById('pushSection');
+  if(!el) return;
+  if(!VAPID_PUBLIC_KEY || !('serviceWorker' in navigator) || !('PushManager' in window)){
+    el.innerHTML = `<div style="font-size:13px;color:var(--faint)">Push ескертулер бұл құрылғыда/әлі қолжетімсіз.</div>`;
+    return;
+  }
+  const sub = await currentPushSub();
+  el.innerHTML = sub
+    ? `<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span style="color:var(--good);font-size:13px">${ic('checkCircle')} Push ескертулер қосулы (бюджет асуы, қарыз мерзімі)</span><button class="btn ghost sm" style="width:auto" onclick="disablePush()">Өшіру</button></div>`
+    : `<button class="btn ghost sm" onclick="enablePush()">${ic('alertTriangle')} Push ескертулерді қосу</button>`;
+}
+
+/* ---------- ҚАРЖЫЛЫҚ МАҚСАТТАР (ескі "ақша жинау" виджетінің жалғасы, тізім болды) ---------- */
 const PIGGY_DENOMS = [500,1000,2000,5000,10000,20000,50000,100000];
 function genPiggyPieces(target){
   const pool = PIGGY_DENOMS.filter(d=>d<=target);
@@ -2553,7 +3010,6 @@ function genPiggyPieces(target){
   for(let i=pieces.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [pieces[i],pieces[j]]=[pieces[j],pieces[i]]; }
   return pieces;
 }
-function savePiggy(){ Store.set('piggy', piggy); scheduleSync(); }
 async function fetchGoalImage(name){
   try{
     const r = await fetch('/api/goal-image?q='+encodeURIComponent(name));
@@ -2562,59 +3018,209 @@ async function fetchGoalImage(name){
     return d.image || null;
   }catch(e){ return null; }
 }
-async function startPiggy(){
-  const name = document.getElementById('piggyName').value.trim();
-  const amount = +document.getElementById('piggyTarget').value;
+async function addFinGoal(){
+  const name = document.getElementById('fgName').value.trim();
+  const target = +document.getElementById('fgTarget').value;
+  const deadline = document.getElementById('fgDeadline').value || '';
   if(!name){ toast('Мақсат атауын жаз'); return; }
-  if(!amount || amount<=0){ toast('Соманы дұрыс енгіз'); return; }
-  piggy = { name, target:amount, pieces: genPiggyPieces(amount), createdAt: todayStr(), image:null };
-  savePiggy(); renderPiggy();
+  if(!target || target<=0){ toast('Соманы дұрыс енгіз'); return; }
+  const g = {id:uid(), name, target, deadline, createdAt:todayStr(), image:null, pieces:genPiggyPieces(target)};
+  finGoals.push(g);
+  saveFinGoals();
+  document.getElementById('fgName').value=''; document.getElementById('fgTarget').value=''; document.getElementById('fgDeadline').value='';
+  renderFinGoals();
   const img = await fetchGoalImage(name);
-  if(piggy && piggy.name===name){ piggy.image = img; savePiggy(); renderPiggy(); }
+  if(img){ const gg=finGoals.find(x=>x.id===g.id); if(gg){ gg.image=img; saveFinGoals(); renderFinGoals(); } }
 }
-function collectPiece(id){
-  if(!piggy) return;
-  const p = piggy.pieces.find(x=>x.id===id);
-  if(!p || p.done) return;
-  p.done = true;
-  savePiggy(); renderPiggy();
+function finGoalSaved(g){ return g.pieces.filter(p=>p.done).reduce((s,p)=>s+p.amount,0); }
+function collectFinPiece(goalId,pieceId){
+  const g=finGoals.find(x=>x.id===goalId); if(!g) return;
+  const p=g.pieces.find(x=>x.id===pieceId); if(!p||p.done) return;
+  p.done=true; saveFinGoals(); renderFinGoals();
 }
-function resetPiggy(){
-  if(!confirm('Жаңа мақсат бастаймыз ба? Ағымдағы прогресс жойылады.')) return;
-  piggy = null; savePiggy(); renderPiggy();
+function delFinGoal(id){
+  if(!confirm('Мақсатты өшіреміз бе?')) return;
+  finGoals=finGoals.filter(x=>x.id!==id); saveFinGoals(); renderFinGoals();
 }
-function renderPiggy(){
-  const body = document.getElementById('piggyBody');
-  if(!body) return;
-  if(!piggy){
-    body.innerHTML = `
-      <div style="color:var(--muted);font-size:14px;margin-bottom:14px">Мақсатыңды жаз (мыс: iPhone 17, Дубайға саяхат) және сомасын көрсет — біз оны ұсақ-ұсақ бөліктерге бөліп, суретін тауып береміз. Әр бөлікті нақты өмірде жинаған сайын үстінен бас — сол бөлік жоғалады, ал жиналған сома өседі.</div>
-      <label>Мақсат атауы</label>
-      <input type="text" id="piggyName" placeholder="Мыс: iPhone 17, Дубайға саяхат">
-      <label>Мақсат сома (₸)</label>
-      <input type="number" id="piggyTarget" placeholder="100000">
-      <button class="btn" onclick="startPiggy()">${ic('piggyBank')} Бастау</button>`;
-    return;
-  }
-  const collected = piggy.pieces.filter(p=>p.done).reduce((s,p)=>s+p.amount,0);
-  const pct = Math.min(100, Math.round(collected/piggy.target*100));
-  const left = piggy.pieces.filter(p=>!p.done);
-  body.innerHTML = `
-    ${piggy.image? `<img class="piggy-img" src="${piggy.image}" alt="${piggy.name.replace(/"/g,'&quot;')}">` : ''}
-    <div class="piggy-name">${ic('target')} ${piggy.name||''}</div>
+function finGoalDeadlineBadge(g){
+  if(!g.deadline) return '';
+  const diff=Math.ceil((new Date(g.deadline)-new Date(todayStr()))/86400000);
+  if(diff<0) return `<div style="color:var(--crit);font-weight:700;font-size:13px;margin-bottom:8px">${ic('alertTriangle')} Мерзімі ${Math.abs(diff)} күн бұрын өтті</div>`;
+  if(diff<=7) return `<div style="color:var(--warn);font-weight:700;font-size:13px;margin-bottom:8px">${ic('clock')} Мерзіміне ${diff} күн қалды</div>`;
+  return `<div style="color:var(--muted);font-size:13px;margin-bottom:8px">${ic('calendar')} Мерзімі: ${fmtDate(g.deadline)}</div>`;
+}
+function finGoalMiniRow(g){
+  const saved=finGoalSaved(g), pct=Math.min(100,Math.round(saved/g.target*100));
+  return `<div style="margin-bottom:14px">
+    <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:4px"><b>${g.name}</b><span>${pct}%</span></div>
     <div class="progressbar"><span style="width:${pct}%"></span></div>
-    <div style="display:flex;justify-content:space-between;margin:10px 0 16px;font-size:14px">
-      <span style="color:var(--muted)">Мақсат: <b style="color:var(--text)">${fmt(piggy.target)}</b></span>
-      <span><b style="color:var(--good)">${pct}%</b></span>
+  </div>`;
+}
+function finGoalCard(g){
+  const saved=finGoalSaved(g), pct=Math.min(100,Math.round(saved/g.target*100)), left=g.pieces.filter(p=>!p.done);
+  return `<div class="card">
+    ${g.image?`<img class="piggy-img" src="${g.image}" alt="${g.name.replace(/"/g,'&quot;')}" style="margin-bottom:12px">`:''}
+    <h3>${ic('target')} ${g.name}</h3>
+    ${finGoalDeadlineBadge(g)}
+    <div class="progressbar" style="margin-bottom:8px"><span style="width:${pct}%"></span></div>
+    <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:10px">
+      <span style="color:var(--muted)">Жиналды: <b style="color:var(--good)">${fmt(saved)}</b> / ${fmt(g.target)}</span>
+      <span><b>${pct}%</b></span>
     </div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:10px">Жетіспейді: <b style="color:var(--text)">${fmt(Math.max(0,g.target-saved))}</b></div>
     ${left.length
-      ? `<div class="piggy-grid">${left.map(p=>`<div class="piggy-chip" onclick="this.classList.add('gone');setTimeout(()=>collectPiece('${p.id}'),220)">${fmt(p.amount)}</div>`).join('')}</div>`
-      : `<div class="empty" style="padding:20px 0"><span class="em">${ic('checkCircle')}</span>Барлық бөлік жиналды! Мақсатқа жеттің.</div>`}
-    <div class="piggy-total">
-      <span>${ic('wallet')} Жиналған сома</span>
-      <b>${fmt(collected)}</b>
+      ? `<div class="piggy-grid">${left.map(p=>`<div class="piggy-chip" onclick="this.classList.add('gone');setTimeout(()=>collectFinPiece('${g.id}','${p.id}'),220)">${fmt(p.amount)}</div>`).join('')}</div>`
+      : `<div class="empty" style="padding:14px 0"><span class="em">${ic('checkCircle')}</span>Мақсатқа жеттің!</div>`}
+    <span class="del" onclick="delFinGoal('${g.id}')" style="cursor:pointer;color:var(--faint);display:block;text-align:right;margin-top:6px">${ic('trash')}</span>
+  </div>`;
+}
+function renderFinGoals(){
+  document.getElementById('finGoalsList').innerHTML = finGoals.length
+    ? finGoals.map(finGoalCard).join('')
+    : `<div class="empty"><span class="em">${ic('piggyBank')}</span>Әзірге қаржылық мақсат жоқ</div>`;
+}
+
+/* ---------- CASH FLOW ---------- */
+function renderFinCashflow(){
+  const buckets=monthBuckets(12);
+  const last=buckets[buckets.length-1], prev=buckets[buckets.length-2]||{net:0};
+  const changePct = prev.net? Math.round((last.net-prev.net)/Math.abs(prev.net)*100) : (last.net?100:0);
+  const avgNet = Math.round(buckets.reduce((s,b)=>s+b.net,0)/buckets.length);
+  const forecast = Math.round(buckets.slice(-3).reduce((s,b)=>s+b.net,0)/3);
+  document.getElementById('cfKpis').innerHTML = `
+    <div class="kpi"><div class="big" style="color:${last.net>=0?'var(--good)':'#f0a5a5'}">${fmt(last.net)}</div><div class="lbl">Осы айдың таза ағыны</div></div>
+    <div class="kpi"><div class="big">${fmt(avgNet)}</div><div class="lbl">12 айдың орташасы</div></div>
+    <div class="kpi"><div class="big" style="color:${changePct>=0?'var(--good)':'#f0a5a5'}">${changePct>=0?'+':''}${changePct}%</div><div class="lbl">Алдыңғы аймен салыстыру</div></div>
+    <div class="kpi"><div class="big">${fmt(forecast)}</div><div class="lbl">Келесі айға болжам</div><div class="sub">соңғы 3 айдың орташасы</div></div>`;
+  drawCashFlowChart('cfChart', buckets);
+  document.getElementById('cfLegend').innerHTML = `<span><i style="background:#0ca30c"></i>Кіріс</span><span><i style="background:#d03b3b"></i>Шығын</span>`;
+  document.getElementById('cfTable').innerHTML = buckets.slice().reverse().map(b=>`
+    <div class="split-item"><span class="k">${b.label}</span>
+      <span class="v" style="display:flex;gap:14px">
+        <span style="color:var(--good)">${fmt(b.inc)}</span>
+        <span style="color:#f0a5a5">${fmt(b.out)}</span>
+        <span style="color:${b.net>=0?'var(--good)':'#f0a5a5'}">${fmt(b.net)}</span>
+      </span></div>`).join('');
+}
+
+/* ---------- ИНВЕСТИЦИЯЛАР (баға қолмен енгізіледі) ---------- */
+const INV_TYPE_NAMES = {stock:'Акциялар',etf:'ETF',crypto:'Криптовалюта',gold:'Алтын',deposit:'Депозит'};
+function addInvestment(){
+  const type = document.getElementById('invType').value;
+  const name = document.getElementById('invName').value.trim();
+  const buyPrice = +document.getElementById('invBuyPrice').value;
+  const qty = +document.getElementById('invQty').value || 1;
+  const buyDate = document.getElementById('invDate').value || todayStr();
+  if(!name){ toast('Атын жаз'); return; }
+  if(!buyPrice || buyPrice<=0){ toast('Бағаны дұрыс енгіз'); return; }
+  investments.push({id:uid(), type, name, buyPrice, qty, currentPrice:buyPrice, buyDate});
+  saveInvestments();
+  document.getElementById('invName').value=''; document.getElementById('invBuyPrice').value='';
+  renderFinInvest();
+}
+function updateInvestPrice(id,val){
+  const inv=investments.find(x=>x.id===id); if(!inv) return;
+  inv.currentPrice = +val || inv.currentPrice;
+  saveInvestments(); renderFinInvest();
+}
+function delInvestment(id){ investments=investments.filter(x=>x.id!==id); saveInvestments(); renderFinInvest(); }
+function investCard(inv){
+  const cost=inv.buyPrice*inv.qty, value=inv.currentPrice*inv.qty, profit=value-cost;
+  const roi = inv.buyPrice? Math.round((inv.currentPrice-inv.buyPrice)/inv.buyPrice*1000)/10 : 0;
+  const color = profit>=0?'var(--good)':'#f0a5a5';
+  return `<div class="card">
+    <div class="tag">${INV_TYPE_NAMES[inv.type]||inv.type}</div>
+    <h3>${inv.name}</h3>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:10px">Сатып алынды: ${fmtDate(inv.buyDate)} · ${inv.qty} дана</div>
+    <div class="row">
+      <div><label>Сатып алу бағасы</label><div style="padding:10px 0;font-weight:700">${fmt(inv.buyPrice)}</div></div>
+      <div><label>Ағымдағы баға</label><input type="number" value="${inv.currentPrice}" onchange="updateInvestPrice('${inv.id}',this.value)"></div>
     </div>
-    <button class="btn ghost sm" style="margin-top:14px" onclick="resetPiggy()">${ic('refresh')} Жаңа мақсат бастау</button>`;
+    <div class="split-item"><span class="k">Пайда/зиян</span><span class="v" style="color:${color}">${profit>=0?'+':''}${fmt(profit)}</span></div>
+    <div class="split-item"><span class="k">ROI</span><span class="v" style="color:${color}">${roi>=0?'+':''}${roi}%</span></div>
+    <span class="del" onclick="delInvestment('${inv.id}')" style="cursor:pointer;color:var(--faint);display:block;text-align:right;margin-top:6px">${ic('trash')}</span>
+  </div>`;
+}
+function renderFinInvest(){
+  const totalCost=investments.reduce((s,i)=>s+i.buyPrice*i.qty,0);
+  const totalValue=investments.reduce((s,i)=>s+i.currentPrice*i.qty,0);
+  const totalProfit=totalValue-totalCost;
+  const avgRoi = totalCost? Math.round((totalValue-totalCost)/totalCost*1000)/10 : 0;
+  document.getElementById('investKpis').innerHTML = `
+    <div class="kpi"><div class="big">${fmt(totalCost)}</div><div class="lbl">Жалпы салынған</div></div>
+    <div class="kpi"><div class="big">${fmt(totalValue)}</div><div class="lbl">Ағымдағы құн</div></div>
+    <div class="kpi"><div class="big" style="color:${totalProfit>=0?'var(--good)':'#f0a5a5'}">${totalProfit>=0?'+':''}${fmt(totalProfit)}</div><div class="lbl">Жалпы пайда/зиян</div></div>
+    <div class="kpi"><div class="big" style="color:${avgRoi>=0?'var(--good)':'#f0a5a5'}">${avgRoi>=0?'+':''}${avgRoi}%</div><div class="lbl">Орташа ROI</div></div>`;
+  document.getElementById('investList').innerHTML = investments.length
+    ? investments.map(investCard).join('')
+    : `<div class="empty"><span class="em">${ic('gem')}</span>Әзірге инвестиция жоқ</div>`;
+}
+
+/* ---------- AI ҚАРЖЫЛЫҚ КӨМЕКШІ ---------- */
+function computeRuleInsights(){
+  const insights=[];
+  const {from,to}=periodRange('month');
+  const {from:pfrom,to:pto}=prevPeriodRange('month');
+  const curByCat={}, prevByCat={};
+  txs.filter(t=>t.type==='out'&&t.date>=from&&t.date<=to).forEach(t=>curByCat[t.cat]=(curByCat[t.cat]||0)+t.amount);
+  txs.filter(t=>t.type==='out'&&t.date>=pfrom&&t.date<=pto).forEach(t=>prevByCat[t.cat]=(prevByCat[t.cat]||0)+t.amount);
+  Object.keys(curByCat).forEach(cat=>{
+    const prev=prevByCat[cat];
+    if(prev && prev>0){
+      const delta=Math.round((curByCat[cat]-prev)/prev*100);
+      if(Math.abs(delta)>=15) insights.push(`Осы айда сіз «${cat}» санатына өткен айдан ${Math.abs(delta)}% ${delta>0?'көп':'аз'} ақша жұмсадыңыз.`);
+    }
+  });
+  budgetWarnings().forEach(cat=>{
+    const spent=txs.filter(t=>t.type==='out'&&t.cat===cat&&t.date>=from&&t.date<=to).reduce((s,t)=>s+t.amount,0);
+    insights.push(`«${cat}» санаты бойынша бюджет лимитінен ${fmt(spent-budgets[cat])} асып кеттіңіз.`);
+  });
+  const topCat=Object.entries(curByCat).sort((a,b)=>b[1]-a[1])[0];
+  if(topCat) insights.push(`Осы айда ең көп шығын — «${topCat[0]}» (${fmt(topCat[1])}).`);
+  const monthIn=sumTx('in',from,to), monthOut=sumTx('out',from,to);
+  if(monthIn>0){
+    const rate=Math.round((monthIn-monthOut)/monthIn*100);
+    insights.push(rate>=20 ? `Жинақ қарқының жақсы: осы ай кірістің ${rate}%-ын жинадыңыз.` :
+      rate>=0 ? `Осы ай кірістің тек ${rate}%-ын жинадыңыз — жинақ үлесін арттыруға болады.` :
+      `Осы ай шығын кірістен асып кетті — бюджетіңді қайта қара.`);
+  }
+  debts.filter(d=>!d.closedAt && d.due).forEach(d=>{
+    const diff=Math.ceil((new Date(d.due)-new Date(todayStr()))/86400000);
+    if(diff>=0 && diff<=7) insights.push(`«${d.person}» қарызының мерзіміне ${diff} күн қалды.`);
+    if(diff<0) insights.push(`«${d.person}» қарызының мерзімі өтіп кетті.`);
+  });
+  if(!insights.length) insights.push('Әзірге назар аударарлық ерекшелік жоқ — деректер жинақталған сайын талдау тереңдейді.');
+  return insights;
+}
+function renderFinAI(){
+  const insights=computeRuleInsights();
+  document.getElementById('aiRuleInsights').innerHTML = insights.map(t=>`<div class="split-item"><span class="k">${ic('lightbulb')} ${t}</span></div>`).join('');
+  renderAiAdviceBody();
+}
+function renderAiAdviceBody(){
+  const el=document.getElementById('aiAdviceBody');
+  if(!aiAdvice){ el.innerHTML=''; return; }
+  el.innerHTML = `<div style="white-space:pre-line;line-height:1.6">${aiAdvice.text.replace(/</g,'&lt;')}</div>
+    <div style="color:var(--faint);font-size:12px;margin-top:10px">${fmtDate(aiAdvice.generatedAt.slice(0,10))} жасалды</div>`;
+}
+async function askAiAdvice(){
+  const btn=document.getElementById('aiAskBtn');
+  btn.disabled=true; btn.textContent='Талдау жасалуда...';
+  try{
+    const {from,to}=periodRange('month');
+    const byCat={}; txs.filter(t=>t.type==='out'&&t.date>=from&&t.date<=to).forEach(t=>byCat[t.cat]=(byCat[t.cat]||0)+t.amount);
+    const summary = {
+      monthIn: sumTx('in',from,to), monthOut: sumTx('out',from,to),
+      byCat, budgets,
+      debts: debts.filter(d=>!d.closedAt).map(d=>({type:d.type, amount:d.amount, remaining:debtRemaining(d), due:d.due})),
+      goals: finGoals.map(g=>({name:g.name, target:g.target, saved:finGoalSaved(g), deadline:g.deadline})),
+    };
+    const r = await apiCall('/ai-advice', 'POST', {summary});
+    aiAdvice = {text:r.text, generatedAt:new Date().toISOString()};
+    Store.set('aiAdvice', aiAdvice); scheduleSync();
+    renderAiAdviceBody();
+  }catch(e){ toast('Қате: '+e.message); }
+  finally{ btn.disabled=false; btn.innerHTML=`${ic('lightbulb')} Талдау сұрау`; }
 }
 
 /* ---------- Қарыз (мен қарызбын / маған қарыз) ---------- */
@@ -2713,57 +3319,11 @@ function renderDebts(){
   netEl.style.color = net>=0 ? 'var(--good)' : '#f0a5a5';
 }
 
-function addIncome(){
-  const amount = +document.getElementById('incAmount').value;
-  const name = document.getElementById('incName').value.trim() || 'Табыс';
-  const date = document.getElementById('incDate').value || todayStr();
-  if(!amount || amount<=0){ toast('Соманы дұрыс енгіз'); return; }
-  txs.push({id:uid(), type:'in', cat:name, amount, date});
-  saveTx();
-  document.getElementById('incAmount').value=''; document.getElementById('incName').value='';
-  renderFinance();
-}
-function addExpense(){
-  const amount = +document.getElementById('expAmount').value;
-  const name = document.getElementById('expName').value.trim() || 'Шығын';
-  const date = document.getElementById('expDate').value || todayStr();
-  if(!amount || amount<=0){ toast('Соманы дұрыс енгіз'); return; }
-  txs.push({id:uid(), type:'out', cat:name, amount, date});
-  saveTx();
-  document.getElementById('expAmount').value=''; document.getElementById('expName').value='';
-  renderFinance();
-}
-function delTx(id){ txs=txs.filter(x=>x.id!==id); saveTx(); renderFinance(); }
-function editTxDate(id,val){ const t=txs.find(x=>x.id===id); if(t){ t.date=val; saveTx(); renderFinSummary(); } }
-
-function txRow(t){
-  return `<div class="tx">
-    <div style="flex:1;min-width:0">
-      <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.cat}</div>
-      <input type="date" class="mini-date" value="${t.date}" onchange="editTxDate('${t.id}',this.value)">
-    </div>
-    <span class="amt ${t.type==='in'?'in':'out'}">${t.type==='in'?'+':'−'}${fmt(t.amount)}</span>
-    <span class="del" onclick="delTx('${t.id}')">${ic('x')}</span>
-  </div>`;
-}
-function renderTxLists(){
-  const inc = txs.filter(t=>t.type==='in').sort((a,b)=>b.date.localeCompare(a.date));
-  const exp = txs.filter(t=>t.type==='out').sort((a,b)=>b.date.localeCompare(a.date));
-  document.getElementById('incList').innerHTML = inc.length? inc.map(txRow).join('') : `<div style="color:var(--faint);padding:14px 0">Әзірге табыс жоқ</div>`;
-  document.getElementById('expList').innerHTML = exp.length? exp.map(txRow).join('') : `<div style="color:var(--faint);padding:14px 0">Әзірге шығын жоқ</div>`;
-}
-function renderFinSummary(){
-  const totalIn = txs.filter(t=>t.type==='in').reduce((s,t)=>s+t.amount,0);
-  const totalOut= txs.filter(t=>t.type==='out').reduce((s,t)=>s+t.amount,0);
-  const bal = totalIn-totalOut;
-  document.getElementById('totalIn').textContent=fmt(totalIn);
-  document.getElementById('totalOut').textContent=fmt(totalOut);
-  document.getElementById('incSum').textContent=fmt(totalIn);
-  document.getElementById('expSum').textContent=fmt(totalOut);
-  document.getElementById('balance').textContent=fmt(bal);
-  document.getElementById('balance').style.color = bal>=0?'var(--good)':'#f0a5a5';
-  drawFinPie();
-}
+const FIN_RENDERERS = {
+  dash: renderFinDash, income: renderFinIncomeExpense, expense: renderFinIncomeExpense,
+  analytics: renderFinAnalytics, budget: renderFinBudget, goals: renderFinGoals,
+  cashflow: renderFinCashflow, invest: renderFinInvest, debts: renderDebts, ai: renderFinAI,
+};
 
 /* ---------- Бөлу калькуляторы (атын да, процентін де өзі қояды) ---------- */
 function renderCalc(){
@@ -2835,25 +3395,28 @@ function setupCanvas(cv){
   return {ctx,w,h};
 }
 
-function drawFinPie(){
-  const cv=document.getElementById('finPie');
+// canvasId/legendId — қай tab-та көрсетілетінін таңдайды (Dashboard/Аналитика әрқайсысы
+// өз каnvas/legend-ін жібереді), outTx — сол periodтың шығын транзакциялары
+function drawFinPie(canvasId, legendId, outTx, size){
+  size = size || 240;
+  const cv=document.getElementById(canvasId);
+  if(!cv) return;
   const ctx=cv.getContext('2d');
   const dpr=window.devicePixelRatio||1;
-  cv.width=240*dpr; cv.height=240*dpr; cv.style.width='240px'; cv.style.height='240px'; ctx.scale(dpr,dpr);
-  ctx.clearRect(0,0,240,240);
-  const out = txs.filter(t=>t.type==='out');
-  const legend=document.getElementById('finLegend');
-  if(!out.length){
-    ctx.fillStyle='#64748b'; ctx.font='14px system-ui'; ctx.textAlign='center';
-    ctx.fillText('Шығын деректері жоқ',120,120);
-    legend.innerHTML=''; return;
+  cv.width=size*dpr; cv.height=size*dpr; cv.style.width=size+'px'; cv.style.height=size+'px'; ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,size,size);
+  const legend=document.getElementById(legendId);
+  if(!outTx.length){
+    ctx.fillStyle=cssVar('--faint'); ctx.font='14px system-ui'; ctx.textAlign='center';
+    ctx.fillText('Шығын деректері жоқ',size/2,size/2);
+    if(legend) legend.innerHTML=''; return;
   }
   const byCat={};
-  out.forEach(t=> byCat[t.cat]=(byCat[t.cat]||0)+t.amount);
+  outTx.forEach(t=> byCat[t.cat]=(byCat[t.cat]||0)+t.amount);
   const entries=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
   const total=entries.reduce((s,e)=>s+e[1],0);
   let ang=-Math.PI/2;
-  const cx=120,cy=120,r=95,ir=55;
+  const cx=size/2, cy=size/2, r=size*0.396, ir=size*0.229;
   entries.forEach(([cat,val],i)=>{
     const slice=val/total*Math.PI*2;
     ctx.beginPath();
@@ -2863,19 +3426,47 @@ function drawFinPie(){
     ctx.fillStyle=PALETTE[i%PALETTE.length];
     ctx.fill();
     // 2px surface gap
-    ctx.lineWidth=2; ctx.strokeStyle='#1a2130'; ctx.stroke();
+    ctx.lineWidth=2; ctx.strokeStyle=cssVar('--panel'); ctx.stroke();
     ang+=slice;
   });
   // donut hole
-  ctx.beginPath(); ctx.arc(cx,cy,ir,0,Math.PI*2); ctx.fillStyle='#1a2130'; ctx.fill();
-  ctx.fillStyle='#eef2f8'; ctx.font='700 20px system-ui'; ctx.textAlign='center';
+  ctx.beginPath(); ctx.arc(cx,cy,ir,0,Math.PI*2); ctx.fillStyle=cssVar('--panel'); ctx.fill();
+  ctx.fillStyle=cssVar('--text'); ctx.font='700 '+Math.round(size*0.083)+'px system-ui'; ctx.textAlign='center';
   ctx.fillText(fmt(total).replace(' ₸',''),cx,cy-2);
-  ctx.fillStyle='#94a1b8'; ctx.font='12px system-ui'; ctx.fillText('₸ шығын',cx,cy+16);
+  ctx.fillStyle=cssVar('--muted'); ctx.font=Math.round(size*0.05)+'px system-ui'; ctx.fillText('₸ шығын',cx,cy+size*0.067);
 
-  legend.innerHTML=entries.map(([cat,val],i)=>`
+  if(legend) legend.innerHTML=entries.map(([cat,val],i)=>`
     <span><i style="background:${PALETTE[i%PALETTE.length]}"></i>
     ${cat} — <b style="color:var(--text)">${Math.round(val/total*100)}%</b>
     <small style="color:var(--faint)">${fmt(val)}</small></span>`).join('');
+}
+
+// Кіріс/шығынды ай сайын салыстыратын grouped bar chart (Dashboard/Cash Flow бөлісіп қолданады)
+function drawCashFlowChart(canvasId, buckets){
+  const cv=document.getElementById(canvasId);
+  if(!cv) return;
+  const {ctx,w,h}=setupCanvas(cv);
+  ctx.clearRect(0,0,w,h);
+  const maxV=Math.max(1,...buckets.map(b=>Math.max(b.inc,b.out)));
+  const pad={l:50,r:16,t:14,b:34};
+  const cw=w-pad.l-pad.r, ch=h-pad.t-pad.b;
+  ctx.font='11px system-ui'; ctx.textAlign='right'; ctx.textBaseline='middle';
+  for(let g=0; g<=maxV; g+=Math.max(1,Math.ceil(maxV/4))){
+    const y=pad.t+ch-(g/maxV*ch);
+    ctx.strokeStyle=cssVar('--line'); ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(w-pad.r,y); ctx.stroke();
+    ctx.fillStyle=cssVar('--faint'); ctx.fillText(Math.round(g/1000)+'k',pad.l-8,y);
+  }
+  const bw=cw/buckets.length;
+  buckets.forEach((b,i)=>{
+    const gx=pad.l+i*bw;
+    const bwid=bw*0.32, gap=bw*0.06;
+    const hIn=b.inc/maxV*ch, hOut=b.out/maxV*ch;
+    ctx.fillStyle='#0ca30c'; roundRect(ctx, gx+bw*0.14, pad.t+ch-hIn, bwid, hIn, 3, true);
+    ctx.fillStyle='#d03b3b'; roundRect(ctx, gx+bw*0.14+bwid+gap, pad.t+ch-hOut, bwid, hOut, 3, true);
+    ctx.fillStyle=cssVar('--faint'); ctx.font='11px system-ui'; ctx.textAlign='center'; ctx.textBaseline='top';
+    ctx.fillText(b.label, gx+bw/2, pad.t+ch+8);
+  });
 }
 
 function drawBar(){
@@ -3157,7 +3748,7 @@ renderCatTiles();
 })();
 window.addEventListener('resize',()=>{
   if(document.getElementById('analytics').classList.contains('active')){ drawBar(); drawLine(); }
-  if(document.getElementById('finance').classList.contains('active')){ drawFinPie(); }
+  if(document.getElementById('finance').classList.contains('active') && FIN_RENDERERS[finTab]){ FIN_RENDERERS[finTab](); }
 });
 </script>
 </body>
