@@ -1696,7 +1696,7 @@ function earnedBadges(t){ const b=bestStreak(t); return BADGES.map(x=>({...x,got
 /* ============================================================
    NAVIGATION
    ============================================================ */
-document.querySelectorAll('.nav-links a[data-view]').forEach(a=>{
+document.querySelectorAll('.nav-links a[data-view], #bottomNav a[data-view]').forEach(a=>{
   a.onclick = ()=> showView(a.dataset.view);
 });
 function toggleNav(){ document.getElementById('navLinks').classList.toggle('open'); }
