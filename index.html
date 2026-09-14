@@ -1978,13 +1978,17 @@ function renderCards(){
     const xBtn = t.isUser
       ? `<button class="card-x" title="Жою" onclick="delUserTpl('${t.id}')">${ic('x')}</button>`
       : `<button class="card-x" title="Жасыру" onclick="hideTemplate('${t.cat}','${t.name.replace(/'/g,"&#39;")}')">${ic('x')}</button>`;
+    const existing = activeTrackerForTpl(t);
+    const startBtn = existing
+      ? `<button class="btn" onclick="openTracker('${existing.id}')">${ic('checkCircle')} Ашу · басталған</button>`
+      : `<button class="btn" onclick='startTracker(${JSON.stringify(t).replace(/'/g,"&#39;")})'>Бастау</button>`;
     return `<div class="card">
       ${xBtn}
       <div class="icon" style="background:${cat.color}22;color:${cat.color}">${ic(t.emo)}</div>
       <h3>${t.name}</h3>
       <div class="tag">${ic(cat.emo)} ${cat.name}${t.isUser?' · менікі':''}</div>
       <p>${t.desc}</p>
-      <button class="btn" onclick='startTracker(${JSON.stringify(t).replace(/'/g,"&#39;")})'>Бастау</button>
+      ${startBtn}
     </div>`;
   }).join('');
   const hiddenHere = hiddenTpl.filter(k=>k.startsWith(activeCat+'|')).length;
@@ -2007,7 +2011,13 @@ function restoreTemplates(cat){
 /* ============================================================
    START TRACKER
    ============================================================ */
+// Осы шаблоннан бұрын басталған (архивтелмеген) трекер бар ма — қайталап қосылмасын
+function activeTrackerForTpl(t){
+  return trackers.find(x=>x.cat===t.cat && x.name===t.name);
+}
 function startTracker(t){
+  const already = activeTrackerForTpl(t);
+  if(already){ openTracker(already.id); return; }
   const type = t.type||'check';
   const nt = {
     id:uid(), name:t.name, cat:t.cat, emo:t.emo, desc:t.desc||'',
