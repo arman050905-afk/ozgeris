@@ -7,7 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='64'%20y2='64'%3E%3Cstop%20offset='0'%20stop-color='%237c5cff'/%3E%3Cstop%20offset='1'%20stop-color='%23c045e8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='64'%20height='64'%20rx='14'%20fill='url(%23g)'/%3E%3Ccircle%20cx='32'%20cy='33'%20r='23'%20fill='%23fff'/%3E%3Cg%20fill='none'%20stroke='%237c5cff'%20stroke-width='4.2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpolyline%20points='19.4,41.4%2027.8,33%2033.4,38.6%2044.6,24.6'/%3E%3Cpolyline%20points='36.2,24.6%2044.6,24.6%2044.6,33'/%3E%3C/g%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;800;900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script>
   // Theme flash алдын алу: CSS/body боялмас бұрын сақталған режимді қою
   (function(){
@@ -28,15 +28,15 @@
     --text:#f5f3fb;
     --muted:#a29dc4;
     --faint:#6e6a8f;
-    /* vibrant categorical palette (dark) */
-    --s1:#5b8cff; /* blue */
-    --s2:#ff8a4d; /* orange */
-    --s3:#2dd4a7; /* aqua */
-    --s4:#f2b53d; /* yellow */
-    --s5:#f06bb0; /* magenta */
-    --s6:#4ade80; /* green */
-    --s7:#a78bfa; /* violet */
-    --s8:#ff6b6b; /* red */
+    /* categorical palette — jewel tones tuned to sit with the violet→magenta→pink brand grad */
+    --s1:#6c8dff; /* indigo-blue */
+    --s2:#f2895f; /* warm coral (was neon orange) */
+    --s3:#2ecfa8; /* teal */
+    --s4:#f0ab52; /* honey-gold (was traffic-sign yellow) */
+    --s5:#ec6bb8; /* magenta-pink */
+    --s6:#3ecf93; /* teal-green (was leaf green) */
+    --s7:#8b7cff; /* violet — matches --grad-1, used as the default accent */
+    --s8:#f2637e; /* rose (was stop-sign red) */
     --good:#22c55e;
     --warn:#f2b53d;
     --crit:#ef4444;
@@ -49,7 +49,7 @@
     --shadow-card:0 1px 0 rgba(255,255,255,.04) inset, 0 24px 48px -30px rgba(0,0,0,.7);
     --shadow-card-hover:0 1px 0 rgba(255,255,255,.06) inset, 0 26px 54px -22px rgba(var(--accent-rgb),.4);
     --font-body:'Manrope',system-ui,-apple-system,"Segoe UI",sans-serif;
-    --font-display:'Unbounded',var(--font-body);
+    --font-display:'Montserrat',var(--font-body);
   }
   :root[data-theme="light"]{
     --header-bg:rgba(252,251,255,.82);
