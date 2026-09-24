@@ -40,6 +40,20 @@ function debtsDueSoon(data) {
   });
 }
 
+// Профиль→Хабарландырулар-да "Жалпы еске салғыштарды қосу" таңдалған адамдарға арналған
+// қысқа, айналмалы (rotating) сөйлемдер. Тек финанс алерты болмаған жағдайда ғана жіберіледі —
+// бір cron өтуінде бір адамға екі хабарлама бірден кетпейді.
+const GENERIC_LINES = [
+  'Уақыт болды, өміріңді жүйеле!',
+  'Кішкентай қадам жаса — бүгін де алға!',
+  'Трекерлеріңді тексеріп, бүгінгі күнді белгіле.',
+];
+function genericReminderLine() {
+  const start = new Date(new Date().getUTCFullYear(), 0, 0);
+  const dayOfYear = Math.floor((Date.now() - start) / 86400000);
+  return GENERIC_LINES[dayOfYear % GENERIC_LINES.length];
+}
+
 module.exports = async (req, res) => {
   if (!isAuthorizedCron(req)) return res.status(401).json({ error: 'unauthorized' });
 
@@ -62,18 +76,31 @@ module.exports = async (req, res) => {
 
       const overCats = budgetOverages(data);
       const dueDebts = debtsDueSoon(data);
-      if (!overCats.length && !dueDebts.length) continue;
+      const wantsGeneric = !!(data.notifPrefs && data.notifPrefs.enabled);
 
-      const lines = [];
-      if (overCats.length) lines.push(`Бюджет асты: ${overCats.join(', ')}`);
-      if (dueDebts.length) lines.push(`Қарыз мерзімі жақын: ${dueDebts.map((d) => d.person).join(', ')}`);
-      const body = lines.join(' · ');
+      let title = 'ÖZGERIS — Қаржы ескертуі';
+      let body;
+      if (overCats.length || dueDebts.length) {
+        const lines = [];
+        if (overCats.length) lines.push(`Бюджет асты: ${overCats.join(', ')}`);
+        if (dueDebts.length) lines.push(`Қарыз мерзімі жақын: ${dueDebts.map((d) => d.person).join(', ')}`);
+        body = lines.join(' · ');
+      } else if (wantsGeneric) {
+        // Финанс алерты жоқ, бірақ адам жалпы еске салғышты қосқан — сол орнына
+        // Профильде таңдалған жиілікке қарамастан, күніне 1 рет осы жалпы хабарлама кетеді
+        // (Vercel Hobby cron күніне 1 реттен жиі жүрмейді, сағаттық/3-сағаттық нұсқа тек
+        // клиент жақта, бет ашық тұрғанда ғана жұмыс істейді — index.html-дегі setupNotifInterval).
+        title = 'ÖZGERIS';
+        body = genericReminderLine();
+      } else {
+        continue;
+      }
 
       const subs = await sql`select endpoint, p256dh, auth from push_subscriptions where user_id = ${u.id}`;
       for (const s of subs) {
         const sub = { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } };
         try {
-          await webpush.sendNotification(sub, JSON.stringify({ title: 'ÖZGERIS — Қаржы ескертуі', body }));
+          await webpush.sendNotification(sub, JSON.stringify({ title, body }));
           sent++;
         } catch (e) {
           if (e.statusCode === 404 || e.statusCode === 410) {

@@ -76,6 +76,8 @@
 - `#archive`, `#finance` (қаржы — umbrella view, ішінде 10 ішкі `finTab`: Dashboard/Кірістер/
   Шығыстар/Аналитика/Бюджет/Мақсаттар/Cash Flow/Инвестициялар/Қарыздар/AI, `#fp-*` панельдер),
   `#analytics`, `#admin` (пайдаланушыларды басқару, тек `is_admin`)
+- `#profile` — «Профиль» баптаулар беті (Жеке деректер/Хабарландырулар/Қауіпсіздік/Тіл,
+  4 `.settings-row` аккордеон — толығырақ төменде)
 - `#pendingScreen` — доступ күту экраны (overlay, `active=false` кезде)
 - Модальдар: `#modal` (жаңа трекер), `#sleepModal`, `#gadModal`, `#welcomeModal` (манифест), `#rtModal` (кездейсоқ тапсырма)
 
@@ -109,7 +111,9 @@
     drawMoodChart, drawGadChart, drawGauge`
 15. **Талдау** — `renderAnalytics, healthStats, renderHealthPanel, renderAchievements`
 16. **ADMIN** — `renderAdmin, toggleAccess, resetPassPrompt` (тек `is_admin` пайдаланушыға көрінеді)
-17. **INIT** — сессия тексеру, `renderCatTiles`
+17. **PROFILE** — `renderProfile, toggleSettingsRow, saveProfileName, changePassword,
+    onNotifPrefsChange, setupNotifInterval` (толығырақ «Профиль/баптаулар беті» бөлімінде төменде)
+18. **INIT** — сессия тексеру, `renderCatTiles`
 
 ## Трекер деректер моделі
 ```js
@@ -180,9 +184,40 @@ Repo GitHub-қа қосылған, Vercel авто-деплой етеді (жа
 Барлығы орнатылғанша Бюджет tab-ындағы «Push ескертулерді қосу» батырмасы «әлі қолжетімсіз»
 хабарын көрсетеді.
 
+**Профиль/баптаулар беті (`#profile`, nav-дағы «Профиль» сілтемесі)** — iOS-стиль баптаулар
+тізімі, 4 `.settings-row` (icon-in-tinted-square + атауы + subtitle + chevron), `toggleSettingsRow(key)`
+арқылы ашылатын/жабылатын аккордеон (`#sr-<key>`/`#sp-<key>` жұп id):
+- **Жеке деректер** — Аты өрісі (`saveProfileName()` → `PUT /api/me {name}`, `Store.setGlobal('app_name',...)`,
+  `userBadge`/`heroName`/`homeAvatar`-ды дереу жаңартады) + оқуға ғана арналған Email.
+- **Хабарландырулар** — `renderPushSection()` енді ЕКІ контейнерге де рендерлейді (Қаржы→Бюджет
+  tab-ындағы ескі `#pushSection` **және** осы беттегі `#profilePushStatus`) — сол
+  `enablePush()`/`disablePush()` шақырылады, дубликат логика жоқ. Төменде «Жалпы еске салғыштарды
+  қосу» checkbox + жиілік `<select>` (`daily`/`3h`/`1h`) — екеуі де жаңа `notifPrefs` state-іне
+  жазылады (`onNotifPrefsChange()` → `saveNotifPrefs()` → `Store.set`+`scheduleSync()`).
+  **Екі деңгейлі жеткізу, адал белгіленген**: (1) сервер деңгейі — `api/cron/check-alerts.js`
+  күніне 1 рет (Vercel Hobby cron жиірек жүрмейді) `data.notifPrefs.enabled` — true болса және сол
+  адамға финанс алерты болмаса, `GENERIC_LINES`-тен айналмалы (rotating) қысқа хабарлама жібереді
+  (бір cron өтуінде бір адамға тек 1 хабарлама — финанс НЕМЕСЕ жалпы, екеуі бірге емес); (2) клиент
+  деңгейі — `1h`/`3h` таңдалса, `setupNotifInterval()` браузерде ашық тұрған бетте `setInterval`
+  арқылы `new Notification(...)` шақырады (Notification.permission==='granted' қажет,
+  `_notifIntervalId` арқылы қайталанып қойылмайды, `logout()`-та тазаланады). Бұл екінші деңгей
+  **тек сол бет/tab ашық тұрғанда ғана жұмыс істейді** — телефон құлыпталса/қосымша жабылса, тек
+  күнделікті 1 серверлік push келеді. Vercel Hobby жоспарында нағыз сағаттық background push
+  мүмкін емес (жоғарыдағы 12-функция шегі секілді, бұл да Vercel Hobby-дің қатаң шектеуі) — нағыз
+  сағаттық жеткізу үшін Pro жоспарға көшу немесе басқа scheduling backend керек.
+- **Қауіпсіздік** — Ағымдағы/Жаңа/Жаңаны қайтала 3 өріс, `changePassword()` клиентте ұзындық пен
+  сәйкестікті тексереді де `PUT /api/me {action:'changePassword', currentPass, newPass}` шақырады
+  (`api/me.js` `bcrypt.compare`-пен растайды, сәйкес келмесе 401 + «Ағымдағы пароль қате»).
+- **Тіл** — тек «Қазақша» көрсететін disabled placeholder, нағыз i18n жоқ.
+
+`api/me.js` енді GET-тен басқа `PUT`-ты да өңдейді (аты өзгерту / `action:'changePassword'`
+дискриминаторы бойынша пароль ауыстыру) — жаңа файл емес, 10-функция саны өзгермеген.
+
 ## Не істеуге болады (келесі қадамдар)
 - Төлем жүйесі (Stripe/Kaspi) — қазір WhatsApp-қа қолмен хабарласу + admin панельден қолмен
   доступ беру арқылы жұмыс істейді; толық автоматтандыру үшін төлем provider керек.
-- Profile баптаулары (өз атыңды/паролыңды өзің өзгерту)
+- Нағыз сағаттық/3-сағаттық background push (телефон құлыпталған/қосымша жабық кезде де) — Vercel
+  Hobby cron күніне 1 реттен жиі жүрмейді, бұл үшін Pro жоспарға көшу немесе басқа scheduling
+  backend (мыс. сыртқы cron provider) керек — өнім шешімі, әзірге адал шектеу ретінде UI-де жазылған.
 - Инвестициялар бөлімінде баға әзірге тек қолмен енгізіледі (сыртқы market-data API жоқ) —
   қаласаң CoinGecko/Alpha Vantage секілді API қосуға болады.
