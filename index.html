@@ -679,6 +679,28 @@
   .theme-toggle:hover{border-color:var(--s7);color:var(--s7);transform:scale(1.08) rotate(-8deg)}
   body:has(.modal-bg.open) .theme-toggle{display:none}
   @media(max-width:760px){.theme-toggle{top:14px;bottom:auto;right:68px;width:44px;height:44px;font-size:16px;box-shadow:none}}
+
+  /* ---------- Сол жақ иконка-навигация (тек ≥1500px, кеңірек экран) ---------- */
+  .side-nav{
+    display:none; position:fixed; left:22px; top:50%; transform:translateY(-50%); z-index:400;
+    flex-direction:column; align-items:center; gap:6px;
+    background:var(--panel); border:1px solid var(--line); border-radius:26px;
+    padding:14px 9px; box-shadow:var(--shadow-card);
+  }
+  .side-nav .side-logo{
+    width:38px;height:38px;border-radius:12px;background:var(--grad);color:#fff;
+    display:flex;align-items:center;justify-content:center;margin-bottom:8px;cursor:pointer;
+    font-size:17px;box-shadow:var(--glow);
+  }
+  .side-nav a{
+    width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    color:var(--muted);cursor:pointer;font-size:17px;transition:.15s;
+  }
+  .side-nav a:hover{background:var(--panel-2);color:var(--text)}
+  .side-nav a.active{background:var(--grad);color:#fff;box-shadow:var(--glow)}
+  .side-nav .side-nav-sep{width:22px;height:1px;background:var(--line);margin:6px 0}
+  .side-nav a.side-nav-logout:hover{color:#f0a5a5;background:rgba(239,68,68,.12)}
+  @media(min-width:1500px){ .side-nav{display:flex} }
   .pw-wrap{position:relative}
   .pw-wrap input{padding-right:48px}
   .pw-eye{position:absolute;right:0;top:50%;transform:translateY(-50%);background:none;border:none;
@@ -778,6 +800,22 @@
     </nav>
   </div>
 </header>
+
+<!-- Жаңа сол жақ иконка-навигация (тек кең экран, ≥1500px) — Finexy үлгідегі макетке сай,
+     негізгі мазмұн орналасуы (кнопкалардың орны) осында өзгертілді. Телефон/орта экранда
+     ескі header/hamburger + төмендегі bottom-nav өзгеріссіз жұмыс істей береді. -->
+<nav class="side-nav" id="sideNav">
+  <div class="side-logo" onclick="showWelcome()" title="ÖZGERIS"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><polyline points='3,17 9,11 13,15 21,5'/><polyline points='15,5 21,5 21,11'/></svg></div>
+  <a data-view="home" class="active" title="Басты бет"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M4,11 L12,4 L20,11'/><path d='M6,9.5 V20 H18 V9.5'/><path d='M10,20 V14 H14 V20'/></svg></a>
+  <a data-view="mine" title="Менің трекерлерім"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><rect x='4' y='4' width='16' height='16' rx='2'/><polyline points='8,12 11,15 16,9'/></svg></a>
+  <a onclick="randomTask()" title="Кездейсоқ тапсырма"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><rect x='4' y='4' width='16' height='16' rx='3'/><circle cx='8' cy='8' r='1.2' fill='currentColor' stroke='none'/><circle cx='16' cy='8' r='1.2' fill='currentColor' stroke='none'/><circle cx='12' cy='12' r='1.2' fill='currentColor' stroke='none'/><circle cx='8' cy='16' r='1.2' fill='currentColor' stroke='none'/><circle cx='16' cy='16' r='1.2' fill='currentColor' stroke='none'/></svg></a>
+  <a data-view="finance" title="Қаржы"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='7' width='18' height='12' rx='2'/><line x1='3' y1='10.5' x2='21' y2='10.5'/><circle cx='17' cy='14' r='1.3' fill='currentColor' stroke='none'/></svg></a>
+  <a data-view="analytics" title="Талдау"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><rect x='4' y='12' width='4' height='8' rx='1'/><rect x='10' y='6' width='4' height='14' rx='1'/><rect x='16' y='14' width='4' height='6' rx='1'/></svg></a>
+  <a data-view="profile" title="Профиль"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='8' r='4'/><path d='M4,20 C4,15.6 7.6,12 12,12 C16.4,12 20,15.6 20,20'/></svg></a>
+  <a data-view="admin" id="adminSideLink" style="display:none" title="Админ"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M12,3 L19,6 L19,12 L12,20 L5,12 L5,6 Z'/></svg></a>
+  <div class="side-nav-sep"></div>
+  <a onclick="logout()" title="Шығу" class="side-nav-logout"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M9,21 H5 a2,2 0 0 1 -2,-2 V5 a2,2 0 0 1 2,-2 H9'/><polyline points='16,17 21,12 16,7'/><line x1='21' y1='12' x2='9' y2='12'/></svg></a>
+</nav>
 
 <nav class="bottom-nav" id="bottomNav">
   <a data-view="home" class="active"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M4,11 L12,4 L20,11'/><path d='M6,9.5 V20 H18 V9.5'/><path d='M10,20 V14 H14 V20'/></svg>Басты</a>
@@ -1513,6 +1551,7 @@ async function loginAs(email){
   const active = me ? me.active : Store.getGlobal('app_active', false);
   isAdmin = me ? !!me.is_admin : Store.getGlobal('app_admin', false);
   document.getElementById('adminNavLink').style.display = isAdmin ? '' : 'none';
+  document.getElementById('adminSideLink').style.display = isAdmin ? '' : 'none';
   document.getElementById('buyNavBtn').style.display = active ? 'none' : '';
 
   if(!active){
@@ -1553,6 +1592,7 @@ function logout(){
   Store.setGlobal('app_admin', null);
   document.getElementById('pendingScreen').style.display='none';
   document.getElementById('adminNavLink').style.display='none';
+  document.getElementById('adminSideLink').style.display='none';
   document.getElementById('buyNavBtn').style.display='';
   document.getElementById('authScreen').style.display='flex';
   authSwitch('login');
@@ -1817,6 +1857,9 @@ function showView(v){
   document.querySelectorAll('#bottomNav a[data-view]').forEach(a=>a.classList.remove('active'));
   const bnLink = document.querySelector(`#bottomNav a[data-view="${navKey}"]`);
   if(bnLink) bnLink.classList.add('active');
+  document.querySelectorAll('#sideNav a[data-view]').forEach(a=>a.classList.remove('active'));
+  const snLink = document.querySelector(`#sideNav a[data-view="${navKey}"]`);
+  if(snLink) snLink.classList.add('active');
   if(v==='mine') renderMine();
   if(v==='finance') renderFinance();
   if(v==='analytics') renderAnalytics();
