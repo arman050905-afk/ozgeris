@@ -73,11 +73,17 @@ module.exports = async (req, res) => {
   if (!process.env.VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) {
     return res.status(200).json({ ok: true, skipped: 'vapid keys not set' });
   }
-  webpush.setVapidDetails(
-    process.env.VAPID_SUBJECT || 'mailto:admin@ozgeris.app',
-    process.env.VAPID_PUBLIC_KEY,
-    process.env.VAPID_PRIVATE_KEY
-  );
+  try {
+    // Дұрыс емес VAPID баптауы (мыс. subject `mailto:`/`https:` емес) осы жерде синхронды
+    // throw жасайды — try/catch-тан тыс қалса, бүкіл cron JSON емес мәтінмен құлайды.
+    webpush.setVapidDetails(
+      process.env.VAPID_SUBJECT || 'mailto:admin@ozgeris.app',
+      process.env.VAPID_PUBLIC_KEY,
+      process.env.VAPID_PRIVATE_KEY
+    );
+  } catch (e) {
+    return res.status(200).json({ ok: false, skipped: 'vapid config invalid: ' + e.message });
+  }
 
   try {
     const users = await sql`select id, last_reminder_sent_at from users where active = true`;

@@ -14,11 +14,19 @@ module.exports = async (req, res) => {
     if (!process.env.VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) {
       return res.status(200).json({ ok: false, error: 'VAPID кілттері серверде орнатылмаған' });
     }
-    webpush.setVapidDetails(
-      process.env.VAPID_SUBJECT || 'mailto:admin@ozgeris.app',
-      process.env.VAPID_PUBLIC_KEY,
-      process.env.VAPID_PRIVATE_KEY
-    );
+    try {
+      // setVapidDetails кілттер/subject форматы дұрыс болмаса (мыс. subject `mailto:...`
+      // немесе `https://...` емес) СИНХРОНДЫ throw жасайды — try/catch-тан тыс қалса, бүкіл
+      // функция JSON емес "FUNCTION_INVOCATION_FAILED" мәтінімен құлайды да, клиент оны
+      // parse ете алмай жалпы "Қате шықты, қайта көр" деп көрсетеді.
+      webpush.setVapidDetails(
+        process.env.VAPID_SUBJECT || 'mailto:admin@ozgeris.app',
+        process.env.VAPID_PUBLIC_KEY,
+        process.env.VAPID_PRIVATE_KEY
+      );
+    } catch (e) {
+      return res.status(200).json({ ok: false, error: 'VAPID баптауы дұрыс емес: ' + e.message });
+    }
     try {
       const subs = await sql`select endpoint, p256dh, auth from push_subscriptions where user_id = ${payload.uid}`;
       if (!subs.length) return res.status(200).json({ ok: false, error: 'Алдымен жоғарыдағы «Push ескертулерді қосу» батырмасын бас' });
