@@ -22,8 +22,13 @@ function recurringOverdue(data) {
       const yKey = y.getFullYear() + '-' + String(y.getMonth() + 1).padStart(2, '0') + '-' + String(y.getDate()).padStart(2, '0');
       return !paid[yKey];
     }
+    if (!r.dueDay) return false; // күні белгіленбеген — мерзімге негізделген overdue жоқ
     if (paid[curMonthKey]) return false;
-    return now.getDate() > (r.dueDay || 1);
+    const createdAt = r.createdAt || '';
+    const createdKey = createdAt.slice(0, 7);
+    const createdDay = +createdAt.slice(8, 10);
+    if (curMonthKey === createdKey && createdDay > r.dueDay) return false; // бірінші ай — жеңілдік кезеңі
+    return now.getDate() > r.dueDay;
   });
 }
 

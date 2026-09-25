@@ -111,21 +111,26 @@
     `enablePush/disablePush/renderPushSection` (браузер push, `sw.js` + `/api/push.js`)
 
 **Міндетті төлемдер (`#fp-recurring`, 2026-09-25, ескі Бюджет+Инвестициялар табтарының орнына)** —
-`recurring` state (`{id,name,kind,amount,dueDay,brand,paid}[]`). `kind`: `monthly`|`daily`|
-`subscription`|`installment` (`RECUR_KINDS` — атауы+иконка). `dueDay` (1-31) — `daily`-ден басқа
-барлық түрге. `brand` — тек `subscription`, `BRANDS` тізіміндегі кілт (yandex/apple/netflix/
-spotify/youtube/kaspi/wolt/chocofood/other) — нақты логотип емес (сыртқы сурет саясатына сай),
-әр брендке түсті монограмма-белгі (`brandBadge()`); Apple-ге ғана `ICONS.apple` SVG қолданылады.
+`recurring` state (`{id,name,kind,amount,dueDay,brand,paid,createdAt}[]`). `kind`: `monthly`|
+`daily`|`subscription`|`installment` (`RECUR_KINDS` — атауы+иконка). `dueDay` (1-31, `null` да
+болуы мүмкін — «Күнін белгілемеймін» checkbox) — `daily`-ден басқа барлық түрге. `brand` — тек
+`subscription`, `BRANDS` тізіміндегі кілт (yandex/apple/netflix/spotify/youtube/kaspi/wolt/
+chocofood/other) — нақты логотип емес (сыртқы сурет саясатына сай), әр брендке түсті
+монограмма-белгі (`brandBadge()`); Apple-ге ғана `ICONS.apple` SVG қолданылады.
 «Төлендім бе» күйі `paid` объектісінде мерзім кілтімен сақталады: `daily`→`'YYYY-MM-DD'`
 (бүгінгі күн), қалғаны→`'YYYY-MM'` (ағымдағы ай) — `recurPeriodKey()`. `recurIsOverdue(r)`:
-`daily`→кешегі күн белгіленбесе overdue (бүгінгісі әлі есептелмейді, тек «бүгінге белгіленбеген»
-деп көрсетіледі); басқа түрлер→ай күні `dueDay`-ден асып, осы айға төленбесе overdue.
-`markRecurPaid(id)` ағымдағы мерзім кілтін `true` етеді. Dashboard-тағы ескі бюджет-асу ескертуі
-(`dashWarnings`) енді осы `recurringOverdueList()`-ті көрсетеді, AI кеңесші (`computeRuleInsights`/
-`generateManagerReport`) де осыған сай жаңартылды. **Серверлік overdue push**: `api/cron/
-check-alerts.js`-тегі `recurringOverdue(data)` — клиенттегі `recurIsOverdue()`-мен бірдей логика,
-күндізгі 08:00-08:15 UTC терезесінде (`financialDue`) `debtsDueSoon`-мен қатар тексеріліп, «Мерзімі
-өткен төлемдер: ...» push-ы жіберіледі — бұл қосымша ешбір бет ашылмаса да жұмыс істейді.
+`dueDay===null`→ешқашан overdue емес (тек тізімде тұрады, қолмен «Төледім» басуға болады);
+`daily`→кешегі күн белгіленбесе overdue; басқа түрлер→ай күні `dueDay`-ден асып, осы айға
+төленбесе overdue — **бірақ** бірінші ай «жеңілдік кезеңі»: егер төлем `createdAt`-та құрылғанда
+сол айдың `dueDay`-і ҚАЗІРГІ КҮННЕН БҰРЫН ӨТІП КЕТКЕН болса (мыс. 15-інде dueDay=1 деп қоссаң), сол ай overdue
+саналмайды — тек келесі айдан бастап бақыланады (әйтпесе жаңа қосылған төлем бірден «мерзімі
+өтті» болып көрінер еді). `markRecurPaid(id)` ағымдағы мерзім кілтін `true` етеді. Dashboard-тағы
+ескі бюджет-асу ескертуі (`dashWarnings`) енді осы `recurringOverdueList()`-ті көрсетеді, AI
+кеңесші (`computeRuleInsights`/`generateManagerReport`) де осыған сай жаңартылды. **Серверлік
+overdue push**: `api/cron/check-alerts.js`-тегі `recurringOverdue(data)` — клиенттегі
+`recurIsOverdue()`-мен бірдей логика (жеңілдік кезеңі қоса), күндізгі 08:00-08:15 UTC терезесінде
+(`financialDue`) `debtsDueSoon`-мен қатар тексеріліп, «Мерзімі өткен төлемдер: ...» push-ы
+жіберіледі — бұл қосымша ешбір бет ашылмаса да жұмыс істейді.
 
 14. **Диаграммалар** — `setupCanvas, drawFinPie, drawBar, drawLine, drawDetailChart, drawSleepChart,
     drawMoodChart, drawGadChart, drawGauge`

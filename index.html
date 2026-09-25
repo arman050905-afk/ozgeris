@@ -1040,7 +1040,14 @@
         </select>
         <div class="row">
           <div><label>Сомасы (₸)</label><input type="number" id="recurAmount" placeholder="0"></div>
-          <div id="recurDueDayWrap"><label>Айдың нешесінде</label><input type="number" id="recurDueDay" min="1" max="31" placeholder="1-31"></div>
+          <div id="recurDueDayWrap">
+            <label>Айдың нешесінде</label>
+            <input type="number" id="recurDueDay" min="1" max="31" placeholder="1-31">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:8px">
+              <input type="checkbox" id="recurNoDueDay" onchange="onRecurKindChange()" style="width:auto;margin:0">
+              <span style="font-weight:400;font-size:13px;color:var(--muted)">Күнін белгілемеймін</span>
+            </label>
+          </div>
         </div>
         <div id="recurBrandWrap" style="display:none">
           <label>Қай сервис</label>
@@ -3443,6 +3450,9 @@ function onRecurKindChange(){
   const kind = document.getElementById('recurKind').value;
   document.getElementById('recurDueDayWrap').style.display = kind==='daily' ? 'none' : '';
   document.getElementById('recurBrandWrap').style.display = kind==='subscription' ? '' : 'none';
+  const noDue = document.getElementById('recurNoDueDay').checked;
+  document.getElementById('recurDueDay').disabled = noDue;
+  document.getElementById('recurDueDay').style.opacity = noDue ? 0.4 : 1;
 }
 // recurBrand select-ін бір рет толтырамыз (renderFinRecurring әр шақыруда емес, тек қажет болса)
 function fillBrandSelect(){
@@ -3451,6 +3461,11 @@ function fillBrandSelect(){
 }
 function recurPeriodKey(r){ return r.kind==='daily' ? todayStr() : todayStr().slice(0,7); }
 function recurIsPaidNow(r){ return !!(r.paid && r.paid[recurPeriodKey(r)]); }
+// dueDay белгіленбеген (null) болса — мерзімге негізделген "overdue" тексерілмейді,
+// адам жай тізімде көру/қолмен "Төледім" басу үшін ғана сақтайды.
+// dueDay бар болса — тек createdAt-тан КЕЙІНГІ бірінші рет өткен мерзімнен бастап overdue
+// саналады: мыс. 15-інде dueDay=1 деп қоссаң, осы айдың 1-і құрылғанға дейін өтіп кеткен —
+// сол "өткен" деп есептелмейді, келесі айдың 1-інен бастап қана бақыланады.
 function recurIsOverdue(r){
   const paid = r.paid || {};
   if(r.kind==='daily'){
@@ -3458,25 +3473,33 @@ function recurIsOverdue(r){
     const yKey = y.getFullYear()+'-'+String(y.getMonth()+1).padStart(2,'0')+'-'+String(y.getDate()).padStart(2,'0');
     return !paid[yKey];
   }
+  if(!r.dueDay) return false;
   if(paid[recurPeriodKey(r)]) return false;
-  return new Date().getDate() > (r.dueDay||1);
+  const createdKey = (r.createdAt || todayStr()).slice(0,7);
+  const createdDay = +((r.createdAt || todayStr()).slice(8,10));
+  if(recurPeriodKey(r)===createdKey && createdDay > r.dueDay) return false; // бірінші ай — жеңілдік кезеңі
+  return new Date().getDate() > r.dueDay;
 }
 function nextDueLabel(r){
   if(r.kind==='daily') return recurIsPaidNow(r) ? 'Бүгін белгіленген' : 'Бүгінге белгіленбеген';
-  const day = r.dueDay||1;
-  return recurIsPaidNow(r) ? `Осы ай төленді (айдың ${day}-і)` : `Мерзімі: айдың ${day}-і`;
+  if(!r.dueDay) return recurIsPaidNow(r) ? 'Осы ай төленді' : 'Мерзімі белгіленбеген';
+  return recurIsPaidNow(r) ? `Осы ай төленді (айдың ${r.dueDay}-і)` : `Мерзімі: айдың ${r.dueDay}-і`;
 }
 function addRecurring(){
   const name = document.getElementById('recurName').value.trim();
   const kind = document.getElementById('recurKind').value;
   const amount = +document.getElementById('recurAmount').value;
-  const dueDay = Math.min(31, Math.max(1, +document.getElementById('recurDueDay').value || 1));
+  const noDueDay = document.getElementById('recurNoDueDay').checked;
+  const dueDayRaw = document.getElementById('recurDueDay').value;
+  const dueDay = (kind!=='daily' && !noDueDay) ? Math.min(31, Math.max(1, +dueDayRaw || 1)) : null;
   const brand = kind==='subscription' ? document.getElementById('recurBrand').value : null;
   if(!name){ toast('Атауын жаз'); return; }
   if(!amount || amount<=0){ toast('Соманы дұрыс енгіз'); return; }
-  recurring.push({id:uid(), name, kind, amount, dueDay, brand, paid:{}});
+  if(kind!=='daily' && !noDueDay && !dueDayRaw){ toast('Айдың нешесі екенін жаз, немесе «Күнін белгілемеймін» қой'); return; }
+  recurring.push({id:uid(), name, kind, amount, dueDay, brand, paid:{}, createdAt:todayStr()});
   saveRecurring();
-  document.getElementById('recurName').value=''; document.getElementById('recurAmount').value='';
+  document.getElementById('recurName').value=''; document.getElementById('recurAmount').value=''; document.getElementById('recurDueDay').value='';
+  document.getElementById('recurNoDueDay').checked=false; onRecurKindChange();
   renderFinRecurring();
   toast('Қосылды');
 }
