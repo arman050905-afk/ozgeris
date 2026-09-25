@@ -54,8 +54,8 @@
   GET/PUT арқылы. Клиент жағында:
   - `fetchCloud()` — кіргенде базадан тартып, `DATA_KEYS` тізіміндегі әр кілтті localStorage-қа құяды.
   - `scheduleSync()`/`syncToCloud()` — өзгеріс болғанда (debounce ~1.2с) ағымдағы жад күйін
-    (`trackers, archived, hiddenTpl, userTpl, txs, calcCfg, goals, gratitude, seenWelcome`) толығымен
-    PUT арқылы жібереді. Әр `save*()` функциясы соңында `scheduleSync()` шақырылады.
+    (нақты тізім `DATA_KEYS`-те, CLOUD API блогында) толығымен PUT арқылы жібереді. Әр `save*()`
+    функциясы соңында `scheduleSync()` шақырылады.
   - `cloudOk` — соңғы синхрон сәтті ме, соны white-flag ретінде сақтайды (backend қолжетімсіз болса
     да қолданушы localStorage кэшімен жұмыс істей береді).
 - `Store` — localStorage үстіндегі қабат. `Store.get/set(key)` кілтті ағымдағы қолданушыға
@@ -73,8 +73,9 @@
 - `#category` — категория ішіндегі карточкалар (`#cardGrid`) + арнайы беттер (мақсат/шүкіршілік)
 - `#mine` — «Менің трекерлерім» (ықшам карточка тор)
 - `#detail` — бір трекердің толық беті (`#detailBody`)
-- `#archive`, `#finance` (қаржы — umbrella view, ішінде 10 ішкі `finTab`: Dashboard/Кірістер/
-  Шығыстар/Аналитика/Бюджет/Мақсаттар/Cash Flow/Инвестициялар/Қарыздар/AI, `#fp-*` панельдер),
+- `#archive`, `#finance` (қаржы — umbrella view, ішінде 9 ішкі `finTab`: Dashboard/Кірістер/
+  Шығыстар/Аналитика/Міндетті төлемдер/Мақсаттар/Cash Flow/Қарыздар/AI, `#fp-*` панельдер —
+  2026-09-25-те Бюджет/Инвестициялар табтары «Міндетті төлемдер»-ге ауыстырылды, төменде),
   `#analytics`, `#admin` (пайдаланушыларды басқару, тек `is_admin`)
 - `#profile` — «Профиль» баптаулар беті (Жеке деректер/Хабарландырулар/Қауіпсіздік/Тіл,
   4 `.settings-row` аккордеон — толығырақ төменде)
@@ -87,7 +88,8 @@
 3. **CLOUD API** — `API_BASE`, `DATA_KEYS`, `apiCall/fetchCloud/syncToCloud/scheduleSync` (Neon+Vercel `api/`-мен байланыс)
 4. **AUTH** — `currentUser`, `isAdmin`, `doRegister/doLogin/loginAs/logout`, `togglePw`, `buyClick`
 5. **DATA MODEL** — `CATEGORIES`, `TEMPLATES`, `EMOJIS`, `FIN_CATS` (`emo` өрісі — icon key, эмодзи емес)
-5. **STATE** — `trackers, archived, hiddenTpl, userTpl, txs, calcCfg, goals, gratitude` + `loadUserData()`
+5. **STATE** — `trackers, archived, hiddenTpl, userTpl, txs, goals, gratitude, debts, finGoals,
+   recurring, notifPrefs` + `loadUserData()`
 6. **Есептеу көмекшілері** — `daysPassed, totalDays, monthGrid, dtype, isDayBased, isDaySuccess,
    successDays, completion, currentStreak, bestStreak, BADGES, gradeColor, cellRatio, extendTracker`
 7. **NAVIGATION** — `showView`, `toggleNav`
@@ -98,15 +100,33 @@
 11. **Арнайы трекерлер (kind)** — `renderSleep, renderMood, renderAnxiety (GAD-7), renderEmotion,
     renderEnglish (+BIZ_WORDS/giveWords), renderPodcast, renderVitamins`
 12. **Категория беттері** — `renderGoalsPage/plansSection` (мақсат+жоспар), `renderGratitudePage`
-13. **Қаржы (umbrella, 10 tab)** — `finTab`/`FIN_TABS`/`FIN_RENDERERS`, `switchFinTab`, `renderFinance`
+13. **Қаржы (umbrella, 9 tab)** — `finTab`/`FIN_TABS`/`FIN_RENDERERS`, `switchFinTab`, `renderFinance`
     (қаптама, `.fin-panel`-дерді ауыстырады): `renderFinDash` (басты бет), `addIncome/addExpense/
     renderTxLists/txRow` (кіріс/шығын, іздеу/фильтр, чек-сурет base64), `renderFinAnalytics`
-    (апта/ай/жыл period), `renderFinBudget`+`renderCalc` (лимит + бөлу калькуляторы), `renderFinGoals`
-    (`finGoals` — ескі `piggy`-нің жалғасы, мерзіммен), `renderFinCashflow`+`monthBuckets`,
-    `renderFinInvest` (`investments`, баға қолмен), `renderDebts` (ескі `debts` логикасы өзгеріссіз),
+    (апта/ай/жыл period), `renderFinRecurring` (**Міндетті төлемдер** — толығырақ төменде),
+    `renderFinGoals` (`finGoals` — ескі `piggy`-нің жалғасы, мерзіммен), `renderFinCashflow`+
+    `monthBuckets`, `renderDebts` (ескі `debts` логикасы өзгеріссіз),
     `renderFinAI`+`computeRuleInsights` (жедел, тегін) + `generateManagerReport`/`askAiAdvice`
     (толық қорытынды — бәрі клиентте есептеледі, сыртқы AI API жоқ, толығымен тегін),
     `enablePush/disablePush/renderPushSection` (браузер push, `sw.js` + `/api/push.js`)
+
+**Міндетті төлемдер (`#fp-recurring`, 2026-09-25, ескі Бюджет+Инвестициялар табтарының орнына)** —
+`recurring` state (`{id,name,kind,amount,dueDay,brand,paid}[]`). `kind`: `monthly`|`daily`|
+`subscription`|`installment` (`RECUR_KINDS` — атауы+иконка). `dueDay` (1-31) — `daily`-ден басқа
+барлық түрге. `brand` — тек `subscription`, `BRANDS` тізіміндегі кілт (yandex/apple/netflix/
+spotify/youtube/kaspi/wolt/chocofood/other) — нақты логотип емес (сыртқы сурет саясатына сай),
+әр брендке түсті монограмма-белгі (`brandBadge()`); Apple-ге ғана `ICONS.apple` SVG қолданылады.
+«Төлендім бе» күйі `paid` объектісінде мерзім кілтімен сақталады: `daily`→`'YYYY-MM-DD'`
+(бүгінгі күн), қалғаны→`'YYYY-MM'` (ағымдағы ай) — `recurPeriodKey()`. `recurIsOverdue(r)`:
+`daily`→кешегі күн белгіленбесе overdue (бүгінгісі әлі есептелмейді, тек «бүгінге белгіленбеген»
+деп көрсетіледі); басқа түрлер→ай күні `dueDay`-ден асып, осы айға төленбесе overdue.
+`markRecurPaid(id)` ағымдағы мерзім кілтін `true` етеді. Dashboard-тағы ескі бюджет-асу ескертуі
+(`dashWarnings`) енді осы `recurringOverdueList()`-ті көрсетеді, AI кеңесші (`computeRuleInsights`/
+`generateManagerReport`) де осыған сай жаңартылды. **Серверлік overdue push**: `api/cron/
+check-alerts.js`-тегі `recurringOverdue(data)` — клиенттегі `recurIsOverdue()`-мен бірдей логика,
+күндізгі 08:00-08:15 UTC терезесінде (`financialDue`) `debtsDueSoon`-мен қатар тексеріліп, «Мерзімі
+өткен төлемдер: ...» push-ы жіберіледі — бұл қосымша ешбір бет ашылмаса да жұмыс істейді.
+
 14. **Диаграммалар** — `setupCanvas, drawFinPie, drawBar, drawLine, drawDetailChart, drawSleepChart,
     drawMoodChart, drawGadChart, drawGauge`
 15. **Талдау** — `renderAnalytics, healthStats, renderHealthPanel, renderAchievements`
@@ -220,7 +240,7 @@ sent_at` баған қосылды (`schema.sql`, **СЕРВЕРЛІК**: тек
 subscription-дарына бірден push жібереді. Жаңа файл емес — `api/push.js`-тің өзінде
 (`action==='test'` тармағы), 12-функция шегі бұзылмаған.
 
-Барлығы орнатылғанша Бюджет/Профиль tab-ындағы «Push ескертулерді қосу» батырмасы «әлі
+Барлығы орнатылғанша Міндетті төлемдер/Профиль tab-ындағы «Push ескертулерді қосу» батырмасы «әлі
 қолжетімсіз» хабарын көрсетеді.
 
 **Профиль/баптаулар беті (`#profile`, nav-дағы «Профиль» сілтемесі)** — iOS-стиль баптаулар
@@ -228,8 +248,8 @@ subscription-дарына бірден push жібереді. Жаңа файл 
 арқылы ашылатын/жабылатын аккордеон (`#sr-<key>`/`#sp-<key>` жұп id):
 - **Жеке деректер** — Аты өрісі (`saveProfileName()` → `PUT /api/me {name}`, `Store.setGlobal('app_name',...)`,
   `userBadge`/`heroName`/`homeAvatar`-ды дереу жаңартады) + оқуға ғана арналған Email.
-- **Хабарландырулар** — `renderPushSection()` енді ЕКІ контейнерге де рендерлейді (Қаржы→Бюджет
-  tab-ындағы ескі `#pushSection` **және** осы беттегі `#profilePushStatus`) — сол
+- **Хабарландырулар** — `renderPushSection()` енді ЕКІ контейнерге де рендерлейді (Қаржы→Міндетті
+  төлемдер tab-ындағы `#pushSection` **және** осы беттегі `#profilePushStatus`) — сол
   `enablePush()`/`disablePush()`/`sendTestPush()` шақырылады, дубликат логика жоқ. Төменде «Жалпы
   еске салғыштарды қосу» checkbox + минутпен интервал `<input type="number" min="15">`
   (`#notifInterval`) — екеуі де `notifPrefs` state-іне жазылады (`onNotifPrefsChange()` →
@@ -249,8 +269,8 @@ subscription-дарына бірден push жібереді. Жаңа файл 
 ## Не істеуге болады (келесі қадамдар)
 - Төлем жүйесі (Stripe/Kaspi) — қазір WhatsApp-қа қолмен хабарласу + admin панельден қолмен
   доступ беру арқылы жұмыс істейді; толық автоматтандыру үшін төлем provider керек.
-- Инвестициялар бөлімінде баға әзірге тек қолмен енгізіледі (сыртқы market-data API жоқ) —
-  қаласаң CoinGecko/Alpha Vantage секілді API қосуға болады.
+- Міндетті төлем «Төледім» деп белгіленгенде автоматты `txs`-ке шығын жазбасы қосылмайды әзірге
+  (қасақана, жеке шешім) — қаласаң қосуға болады.
 - GitHub Actions scheduled workflow дәлдігі кепілдендірілмеген (жүктеме көп кезде кешігуі мүмкін)
   — егер минуттік дәлдік керек болса, Vercel Pro жоспарға көшу (шектеусіз cron жиілігі) немесе
   сыртқы cron provider (cron-job.org секілді) балама нұсқа.

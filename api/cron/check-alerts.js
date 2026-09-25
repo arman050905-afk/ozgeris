@@ -9,24 +9,21 @@ function isAuthorizedCron(req) {
   return h === `Bearer ${process.env.CRON_SECRET}`;
 }
 
-function monthRange() {
+// index.html-дегі recurIsOverdue()-мен бірдей логика — сервер де клиентпен қатар,
+// қосымша ешбір бет ашылмаса да, "мерзімі өтті" push жіберуі үшін.
+function recurringOverdue(data) {
+  const items = data.recurring || [];
   const now = new Date();
-  const from = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-01';
-  const to = now.toISOString().slice(0, 10);
-  return { from, to };
-}
-
-function budgetOverages(data) {
-  const budgets = data.budgets || {};
-  const txs = data.txs || [];
-  const { from, to } = monthRange();
-  return Object.keys(budgets).filter((cat) => {
-    const limit = budgets[cat];
-    if (!limit) return false;
-    const spent = txs
-      .filter((t) => t.type === 'out' && t.cat === cat && t.date >= from && t.date <= to)
-      .reduce((s, t) => s + t.amount, 0);
-    return spent > limit;
+  const curMonthKey = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+  return items.filter((r) => {
+    const paid = r.paid || {};
+    if (r.kind === 'daily') {
+      const y = new Date(Date.now() - 86400000);
+      const yKey = y.getFullYear() + '-' + String(y.getMonth() + 1).padStart(2, '0') + '-' + String(y.getDate()).padStart(2, '0');
+      return !paid[yKey];
+    }
+    if (paid[curMonthKey]) return false;
+    return now.getDate() > (r.dueDay || 1);
   });
 }
 
@@ -101,7 +98,7 @@ module.exports = async (req, res) => {
       const rows = await sql`select data from user_data where user_id = ${u.id}`;
       const data = (rows[0] && rows[0].data) || {};
 
-      const overCats = financialDue ? budgetOverages(data) : [];
+      const overdueRecur = financialDue ? recurringOverdue(data) : [];
       const dueDebts = financialDue ? debtsDueSoon(data) : [];
       const intervalMin = Math.max(15, (data.notifPrefs && data.notifPrefs.intervalMin) || 1440);
       const wantsGeneric = !!(data.notifPrefs && data.notifPrefs.enabled)
@@ -110,9 +107,9 @@ module.exports = async (req, res) => {
       let title = 'ÖZGERIS — Қаржы ескертуі';
       let body;
       let isGeneric = false;
-      if (overCats.length || dueDebts.length) {
+      if (overdueRecur.length || dueDebts.length) {
         const lines = [];
-        if (overCats.length) lines.push(`Бюджет асты: ${overCats.join(', ')}`);
+        if (overdueRecur.length) lines.push(`Мерзімі өткен төлемдер: ${overdueRecur.map((r) => r.name).join(', ')}`);
         if (dueDebts.length) lines.push(`Қарыз мерзімі жақын: ${dueDebts.map((d) => d.person).join(', ')}`);
         body = lines.join(' · ');
       } else if (wantsGeneric) {

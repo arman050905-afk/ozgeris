@@ -1019,28 +1019,37 @@
       </div>
     </div>
 
-    <!-- ---------- BUDGET ---------- -->
-    <div id="fp-budget" class="fin-panel">
+    <!-- ---------- МІНДЕТТІ ТӨЛЕМДЕР ---------- -->
+    <div id="fp-recurring" class="fin-panel">
       <div class="box" style="margin-bottom:20px">
-        <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='4' y='2' width='16' height='20' rx='2'/><rect x='7' y='5' width='10' height='4' rx='1'/><circle cx='8' cy='13' r='1' fill='currentColor' stroke='none'/><circle cx='12' cy='13' r='1' fill='currentColor' stroke='none'/><circle cx='16' cy='13' r='1' fill='currentColor' stroke='none'/><circle cx='8' cy='17' r='1' fill='currentColor' stroke='none'/><circle cx='12' cy='17' r='1' fill='currentColor' stroke='none'/><circle cx='16' cy='17' r='1' fill='currentColor' stroke='none'/></svg> Бюджет лимиттері</h3></div>
-        <div class="cd" style="color:var(--muted);font-size:14px;margin-bottom:14px">Әр категорияға айлық лимит қой — асып кетсең, осында және Басты бетте ескертеміз.</div>
-        <div id="budgetRows"></div>
+        <div style="display:flex;gap:14px;flex-wrap:wrap">
+          <div class="stat" style="flex:1"><div class="num" id="recurMonthlySum">0 ₸</div><div class="lbl">Айлық жалпы жүктеме</div></div>
+          <div class="stat" style="flex:1"><div class="num" style="color:var(--crit)" id="recurOverdueCount">0</div><div class="lbl">Мерзімі өткен</div></div>
+        </div>
+      </div>
+      <div class="box" style="margin-bottom:20px">
+        <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='3' y='5' width='18' height='16' rx='2'/><line x1='3' y1='10' x2='21' y2='10'/><line x1='8' y1='3' x2='8' y2='7'/><line x1='16' y1='3' x2='16' y2='7'/></svg> Жаңа міндетті төлем қосу</h3></div>
+        <label>Атауы</label>
+        <input type="text" id="recurName" placeholder="Мыс: Жалдау ақысы, Садақа, Yandex Plus">
+        <label>Түрі</label>
+        <select id="recurKind" onchange="onRecurKindChange()">
+          <option value="monthly">Айлық төлем</option>
+          <option value="daily">Күндік міндетті (мыс. садақа)</option>
+          <option value="subscription">Подписка (Yandex, Apple, т.б.)</option>
+          <option value="installment">Рассрочка</option>
+        </select>
+        <div class="row">
+          <div><label>Сомасы (₸)</label><input type="number" id="recurAmount" placeholder="0"></div>
+          <div id="recurDueDayWrap"><label>Айдың нешесінде</label><input type="number" id="recurDueDay" min="1" max="31" placeholder="1-31"></div>
+        </div>
+        <div id="recurBrandWrap" style="display:none">
+          <label>Қай сервис</label>
+          <select id="recurBrand"></select>
+        </div>
+        <button class="btn" onclick="addRecurring()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='5' x2='12' y2='19'/><line x1='5' y1='12' x2='19' y2='12'/></svg> Қосу</button>
         <div id="pushSection" style="margin-top:16px"></div>
       </div>
-      <div class="box" style="margin-top:20px">
-        <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='4' y='2' width='16' height='20' rx='2'/><rect x='7' y='5' width='10' height='4' rx='1'/><circle cx='8' cy='13' r='1' fill='currentColor' stroke='none'/><circle cx='12' cy='13' r='1' fill='currentColor' stroke='none'/><circle cx='16' cy='13' r='1' fill='currentColor' stroke='none'/><circle cx='8' cy='17' r='1' fill='currentColor' stroke='none'/><circle cx='12' cy='17' r='1' fill='currentColor' stroke='none'/><circle cx='16' cy='17' r='1' fill='currentColor' stroke='none'/></svg> Бөлу калькуляторы</h3></div>
-        <div class="cd" style="color:var(--muted);font-size:14px;margin-bottom:14px">
-          Соманы жаз, бөліктердің атын мен процентін өзің қой. Жалпы процент 100% болуы керек.
-        </div>
-        <label>Бөлінетін сома (₸) — мыс. жалақы</label>
-        <input type="number" id="calcAmount" placeholder="200000" oninput="updateCalc()">
-        <div id="calcRows"></div>
-        <div class="calc-total" id="calcTotal"></div>
-        <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap">
-          <button class="btn ghost sm" onclick="addCalcRow()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='5' x2='12' y2='19'/><line x1='5' y1='12' x2='19' y2='12'/></svg> Жол қосу</button>
-          <button class="btn ghost sm" onclick="autoBalance()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='3' x2='12' y2='20'/><line x1='4' y1='7' x2='20' y2='7'/><circle cx='4' cy='13' r='3'/><circle cx='20' cy='13' r='3'/><line x1='4' y1='7' x2='4' y2='10'/><line x1='20' y1='7' x2='20' y2='10'/></svg> 100%-ке теңестір</button>
-        </div>
-      </div>
+      <div id="recurList" class="grid"></div>
     </div>
 
     <!-- ---------- FINANCIAL GOALS ---------- -->
@@ -1070,32 +1079,6 @@
         <div class="legend" id="cfLegend"></div>
       </div>
       <div class="box"><div class="box-head"><h3>Ай бойынша кесте</h3></div><div id="cfTable"></div></div>
-    </div>
-
-    <!-- ---------- INVESTMENTS ---------- -->
-    <div id="fp-invest" class="fin-panel">
-      <div class="kpis" id="investKpis"></div>
-      <div class="box" style="margin-bottom:20px">
-        <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='5' x2='12' y2='19'/><line x1='5' y1='12' x2='19' y2='12'/></svg> Жаңа инвестиция қосу</h3></div>
-        <label>Түрі</label>
-        <select id="invType">
-          <option value="stock">Акциялар</option>
-          <option value="etf">ETF</option>
-          <option value="crypto">Криптовалюта</option>
-          <option value="gold">Алтын</option>
-          <option value="deposit">Депозит</option>
-        </select>
-        <label>Атауы</label>
-        <input type="text" id="invName" placeholder="Мыс: Kaspi.kz акциясы">
-        <div class="row">
-          <div><label>Сатып алу бағасы (₸)</label><input type="number" id="invBuyPrice" placeholder="0"></div>
-          <div><label>Саны</label><input type="number" id="invQty" placeholder="1" value="1"></div>
-        </div>
-        <label>Сатып алу күні</label>
-        <input type="date" id="invDate">
-        <button class="btn" onclick="addInvestment()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='5' x2='12' y2='19'/><line x1='5' y1='12' x2='19' y2='12'/></svg> Қосу</button>
-      </div>
-      <div class="grid" id="investList"></div>
     </div>
 
     <!-- ---------- ҚАРЫЗДАР ---------- -->
@@ -1431,7 +1414,7 @@ const API_BASE = '/api';
 // Push ескертулердің public VAPID кілті (құпия емес). Толтырылмаса, push батырмасы
 // "әлі орнатылмаған" деп ескертеді де, қалған функционал өзгеріссіз жұмыс істей береді.
 const VAPID_PUBLIC_KEY = 'BMzhPyWVBcNfq3lvl2lwQ6IB-dp554rtnF_d5gEmMOAxGedWg9vMMQCnCPLLAcQVUWaTNcKyEcCqzXgcrq5VQtM';
-const DATA_KEYS = ['trackers','archived','hiddenTpl','userTpl','txs','calcCfg','goals','gratitude','seenWelcome','piggy','debts','budgets','finGoals','investments','aiAdvice','notifPrefs'];
+const DATA_KEYS = ['trackers','archived','hiddenTpl','userTpl','txs','goals','gratitude','seenWelcome','piggy','debts','finGoals','recurring','aiAdvice','notifPrefs'];
 let cloudOk = true; // backend қолжетімсіз болса, локал кэшпен жұмыс жалғасады
 function authToken(){ return Store.getGlobal('app_token', null); }
 async function apiCall(path, method, body){
@@ -1461,8 +1444,8 @@ function scheduleSync(){
 }
 async function syncToCloud(){
   if(!currentUser) return;
-  const data = { trackers, archived, hiddenTpl, userTpl, txs, calcCfg, goals, gratitude, piggy, debts,
-    budgets, finGoals, investments, aiAdvice, notifPrefs,
+  const data = { trackers, archived, hiddenTpl, userTpl, txs, goals, gratitude, piggy, debts,
+    finGoals, recurring, aiAdvice, notifPrefs,
     seenWelcome: Store.get('seenWelcome', false) };
   try{ await apiCall('/data', 'PUT', {data}); cloudOk = true; }
   catch(e){ cloudOk = false; }
@@ -1637,14 +1620,15 @@ let archived = [];   // жойылған (архивтелген) трекерл
 let hiddenTpl = [];  // жасырылған дайын карточкалар (cat|name)
 let userTpl = [];    // қолданушы жасаған карточкалар (шаблондар)
 let txs = [];        // [{id,type:'in'|'out',cat,amount,date}]
-let calcCfg = {amount:0, rows:[]};
 let goals = {big:[], small:[], plans:{monthly:[], weekly:[], daily:[]}};
 let gratitude = [];  // [{id,date,a1,a2,a3}]
 let piggy = null;    // {name, target, pieces:[{id,amount,done}], createdAt, image} | null — ескі, finGoals-қа біржола көшіріледі
 let debts = [];      // [{id,type:'iowe'|'owed',person,amount,paid,date,due,closedAt}]
-let budgets = {};    // { 'Тамақ': 100000, ... } — категория атауы -> айлық лимит (₸)
 let finGoals = [];   // [{id,name,target,deadline,createdAt,image,pieces:[{id,amount,done}]}]
-let investments = [];// [{id,type:'stock'|'etf'|'crypto'|'gold'|'deposit',name,buyPrice,qty,currentPrice,buyDate}]
+// Міндетті төлемдер: kind — 'monthly'|'daily'|'subscription'|'installment'.
+// dueDay (1-31) — monthly/subscription/installment үшін. brand — тек subscription (BRANDS кілті).
+// paid — { 'YYYY-MM':true } (monthly/subscription/installment) немесе { 'YYYY-MM-DD':true } (daily).
+let recurring = [];  // [{id,name,kind,amount,dueDay,brand,paid:{}}]
 let aiAdvice = null; // {text, generatedAt} — соңғы LLM талдауының кэші
 let notifPrefs = {enabled:false, intervalMin:60}; // {enabled, intervalMin: минут, кемінде 15} — Профиль→Хабарландырулар
 // Ескі нұсқада `freq:'daily'|'3h'|'1h'` болатын — сақталған ескі деректі минутқа айналдырады
@@ -1663,9 +1647,8 @@ function saveGoals(){ Store.set('goals', goals); scheduleSync(); }
 function saveNotifPrefs(){ Store.set('notifPrefs', notifPrefs); scheduleSync(); }
 function saveGrat(){ Store.set('gratitude', gratitude); scheduleSync(); }
 function saveDebts(){ Store.set('debts', debts); scheduleSync(); }
-function saveBudgets(){ Store.set('budgets', budgets); scheduleSync(); }
 function saveFinGoals(){ Store.set('finGoals', finGoals); scheduleSync(); }
-function saveInvestments(){ Store.set('investments', investments); scheduleSync(); }
+function saveRecurring(){ Store.set('recurring', recurring); scheduleSync(); }
 
 // Ағымдағы қолданушының деректерін жүктеу (кіргеннен кейін шақырылады)
 function loadUserData(){
@@ -1674,10 +1657,6 @@ function loadUserData(){
   hiddenTpl = Store.get('hiddenTpl', []);
   userTpl   = Store.get('userTpl', []);
   txs       = Store.get('txs', []);
-  calcCfg   = Store.get('calcCfg', {amount:0, rows:[
-    {name:'Қажеттіліктер',pct:50},{name:'Өзіңе',pct:30},{name:'Жинақ',pct:20}
-  ]});
-  if(!calcCfg.rows || !calcCfg.rows.length) calcCfg.rows=[{name:'',pct:0}];
   goals = Store.get('goals', {big:[], small:[], plans:{monthly:[], weekly:[], daily:[]}});
   if(goals.monthly!==undefined){ // ескі құрылымнан көшіру
     const ng={big:[],small:[],plans:{monthly:[],weekly:[],daily:[]}};
@@ -1691,9 +1670,8 @@ function loadUserData(){
   if(!goals.plans) goals.plans={monthly:[],weekly:[],daily:[]};
   gratitude = Store.get('gratitude', []);
   debts = Store.get('debts', []);
-  budgets = Store.get('budgets', {});
   finGoals = Store.get('finGoals', []);
-  investments = Store.get('investments', []);
+  recurring = Store.get('recurring', []);
   aiAdvice = Store.get('aiAdvice', null);
   notifPrefs = migrateNotifPrefs(Store.get('notifPrefs', {enabled:false, intervalMin:60}));
   piggy = Store.get('piggy', null);
@@ -3216,10 +3194,9 @@ const FIN_TABS = [
   ['income','Кірістер','arrowUpCircle'],
   ['expense','Шығыстар','arrowDownCircle'],
   ['analytics','Аналитика','barChart'],
-  ['budget','Бюджет','calculator'],
+  ['recurring','Міндетті төлемдер','calendar'],
   ['goals','Мақсаттар','target'],
   ['cashflow','Cash Flow','trend'],
-  ['invest','Инвестициялар','gem'],
   ['debts','Қарыздар','scale'],
   ['ai','AI көмекші','lightbulb'],
 ];
@@ -3365,14 +3342,6 @@ function renderTxLists(){
 }
 
 /* ---------- DASHBOARD ---------- */
-function budgetWarnings(){
-  const {from,to}=periodRange('month');
-  return FIN_CATS.out.filter(cat=>{
-    const limit=budgets[cat]; if(!limit) return false;
-    const spent=txs.filter(t=>t.type==='out'&&t.cat===cat&&t.date>=from&&t.date<=to).reduce((s,t)=>s+t.amount,0);
-    return spent>limit;
-  });
-}
 function renderFinDash(){
   const {from,to}=periodRange('month');
   const monthIn=sumTx('in',from,to), monthOut=sumTx('out',from,to);
@@ -3384,10 +3353,10 @@ function renderFinDash(){
   const netEl=document.getElementById('dashMonthNet');
   netEl.textContent=fmt(monthIn-monthOut); netEl.style.color=(monthIn-monthOut)>=0?'var(--good)':'#f0a5a5';
 
-  const warns=budgetWarnings();
-  document.getElementById('dashWarnings').innerHTML = warns.length
+  const overdueRecur=recurringOverdueList();
+  document.getElementById('dashWarnings').innerHTML = overdueRecur.length
     ? `<div class="box" style="margin-bottom:20px;border-color:var(--crit)">
-        ${warns.map(cat=>`<div style="color:var(--crit);font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:6px">${ic('alertTriangle')} «${cat}» санаты бойынша бюджет лимитінен асып кеттің</div>`).join('')}
+        ${overdueRecur.map(r=>`<div style="color:var(--crit);font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:6px">${ic('alertTriangle')} «${r.name}» төлемінің мерзімі өтіп кетті</div>`).join('')}
       </div>` : '';
 
   const outTxMonth = txs.filter(t=>t.type==='out'&&t.date>=from&&t.date<=to);
@@ -3444,28 +3413,115 @@ function renderFinAnalytics(){
   document.getElementById('anaTopInc').innerHTML = topList(byInc,'var(--good)');
 }
 
-/* ---------- БЮДЖЕТ ---------- */
-function setBudget(cat,val){ budgets[cat]=+val||0; saveBudgets(); renderFinBudget(); }
-function renderFinBudget(){
-  const {from,to}=periodRange('month');
-  document.getElementById('budgetRows').innerHTML = FIN_CATS.out.map(cat=>{
-    const spent = txs.filter(t=>t.type==='out'&&t.cat===cat&&t.date>=from&&t.date<=to).reduce((s,t)=>s+t.amount,0);
-    const limit = budgets[cat]||0;
-    const pct = limit? Math.min(100, Math.round(spent/limit*100)) : 0;
-    const over = limit>0 && spent>limit;
-    return `<div style="margin-bottom:18px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <b>${cat}</b>
-        <input type="number" style="width:120px;margin:0" value="${limit||''}" placeholder="Лимит жоқ" onchange="setBudget('${cat}',this.value)">
-      </div>
-      ${limit ? `<div class="progressbar"><span style="width:${pct}%;background:${over?'var(--crit)':pct>80?'var(--warn)':'var(--grad)'}"></span></div>
-      <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-top:4px">
-        <span>Жұмсалды: <b style="color:${over?'#f0a5a5':'var(--text)'}">${fmt(spent)}</b></span>
-        <span>${pct}%${over?` — ${ic('alertTriangle')} лимиттен асты`:''}</span>
-      </div>` : `<div style="font-size:13px;color:var(--faint)">Жұмсалды: ${fmt(spent)}</div>`}
-    </div>`;
-  }).join('');
-  renderCalc();
+/* ---------- МІНДЕТТІ ТӨЛЕМДЕР (айлық/күндік/подписка/рассрочка) ---------- */
+const RECUR_KINDS = {
+  monthly:      {label:'Айлық төлем',    icon:'calendar'},
+  daily:        {label:'Күндік міндетті',icon:'sun'},
+  subscription: {label:'Подписка',       icon:'refresh'},
+  installment:  {label:'Рассрочка',      icon:'wallet'},
+};
+// Нақты логотип жоқ (сыртқы сурет/эмодзи саясатына сай) — әр брендке түсті монограмма-белгі.
+// Apple үшін ICONS ішінде дайын SVG бар, соны қолданамыз.
+const BRANDS = {
+  yandex:    {label:'Yandex Plus',      color:'#ffcc00', letter:'Я'},
+  apple:     {label:'Apple',            color:'#8e8e93', letter:''},
+  netflix:   {label:'Netflix',          color:'#e50914', letter:'N'},
+  spotify:   {label:'Spotify',          color:'#1db954', letter:'S'},
+  youtube:   {label:'YouTube Premium',  color:'#ff0000', letter:'Y'},
+  kaspi:     {label:'Kaspi Gold',       color:'#ff0000', letter:'K'},
+  wolt:      {label:'Wolt',             color:'#00c2e8', letter:'W'},
+  chocofood: {label:'Chocofood',        color:'#7b2ff7', letter:'C'},
+  other:     {label:'Басқа',            color:'#8a8fa3', letter:'?'},
+};
+function brandBadge(key,size){
+  const b = BRANDS[key] || BRANDS.other;
+  const s = size||22;
+  const inner = key==='apple' ? ic('apple') : (b.letter||'?');
+  return `<span title="${b.label}" style="display:inline-flex;align-items:center;justify-content:center;width:${s}px;height:${s}px;border-radius:50%;background:${b.color};color:#111;font-size:${Math.round(s*0.55)}px;font-weight:800;flex-shrink:0">${inner}</span>`;
+}
+function onRecurKindChange(){
+  const kind = document.getElementById('recurKind').value;
+  document.getElementById('recurDueDayWrap').style.display = kind==='daily' ? 'none' : '';
+  document.getElementById('recurBrandWrap').style.display = kind==='subscription' ? '' : 'none';
+}
+// recurBrand select-ін бір рет толтырамыз (renderFinRecurring әр шақыруда емес, тек қажет болса)
+function fillBrandSelect(){
+  const sel = document.getElementById('recurBrand');
+  if(sel && !sel.options.length) sel.innerHTML = Object.entries(BRANDS).map(([k,b])=>`<option value="${k}">${b.label}</option>`).join('');
+}
+function recurPeriodKey(r){ return r.kind==='daily' ? todayStr() : todayStr().slice(0,7); }
+function recurIsPaidNow(r){ return !!(r.paid && r.paid[recurPeriodKey(r)]); }
+function recurIsOverdue(r){
+  const paid = r.paid || {};
+  if(r.kind==='daily'){
+    const y = new Date(Date.now()-86400000);
+    const yKey = y.getFullYear()+'-'+String(y.getMonth()+1).padStart(2,'0')+'-'+String(y.getDate()).padStart(2,'0');
+    return !paid[yKey];
+  }
+  if(paid[recurPeriodKey(r)]) return false;
+  return new Date().getDate() > (r.dueDay||1);
+}
+function nextDueLabel(r){
+  if(r.kind==='daily') return recurIsPaidNow(r) ? 'Бүгін белгіленген' : 'Бүгінге белгіленбеген';
+  const day = r.dueDay||1;
+  return recurIsPaidNow(r) ? `Осы ай төленді (айдың ${day}-і)` : `Мерзімі: айдың ${day}-і`;
+}
+function addRecurring(){
+  const name = document.getElementById('recurName').value.trim();
+  const kind = document.getElementById('recurKind').value;
+  const amount = +document.getElementById('recurAmount').value;
+  const dueDay = Math.min(31, Math.max(1, +document.getElementById('recurDueDay').value || 1));
+  const brand = kind==='subscription' ? document.getElementById('recurBrand').value : null;
+  if(!name){ toast('Атауын жаз'); return; }
+  if(!amount || amount<=0){ toast('Соманы дұрыс енгіз'); return; }
+  recurring.push({id:uid(), name, kind, amount, dueDay, brand, paid:{}});
+  saveRecurring();
+  document.getElementById('recurName').value=''; document.getElementById('recurAmount').value='';
+  renderFinRecurring();
+  toast('Қосылды');
+}
+function markRecurPaid(id){
+  const r = recurring.find(x=>x.id===id); if(!r) return;
+  r.paid = r.paid || {};
+  r.paid[recurPeriodKey(r)] = true;
+  saveRecurring(); renderFinRecurring();
+}
+function delRecurring(id){
+  if(!confirm('Төлемді өшіреміз бе?')) return;
+  recurring = recurring.filter(x=>x.id!==id);
+  saveRecurring(); renderFinRecurring();
+}
+function recurringOverdueList(){ return recurring.filter(recurIsOverdue); }
+function recurCard(r){
+  const kindInfo = RECUR_KINDS[r.kind] || {label:r.kind, icon:'calendar'};
+  const overdue = recurIsOverdue(r);
+  const paidNow = recurIsPaidNow(r);
+  return `<div class="card" style="${overdue?'border-color:var(--crit)':''}">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      ${r.kind==='subscription' ? brandBadge(r.brand) : `<span style="color:var(--muted)">${ic(kindInfo.icon)}</span>`}
+      <h3 style="margin:0">${r.name}</h3>
+    </div>
+    <div class="tag">${kindInfo.label}</div>
+    <div style="font-size:20px;font-weight:800;margin:8px 0">${fmt(r.amount)}</div>
+    ${overdue
+      ? `<div style="color:var(--crit);font-weight:700;font-size:13px;margin-bottom:10px">${ic('alertTriangle')} Мерзімі өтіп кетті</div>`
+      : `<div style="color:${paidNow?'var(--good)':'var(--muted)'};font-size:13px;margin-bottom:10px">${paidNow?ic('checkCircle'):ic('clock')} ${nextDueLabel(r)}</div>`}
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <button class="btn ${paidNow?'ghost':''} sm" style="width:auto" ${paidNow?'disabled':''} onclick="markRecurPaid('${r.id}')">${ic('checkCircle')} Төледім</button>
+      <span class="del" onclick="delRecurring('${r.id}')" style="cursor:pointer;color:var(--faint)">${ic('trash')}</span>
+    </div>
+  </div>`;
+}
+function renderFinRecurring(){
+  fillBrandSelect();
+  onRecurKindChange();
+  const monthlySum = recurring.filter(r=>r.kind!=='daily').reduce((s,r)=>s+r.amount,0);
+  document.getElementById('recurMonthlySum').textContent = fmt(monthlySum);
+  document.getElementById('recurOverdueCount').textContent = recurringOverdueList().length;
+  const sorted = [...recurring].sort((a,b)=>(recurIsOverdue(b)?1:0)-(recurIsOverdue(a)?1:0));
+  document.getElementById('recurList').innerHTML = sorted.length
+    ? sorted.map(recurCard).join('')
+    : `<div class="empty"><span class="em">${ic('calendar')}</span>Әзірге міндетті төлем жоқ</div>`;
   renderPushSection();
 }
 
@@ -3703,59 +3759,6 @@ function renderFinCashflow(){
       </span></div>`).join('');
 }
 
-/* ---------- ИНВЕСТИЦИЯЛАР (баға қолмен енгізіледі) ---------- */
-const INV_TYPE_NAMES = {stock:'Акциялар',etf:'ETF',crypto:'Криптовалюта',gold:'Алтын',deposit:'Депозит'};
-function addInvestment(){
-  const type = document.getElementById('invType').value;
-  const name = document.getElementById('invName').value.trim();
-  const buyPrice = +document.getElementById('invBuyPrice').value;
-  const qty = +document.getElementById('invQty').value || 1;
-  const buyDate = document.getElementById('invDate').value || todayStr();
-  if(!name){ toast('Атын жаз'); return; }
-  if(!buyPrice || buyPrice<=0){ toast('Бағаны дұрыс енгіз'); return; }
-  investments.push({id:uid(), type, name, buyPrice, qty, currentPrice:buyPrice, buyDate});
-  saveInvestments();
-  document.getElementById('invName').value=''; document.getElementById('invBuyPrice').value='';
-  renderFinInvest();
-}
-function updateInvestPrice(id,val){
-  const inv=investments.find(x=>x.id===id); if(!inv) return;
-  inv.currentPrice = +val || inv.currentPrice;
-  saveInvestments(); renderFinInvest();
-}
-function delInvestment(id){ investments=investments.filter(x=>x.id!==id); saveInvestments(); renderFinInvest(); }
-function investCard(inv){
-  const cost=inv.buyPrice*inv.qty, value=inv.currentPrice*inv.qty, profit=value-cost;
-  const roi = inv.buyPrice? Math.round((inv.currentPrice-inv.buyPrice)/inv.buyPrice*1000)/10 : 0;
-  const color = profit>=0?'var(--good)':'#f0a5a5';
-  return `<div class="card">
-    <div class="tag">${INV_TYPE_NAMES[inv.type]||inv.type}</div>
-    <h3>${inv.name}</h3>
-    <div style="font-size:13px;color:var(--muted);margin-bottom:10px">Сатып алынды: ${fmtDate(inv.buyDate)} · ${inv.qty} дана</div>
-    <div class="row">
-      <div><label>Сатып алу бағасы</label><div style="padding:10px 0;font-weight:700">${fmt(inv.buyPrice)}</div></div>
-      <div><label>Ағымдағы баға</label><input type="number" value="${inv.currentPrice}" onchange="updateInvestPrice('${inv.id}',this.value)"></div>
-    </div>
-    <div class="split-item"><span class="k">Пайда/зиян</span><span class="v" style="color:${color}">${profit>=0?'+':''}${fmt(profit)}</span></div>
-    <div class="split-item"><span class="k">ROI</span><span class="v" style="color:${color}">${roi>=0?'+':''}${roi}%</span></div>
-    <span class="del" onclick="delInvestment('${inv.id}')" style="cursor:pointer;color:var(--faint);display:block;text-align:right;margin-top:6px">${ic('trash')}</span>
-  </div>`;
-}
-function renderFinInvest(){
-  const totalCost=investments.reduce((s,i)=>s+i.buyPrice*i.qty,0);
-  const totalValue=investments.reduce((s,i)=>s+i.currentPrice*i.qty,0);
-  const totalProfit=totalValue-totalCost;
-  const avgRoi = totalCost? Math.round((totalValue-totalCost)/totalCost*1000)/10 : 0;
-  document.getElementById('investKpis').innerHTML = `
-    <div class="kpi"><div class="big">${fmt(totalCost)}</div><div class="lbl">Жалпы салынған</div></div>
-    <div class="kpi"><div class="big">${fmt(totalValue)}</div><div class="lbl">Ағымдағы құн</div></div>
-    <div class="kpi"><div class="big" style="color:${totalProfit>=0?'var(--good)':'#f0a5a5'}">${totalProfit>=0?'+':''}${fmt(totalProfit)}</div><div class="lbl">Жалпы пайда/зиян</div></div>
-    <div class="kpi"><div class="big" style="color:${avgRoi>=0?'var(--good)':'#f0a5a5'}">${avgRoi>=0?'+':''}${avgRoi}%</div><div class="lbl">Орташа ROI</div></div>`;
-  document.getElementById('investList').innerHTML = investments.length
-    ? investments.map(investCard).join('')
-    : `<div class="empty"><span class="em">${ic('gem')}</span>Әзірге инвестиция жоқ</div>`;
-}
-
 /* ---------- AI ҚАРЖЫЛЫҚ КӨМЕКШІ ---------- */
 function computeRuleInsights(){
   const insights=[];
@@ -3771,9 +3774,8 @@ function computeRuleInsights(){
       if(Math.abs(delta)>=15) insights.push(`Осы айда сіз «${cat}» санатына өткен айдан ${Math.abs(delta)}% ${delta>0?'көп':'аз'} ақша жұмсадыңыз.`);
     }
   });
-  budgetWarnings().forEach(cat=>{
-    const spent=txs.filter(t=>t.type==='out'&&t.cat===cat&&t.date>=from&&t.date<=to).reduce((s,t)=>s+t.amount,0);
-    insights.push(`«${cat}» санаты бойынша бюджет лимитінен ${fmt(spent-budgets[cat])} асып кеттіңіз.`);
+  recurringOverdueList().forEach(r=>{
+    insights.push(`«${r.name}» міндетті төлемінің мерзімі өтіп кетті (${fmt(r.amount)}).`);
   });
   const topCat=Object.entries(curByCat).sort((a,b)=>b[1]-a[1])[0];
   if(topCat) insights.push(`Осы айда ең көп шығын — «${topCat[0]}» (${fmt(topCat[1])}).`);
@@ -3820,9 +3822,9 @@ function generateManagerReport(){
   if(outDelta!=null) lines.push(`Шығыныңыз өткен айға қарағанда ${outDelta>=0?'+':''}${outDelta}% өзгерді.`);
   if(topCats.length) lines.push(`Ең көп шығын кеткен санаттар: ${topCats.map(([c,v])=>`«${c}» (${fmt(v)})`).join(', ')}.`);
 
-  const overBudget = budgetWarnings();
-  if(overBudget.length) lines.push(`Бюджет лимитінен асқан санаттар: ${overBudget.join(', ')}. Осы санаттарда шығынды қысқартуды қарастырыңыз.`);
-  else if(Object.values(budgets).some(v=>v)) lines.push('Барлық белгіленген бюджет лимиттерінің шегінде қалдыңыз — жақсы нәтиже.');
+  const overdueRecur = recurringOverdueList();
+  if(overdueRecur.length) lines.push(`Мерзімі өткен міндетті төлемдер: ${overdueRecur.map(r=>r.name).join(', ')}. Осыларды жедел төлеп қойған дұрыс.`);
+  else if(recurring.length) lines.push('Барлық міндетті төлемдер уақытында — жақсы нәтиже.');
 
   if(monthIn>0){
     const rate=Math.round(net/monthIn*100);
@@ -3962,59 +3964,9 @@ function renderDebts(){
 
 const FIN_RENDERERS = {
   dash: renderFinDash, income: renderFinIncomeExpense, expense: renderFinIncomeExpense,
-  analytics: renderFinAnalytics, budget: renderFinBudget, goals: renderFinGoals,
-  cashflow: renderFinCashflow, invest: renderFinInvest, debts: renderDebts, ai: renderFinAI,
+  analytics: renderFinAnalytics, recurring: renderFinRecurring, goals: renderFinGoals,
+  cashflow: renderFinCashflow, debts: renderDebts, ai: renderFinAI,
 };
-
-/* ---------- Бөлу калькуляторы (атын да, процентін де өзі қояды) ---------- */
-function renderCalc(){
-  document.getElementById('calcAmount').value = calcCfg.amount || '';
-  const box = document.getElementById('calcRows');
-  box.innerHTML = calcCfg.rows.map((r,i)=>`
-    <div class="calc-row">
-      <input class="c-name" type="text" value="${(r.name||'').replace(/"/g,'&quot;')}" placeholder="Бөлік аты" oninput="updateCalc()">
-      <input class="c-pct" type="number" value="${r.pct}" min="0" max="100" placeholder="%" oninput="updateCalc()">
-      <span class="c-amt" data-i="${i}"></span>
-      <span class="c-del" onclick="removeCalcRow(${i})">${ic('trash')}</span>
-    </div>`).join('');
-  updateCalc();
-}
-function updateCalc(){
-  const amount = +document.getElementById('calcAmount').value || 0;
-  const rowsEl = document.querySelectorAll('#calcRows .calc-row');
-  let sum = 0;
-  rowsEl.forEach((el,i)=>{
-    const name = el.querySelector('.c-name').value;
-    const pct = +el.querySelector('.c-pct').value || 0;
-    calcCfg.rows[i] = {name, pct};
-    sum += pct;
-    el.querySelector('.c-amt').textContent = fmt(amount*pct/100);
-  });
-  calcCfg.amount = amount;
-  Store.set('calcCfg', calcCfg); scheduleSync();
-  const tot = document.getElementById('calcTotal');
-  const cls = sum===100 ? 'ok' : 'bad';
-  const msg = sum===100 ? `${ic('checkCircle')} Дәл 100%` : (sum<100 ? `${ic('alertTriangle')} ${100-sum}% жетпейді` : `${ic('alertTriangle')} ${sum-100}% артық`);
-  tot.innerHTML = `<span>Жалпы процент: <span class="${cls}">${sum}%</span> <small style="color:var(--muted)">${msg}</small></span>
-                   <span>Бөлінген: <b>${fmt(amount*Math.min(sum,100)/100)}</b></span>`;
-}
-function addCalcRow(){ calcCfg.rows.push({name:'',pct:0}); renderCalc(); }
-function removeCalcRow(i){ calcCfg.rows.splice(i,1); if(!calcCfg.rows.length) calcCfg.rows.push({name:'',pct:0}); renderCalc(); }
-function autoBalance(){
-  const sum = calcCfg.rows.reduce((s,r)=>s+(+r.pct||0),0);
-  if(sum<=0){ // тең бөлу
-    const p = Math.floor(100/calcCfg.rows.length);
-    calcCfg.rows.forEach(r=>r.pct=p);
-    calcCfg.rows[0].pct += 100 - p*calcCfg.rows.length;
-  } else { // масштабтап 100-ге келтіру
-    let acc=0;
-    calcCfg.rows.forEach((r,i)=>{
-      if(i<calcCfg.rows.length-1){ r.pct=Math.round(r.pct/sum*100); acc+=r.pct; }
-      else r.pct = 100-acc;
-    });
-  }
-  renderCalc();
-}
 
 /* ============================================================
    CHARTS (canvas)
