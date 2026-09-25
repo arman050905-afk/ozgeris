@@ -1,11 +1,47 @@
 const { sql } = require('./_db');
 const { verify } = require('./_auth');
+const webpush = require('web-push');
 
-// Push жазылу/жазылудан бас тарту бір файлда — Vercel Hobby жоспарының
-// 12 функция лимитіне сыю үшін subscribe.js/unsubscribe.js осында біріктірілді.
+// Push жазылу/жазылудан бас тарту/тестілік жіберу бір файлда — Vercel Hobby жоспарының
+// 12 функция лимитіне сыю үшін subscribe.js/unsubscribe.js/test.js осында біріктірілді.
 module.exports = async (req, res) => {
   const payload = verify(req);
   if (!payload) return res.status(401).json({ error: 'unauthorized' });
+
+  // "Тестілік хабарлама жіберу" батырмасы — сағат/cron-ды күтпей, push дұрыс жұмыс
+  // істейтінін дереу тексеруге арналған. Тек ағымдағы қолданушының өз subscription-дарына жібереді.
+  if (req.method === 'POST' && req.body && req.body.action === 'test') {
+    if (!process.env.VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) {
+      return res.status(200).json({ ok: false, error: 'VAPID кілттері серверде орнатылмаған' });
+    }
+    webpush.setVapidDetails(
+      process.env.VAPID_SUBJECT || 'mailto:admin@ozgeris.app',
+      process.env.VAPID_PUBLIC_KEY,
+      process.env.VAPID_PRIVATE_KEY
+    );
+    try {
+      const subs = await sql`select endpoint, p256dh, auth from push_subscriptions where user_id = ${payload.uid}`;
+      if (!subs.length) return res.status(200).json({ ok: false, error: 'Алдымен жоғарыдағы «Push ескертулерді қосу» батырмасын бас' });
+      let sent = 0;
+      for (const s of subs) {
+        const sub = { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } };
+        try {
+          await webpush.sendNotification(sub, JSON.stringify({
+            title: 'ÖZGERIS — тест',
+            body: 'Бұл тестілік хабарлама. Көріп тұрсаң — push дұрыс жұмыс істейді!',
+          }));
+          sent++;
+        } catch (e) {
+          if (e.statusCode === 404 || e.statusCode === 410) {
+            await sql`delete from push_subscriptions where endpoint = ${s.endpoint}`;
+          }
+        }
+      }
+      return res.status(200).json({ ok: sent > 0, sent });
+    } catch (e) {
+      return res.status(500).json({ error: 'Сервер қатесі, кейінірек көр' });
+    }
+  }
 
   if (req.method === 'POST') {
     const sub = req.body && req.body.subscription;

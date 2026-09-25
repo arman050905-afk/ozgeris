@@ -112,7 +112,7 @@
 15. **Талдау** — `renderAnalytics, healthStats, renderHealthPanel, renderAchievements`
 16. **ADMIN** — `renderAdmin, toggleAccess, resetPassPrompt` (тек `is_admin` пайдаланушыға көрінеді)
 17. **PROFILE** — `renderProfile, toggleSettingsRow, saveProfileName, changePassword,
-    onNotifPrefsChange, setupNotifInterval` (толығырақ «Профиль/баптаулар беті» бөлімінде төменде)
+    onNotifPrefsChange, sendTestPush` (толығырақ «Профиль/баптаулар беті» бөлімінде төменде)
 18. **INIT** — сессия тексеру, `renderCatTiles`
 
 ## Трекер деректер моделі
@@ -170,19 +170,50 @@ Repo GitHub-қа қосылған, Vercel авто-деплой етеді (жа
 `find api -name "*.js" ! -name "_*" | wc -l` арқылы санды тексер. Осы себептен
 `api/push/subscribe.js`+`unsubscribe.js` бір `api/push.js`-ке біріктірілді (POST/DELETE).
 
-**Push ескертулер (бюджет асуы, қарыз мерзімі)** — толық жұмыс істеу үшін мыналар керек:
+**Push ескертулер (бюджет асуы, қарыз мерзімі, жалпы еске салғыштар)** — стандартты Web Push
+(VAPID), сыртқы ақылы қызмет (OneSignal т.б.) жоқ, `web-push` npm пакеті (ашық код, тегін, тек
+Node.js `crypto`-ны қолданады, RFC8291/VAPID протоколын өзі жасайды — «ақылы SDK» емес) арқылы.
+Жұмыс істеу үшін мыналар керек:
 1. Neon SQL Editor-де `schema.sql`-дың соңындағы миграция блогын орында (`push_subscriptions`
-   кестесі).
+   кестесі — `user_id, endpoint, p256dh, auth`).
 2. Vercel env vars: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (`mailto:...`) —
    `npx web-push generate-vapid-keys` арқылы генерациялайсың; `CRON_SECRET` — кез келген құпия
-   жол (Vercel Cron сұранысын `/api/cron/check-alerts`-ты қорғау үшін автоматты
-   `Authorization: Bearer $CRON_SECRET` жібереді, тек env var атын дәл солай қою керек).
-3. `index.html` басындағы `const VAPID_PUBLIC_KEY = ''` жолына сол public кілтті қой (құпия емес,
-   frontend-те көрінуі қауіпсіз).
-4. `vercel.json`-дағы cron (`/api/cron/check-alerts`, күніне 1 рет) Vercel деплойда автоматты
-   іске қосылады. Кілттер орнатылмаса, cron тыныш `skipped` қайтарады, ештеңе бұзылмайды.
-Барлығы орнатылғанша Бюджет tab-ындағы «Push ескертулерді қосу» батырмасы «әлі қолжетімсіз»
-хабарын көрсетеді.
+   жол. Бәрі 2026-08-15-те орнатылған, `vercel env ls` арқылы тексеруге болады (мәндерін оқымай).
+3. `index.html` басындағы `const VAPID_PUBLIC_KEY = '...'` жолында public кілт тұр (құпия емес,
+   frontend-те көрінуі қауіпсіз, private кілт ешқашан клиентке жіберілмейді).
+4. GitHub repo secret: сол `CRON_SECRET` мәнін GitHub-та да қою керек (Settings → Secrets and
+   variables → Actions → New repository secret, аты дәл `CRON_SECRET`) — төмендегі workflow осыны
+   қолданады.
+
+**Сағаттық жеткізу — GitHub Actions арқылы (2026-09-25)**: Vercel Hobby жоспарында Cron Jobs
+күніне 1 реттен жиі жүрмейді (Pro жоспарға көшпей нағыз сағаттық server cron мүмкін емес), сол
+шектеуді айналып өту үшін `.github/workflows/hourly-push.yml` **сағат сайын** (`0 * * * *`, +
+қолмен іске қосу үшін `workflow_dispatch`) `GET /api/cron/check-alerts`-ты
+`Authorization: Bearer $CRON_SECRET` header-мен шақырады. Нақты push жіберу логикасы толығымен
+сол Vercel функциясында қалады — GitHub Actions тек "ояту" рөлін атқарады, ешбір деректі
+көрмейді/сақтамайды. `vercel.json`-дағы ескі daily cron алынып тасталды (екі механизм бірге
+дубликат хабарлама жіберіп қоймас үшін). Бұл толығымен тегін: GitHub Actions minutes public/
+private репода стандартты лимитте жеткілікті. **Ескерту**: GitHub scheduled workflow жүктеме көп
+кезде бірнеше минутке кешігуі мүмкін (GitHub-тың өз шектеуі, дәлдік кепілдігі жоқ) және репо 60
+күн push-сіз тұрса GitHub оны автоматты өшіреді — қайта іске қосу үшін workflow бетінде "Enable
+workflow" бас керек.
+
+`api/cron/check-alerts.js` енді әр шақыруда (сағат сайын) `new Date().getUTCHours()`-пен ағымдағы
+сағатты біледі: қаржы алерттері (бюджет асуы/қарыз мерзімі) бұрынғыша тек сағат 08:00 UTC-де
+тексеріледі (спам болмас үшін), ал жалпы еске салғыштар (`notifPrefs.enabled`) адамның
+Профиль→Хабарландырулар-да таңдаған `notifPrefs.freq`-іне сай нақты сол сағатта ғана жіберіледі
+(`isGenericDue(freq, hourUTC)`: `1h`→әр сағат, `3h`→сағат UTC 3-ке бөлінгенде, `daily`→тек 08:00).
+Ескі клиенттік `setInterval`-мен жасанды сағаттық/3-сағаттық еске салғыш (бет ашық тұрса ғана
+жұмыс істейтін, `setupNotifInterval`) толығымен алынып тасталды — енді бәрі нағыз сервер push,
+қосымша толық жабық/телефон құлыпталған кезде де келеді.
+
+**Тестілік хабарлама** — Профиль→Хабарландырулар-дағы «Тест жіберу» батырмасы (`sendTestPush()`
+→ `POST /api/push {action:'test'}`) сағат/cron-ды күтпей, ағымдағы қолданушының сақталған
+subscription-дарына бірден push жібереді. Жаңа файл емес — `api/push.js`-тің өзінде
+(`action==='test'` тармағы), 12-функция шегі бұзылмаған.
+
+Барлығы орнатылғанша Бюджет/Профиль tab-ындағы «Push ескертулерді қосу» батырмасы «әлі
+қолжетімсіз» хабарын көрсетеді.
 
 **Профиль/баптаулар беті (`#profile`, nav-дағы «Профиль» сілтемесі)** — iOS-стиль баптаулар
 тізімі, 4 `.settings-row` (icon-in-tinted-square + атауы + subtitle + chevron), `toggleSettingsRow(key)`
@@ -191,20 +222,12 @@ Repo GitHub-қа қосылған, Vercel авто-деплой етеді (жа
   `userBadge`/`heroName`/`homeAvatar`-ды дереу жаңартады) + оқуға ғана арналған Email.
 - **Хабарландырулар** — `renderPushSection()` енді ЕКІ контейнерге де рендерлейді (Қаржы→Бюджет
   tab-ындағы ескі `#pushSection` **және** осы беттегі `#profilePushStatus`) — сол
-  `enablePush()`/`disablePush()` шақырылады, дубликат логика жоқ. Төменде «Жалпы еске салғыштарды
-  қосу» checkbox + жиілік `<select>` (`daily`/`3h`/`1h`) — екеуі де жаңа `notifPrefs` state-іне
-  жазылады (`onNotifPrefsChange()` → `saveNotifPrefs()` → `Store.set`+`scheduleSync()`).
-  **Екі деңгейлі жеткізу, адал белгіленген**: (1) сервер деңгейі — `api/cron/check-alerts.js`
-  күніне 1 рет (Vercel Hobby cron жиірек жүрмейді) `data.notifPrefs.enabled` — true болса және сол
-  адамға финанс алерты болмаса, `GENERIC_LINES`-тен айналмалы (rotating) қысқа хабарлама жібереді
-  (бір cron өтуінде бір адамға тек 1 хабарлама — финанс НЕМЕСЕ жалпы, екеуі бірге емес); (2) клиент
-  деңгейі — `1h`/`3h` таңдалса, `setupNotifInterval()` браузерде ашық тұрған бетте `setInterval`
-  арқылы `new Notification(...)` шақырады (Notification.permission==='granted' қажет,
-  `_notifIntervalId` арқылы қайталанып қойылмайды, `logout()`-та тазаланады). Бұл екінші деңгей
-  **тек сол бет/tab ашық тұрғанда ғана жұмыс істейді** — телефон құлыпталса/қосымша жабылса, тек
-  күнделікті 1 серверлік push келеді. Vercel Hobby жоспарында нағыз сағаттық background push
-  мүмкін емес (жоғарыдағы 12-функция шегі секілді, бұл да Vercel Hobby-дің қатаң шектеуі) — нағыз
-  сағаттық жеткізу үшін Pro жоспарға көшу немесе басқа scheduling backend керек.
+  `enablePush()`/`disablePush()`/`sendTestPush()` шақырылады, дубликат логика жоқ. Төменде «Жалпы
+  еске салғыштарды қосу» checkbox + жиілік `<select>` (`daily`/`3h`/`1h`) — екеуі де `notifPrefs`
+  state-іне жазылады (`onNotifPrefsChange()` → `saveNotifPrefs()` → `Store.set`+`scheduleSync()`).
+  **Толығымен серверлік жеткізу** (2026-09-25-тен бастап): үшеуі де (`daily`/`3h`/`1h`) нағыз
+  Web Push арқылы келеді, клиенттік `setInterval` хакі жоқ енді — толық сипаттамасы жоғарыдағы
+  «Push ескертулер» бөлімінде (GitHub Actions сағаттық workflow, `isGenericDue()`).
 - **Қауіпсіздік** — Ағымдағы/Жаңа/Жаңаны қайтала 3 өріс, `changePassword()` клиентте ұзындық пен
   сәйкестікті тексереді де `PUT /api/me {action:'changePassword', currentPass, newPass}` шақырады
   (`api/me.js` `bcrypt.compare`-пен растайды, сәйкес келмесе 401 + «Ағымдағы пароль қате»).
@@ -216,8 +239,8 @@ Repo GitHub-қа қосылған, Vercel авто-деплой етеді (жа
 ## Не істеуге болады (келесі қадамдар)
 - Төлем жүйесі (Stripe/Kaspi) — қазір WhatsApp-қа қолмен хабарласу + admin панельден қолмен
   доступ беру арқылы жұмыс істейді; толық автоматтандыру үшін төлем provider керек.
-- Нағыз сағаттық/3-сағаттық background push (телефон құлыпталған/қосымша жабық кезде де) — Vercel
-  Hobby cron күніне 1 реттен жиі жүрмейді, бұл үшін Pro жоспарға көшу немесе басқа scheduling
-  backend (мыс. сыртқы cron provider) керек — өнім шешімі, әзірге адал шектеу ретінде UI-де жазылған.
 - Инвестициялар бөлімінде баға әзірге тек қолмен енгізіледі (сыртқы market-data API жоқ) —
   қаласаң CoinGecko/Alpha Vantage секілді API қосуға болады.
+- GitHub Actions scheduled workflow дәлдігі кепілдендірілмеген (жүктеме көп кезде кешігуі мүмкін)
+  — егер минуттік дәлдік керек болса, Vercel Pro жоспарға көшу (шектеусіз cron жиілігі) немесе
+  сыртқы cron provider (cron-job.org секілді) балама нұсқа.

@@ -1217,9 +1217,9 @@
           <option value="1h">Әр сағат сайын</option>
         </select>
         <div style="font-size:12.5px;color:var(--faint);margin-top:-6px">
-          Күніне 1 рет — телефон құлыпталса да, қосымша жабық болса да келеді (сервер арқылы).
-          Әр сағат/3 сағат сайын — тек осы бет браузерде ашық тұрғанда ғана жұмыс істейді; қосымша
-          жабылса немесе телефон құлыпталса, күніне бәрібір тек 1 хабарлама келеді.
+          Үшеуі де серверден нағыз push ретінде келеді — телефон құлыпталса да, қосымша толық
+          жабық тұрса да жұмыс істейді (браузердің push қызметі арқылы, бет ашық тұруын қажет
+          етпейді). Тексеру үшін жоғарыдағы «Тест жіберу» батырмасын бас.
         </div>
       </div>
 
@@ -1535,7 +1535,6 @@ async function loginAs(email){
 
   await fetchCloud();   // базадан деректі тартып, локал кэшке құяды
   loadUserData();
-  setupNotifInterval(); // "әр сағат/3 сағат сайын" таңдалса — тек бет ашық тұрғанда жұмыс істейтін best-effort еске салғыш
   document.getElementById('userBadge').innerHTML=ic('user')+' '+me.name.replace(/</g,'&lt;');
   document.getElementById('heroName').textContent = (me.name||'').trim().split(/\s+/)[0] || 'досым';
   document.getElementById('homeAvatar').textContent = ((me.name||'').trim()[0] || 'Д').toUpperCase();
@@ -1559,7 +1558,6 @@ function buyClick(){
 function logout(){
   currentUser=null;
   isAdmin=false;
-  if(_notifIntervalId){ clearInterval(_notifIntervalId); _notifIntervalId=null; } // сол құрылғыда келесі адам кірсе, ескі интервал қалып қоймасын
   Store.setGlobal('app_session', null);
   Store.setGlobal('app_token', null);
   Store.setGlobal('app_name', null);
@@ -3501,6 +3499,13 @@ async function disablePush(){
   }catch(e){ toast('Қате: '+e.message); }
   renderPushSection();
 }
+// Сағатты/cron-ды күтпей, push шынымен жеткізіліп тұрғанын дереу тексеру үшін
+async function sendTestPush(){
+  try{
+    const r = await apiCall('/push', 'POST', {action:'test'});
+    toast(r && r.ok ? 'Тестілік хабарлама жіберілді — біраз күте тұр' : ((r && r.error) || 'Жіберілмеді'));
+  }catch(e){ toast('Қате: '+e.message); }
+}
 // Бір күй екі жерде көрсетіледі: Қаржы→Бюджет tab-ындағы #pushSection және
 // Профиль→Хабарландырулар tab-ындағы #profilePushStatus — сол үшін контейнер id-ін
 // қатаң жазбай, екеуін де (табылғанын) жаңартамыз.
@@ -3513,7 +3518,7 @@ async function renderPushSection(){
   } else {
     const sub = await currentPushSub();
     html = sub
-      ? `<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span style="color:var(--good);font-size:13px">${ic('checkCircle')} Push ескертулер қосулы (қаржы ескертулері + еске салғыштар)</span><button class="btn ghost sm" style="width:auto" onclick="disablePush()">Өшіру</button></div>`
+      ? `<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span style="color:var(--good);font-size:13px">${ic('checkCircle')} Push ескертулер қосулы (қаржы ескертулері + еске салғыштар)</span><button class="btn ghost sm" style="width:auto" onclick="sendTestPush()">Тест жіберу</button><button class="btn ghost sm" style="width:auto" onclick="disablePush()">Өшіру</button></div>`
       : `<button class="btn ghost sm" onclick="enablePush()">${ic('alertTriangle')} Push ескертулерді қосу</button>`;
   }
   targets.forEach(el=>el.innerHTML=html);
@@ -3573,24 +3578,6 @@ async function changePassword(){
 function onNotifPrefsChange(){
   notifPrefs = { enabled: document.getElementById('notifEnabled').checked, freq: document.getElementById('notifFreq').value };
   saveNotifPrefs();
-  setupNotifInterval();
-}
-// Күнделікті қысқа еске салғыш жолдар (сервер cron-ы да, клиенттегі setInterval де осыдан таңдайды)
-const REMINDER_LINES = ['Уақыт болды, өміріңді жүйеле!','Кішкентай қадам жаса — бүгін де алға!','Трекерлеріңді тексеріп, бүгінгі күнді белгіле.'];
-// "Әр сағат/3 сағат сайын" таңдалса — тек осы бет ашық тұрғанда жұмыс істейтін best-effort
-// клиенттік еске салғыш (телефон құлыпталса/қосымша жабылса, бұл ЖҰМЫС ІСТЕМЕЙДІ — сол үшін
-// сервердегі күнделікті cron бар, ол әрқашан келеді).
-let _notifIntervalId = null;
-function setupNotifInterval(){
-  if(_notifIntervalId){ clearInterval(_notifIntervalId); _notifIntervalId = null; }
-  if(!notifPrefs || !notifPrefs.enabled) return;
-  if(notifPrefs.freq!=='1h' && notifPrefs.freq!=='3h') return;
-  if(!('Notification' in window) || Notification.permission!=='granted') return;
-  const ms = notifPrefs.freq==='1h' ? 3600000 : 10800000;
-  _notifIntervalId = setInterval(()=>{
-    const line = REMINDER_LINES[Math.floor(Math.random()*REMINDER_LINES.length)];
-    try{ new Notification('ÖZGERIS', {body: line}); }catch(e){}
-  }, ms);
 }
 
 /* ---------- ҚАРЖЫЛЫҚ МАҚСАТТАР (ескі "ақша жинау" виджетінің жалғасы, тізім болды) ---------- */

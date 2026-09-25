@@ -54,6 +54,17 @@ function genericReminderLine() {
   return GENERIC_LINES[dayOfYear % GENERIC_LINES.length];
 }
 
+// Бұл cron енді GitHub Actions арқылы САҒАТ САЙЫН шақырылады (.github/workflows/hourly-push.yml,
+// Vercel Hobby жоспарында cron күніне 1 реттен жиі жүрмейді — сол шектеуді айналып өту үшін).
+// Сондықтан әр адамның Профиль→Хабарландырулар-да таңдаған жиілігін (`notifPrefs.freq`) осы
+// жерде UTC сағатпен салыстырып сүземіз — әйтпесе "күніне 1 рет" таңдаған адамға сағат сайын
+// хабарлама кетіп қалар еді.
+function isGenericDue(freq, hourUTC) {
+  if (freq === '1h') return true;
+  if (freq === '3h') return hourUTC % 3 === 0;
+  return hourUTC === 8; // 'daily' (әдепкі) — бұрынғы Vercel Cron уақыты, 08:00 UTC
+}
+
 module.exports = async (req, res) => {
   if (!isAuthorizedCron(req)) return res.status(401).json({ error: 'unauthorized' });
 
@@ -68,15 +79,19 @@ module.exports = async (req, res) => {
 
   try {
     const users = await sql`select id from users where active = true`;
+    const hourUTC = new Date().getUTCHours();
     let sent = 0;
 
     for (const u of users) {
       const rows = await sql`select data from user_data where user_id = ${u.id}`;
       const data = (rows[0] && rows[0].data) || {};
 
-      const overCats = budgetOverages(data);
-      const dueDebts = debtsDueSoon(data);
-      const wantsGeneric = !!(data.notifPrefs && data.notifPrefs.enabled);
+      // Қаржы алерттері (бюджет асуы/қарыз мерзімі) күніне 1 рет қана тексеріледі — жиілік
+      // таңдауына қарамай сағат сайын қайталанып, адамды мазаламау үшін.
+      const overCats = hourUTC === 8 ? budgetOverages(data) : [];
+      const dueDebts = hourUTC === 8 ? debtsDueSoon(data) : [];
+      const freq = (data.notifPrefs && data.notifPrefs.freq) || 'daily';
+      const wantsGeneric = !!(data.notifPrefs && data.notifPrefs.enabled) && isGenericDue(freq, hourUTC);
 
       let title = 'ÖZGERIS — Қаржы ескертуі';
       let body;
@@ -86,10 +101,8 @@ module.exports = async (req, res) => {
         if (dueDebts.length) lines.push(`Қарыз мерзімі жақын: ${dueDebts.map((d) => d.person).join(', ')}`);
         body = lines.join(' · ');
       } else if (wantsGeneric) {
-        // Финанс алерты жоқ, бірақ адам жалпы еске салғышты қосқан — сол орнына
-        // Профильде таңдалған жиілікке қарамастан, күніне 1 рет осы жалпы хабарлама кетеді
-        // (Vercel Hobby cron күніне 1 реттен жиі жүрмейді, сағаттық/3-сағаттық нұсқа тек
-        // клиент жақта, бет ашық тұрғанда ғана жұмыс істейді — index.html-дегі setupNotifInterval).
+        // Финанс алерты жоқ, бірақ адам жалпы еске салғышты қосқан әрі таңдаған жиілігі
+        // (сағат сайын/3 сағат сайын/күніне 1 рет) дәл осы сағатқа сай келді.
         title = 'ÖZGERIS';
         body = genericReminderLine();
       } else {
