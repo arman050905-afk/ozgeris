@@ -1,0 +1,22 @@
+name: Push reminder scheduler
+
+# ÖZGERIS-те адам Профиль→Хабарландырулар бетінде кемінде 15 минуттық еркін интервал таңдай
+# алады (мыс. 15, 30, 60, 1440 минут), тіпті қосымша толық жабық тұрса да push келуі керек. Бірақ
+# Vercel Hobby жоспарында Cron Jobs күніне 1 реттен жиі жүрмейді. Сол шектеуді айналып өту үшін
+# бұл GitHub Actions workflow ӘР 15 МИНУТ сайын оянып, api/cron/check-alerts.js эндпоинтін
+# шақырады — нақты push жіберу логикасы (VAPID, web-push кітапханасы, кімге дәл қазір керек
+# екенін users.last_reminder_sent_at-пен есептеу) толығымен сол Vercel функциясында қалады, бұл
+# жерде тек "ояту" ғана бар. Тегін: public/private репода Actions minutes ақысыз.
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch: {}
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call ÖZGERIS check-alerts endpoint
+        run: |
+          curl -sf -X GET "https://ozgerisozindiozgert-swart.vercel.app/api/cron/check-alerts" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"

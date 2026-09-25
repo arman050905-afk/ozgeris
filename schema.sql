@@ -39,3 +39,9 @@ create table if not exists push_subscriptions (
   auth       text not null,
   created_at timestamptz not null default now()
 );
+
+-- Еске салғыштың соңғы жіберілген уақыты — тек api/cron/check-alerts.js жазады/оқиды, СЕРВЕРЛІК.
+-- Қасақана user_data.data jsonb ішінде емес: ол толығымен клиенттің syncToCloud()-ы арқылы
+-- үстінен жазылып тұрады, сол жерде сақтасақ, келесі синхронда клиент ескі мәнмен қайта басып
+-- кетер еді (race condition). Бұл баған тек users кестесінде, клиент оны ешқашан жазбайды.
+alter table users add column if not exists last_reminder_sent_at timestamptz;

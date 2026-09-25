@@ -1210,16 +1210,14 @@
           <input type="checkbox" id="notifEnabled" onchange="onNotifPrefsChange()" style="width:auto;margin:0">
           <span style="font-weight:600;color:var(--text);font-size:14px">Жалпы еске салғыштарды қосу («Уақыт болды, өміріңді жүйеле» секілді)</span>
         </label>
-        <label>Еске салу жиілігі</label>
-        <select id="notifFreq" onchange="onNotifPrefsChange()">
-          <option value="daily">Күніне 1 рет (ұсынылады)</option>
-          <option value="3h">Әр 3 сағат сайын</option>
-          <option value="1h">Әр сағат сайын</option>
-        </select>
+        <label>Еске салу аралығы (минут)</label>
+        <input type="number" id="notifInterval" min="15" step="5" value="60" onchange="onNotifPrefsChange()">
         <div style="font-size:12.5px;color:var(--faint);margin-top:-6px">
-          Үшеуі де серверден нағыз push ретінде келеді — телефон құлыпталса да, қосымша толық
-          жабық тұрса да жұмыс істейді (браузердің push қызметі арқылы, бет ашық тұруын қажет
-          етпейді). Тексеру үшін жоғарыдағы «Тест жіберу» батырмасын бас.
+          Өзің қандай аралықпен хабарлама келетінін таңдайсың — кемінде 15 минут (мыс. 15, 30, 60,
+          180, 1440 = күніне 1 рет). Серверден нағыз push ретінде келеді — телефон құлыпталса да,
+          қосымша толық жабық тұрса да жұмыс істейді, бет ашық тұруын қажет етпейді. Дәлдігі
+          ~15 минутқа дейін ауытқуы мүмкін (сервер тексерісі 15 минут сайын өтеді). Тексеру үшін
+          жоғарыдағы «Тест жіберу» батырмасын бас.
         </div>
       </div>
 
@@ -1648,7 +1646,15 @@ let budgets = {};    // { 'Тамақ': 100000, ... } — категория а�
 let finGoals = [];   // [{id,name,target,deadline,createdAt,image,pieces:[{id,amount,done}]}]
 let investments = [];// [{id,type:'stock'|'etf'|'crypto'|'gold'|'deposit',name,buyPrice,qty,currentPrice,buyDate}]
 let aiAdvice = null; // {text, generatedAt} — соңғы LLM талдауының кэші
-let notifPrefs = {enabled:false, freq:'daily'}; // {enabled, freq:'daily'|'3h'|'1h'} — Профиль→Хабарландырулар
+let notifPrefs = {enabled:false, intervalMin:60}; // {enabled, intervalMin: минут, кемінде 15} — Профиль→Хабарландырулар
+// Ескі нұсқада `freq:'daily'|'3h'|'1h'` болатын — сақталған ескі деректі минутқа айналдырады
+// (жаңа қолданушыда intervalMin бірден бар болғандықтан бұл жай ғана айналып өтіледі).
+function migrateNotifPrefs(p){
+  if(!p) return {enabled:false, intervalMin:60};
+  if(p.intervalMin) return p;
+  const map = {daily:1440, '3h':180, '1h':60};
+  return { enabled: !!p.enabled, intervalMin: map[p.freq] || 1440 };
+}
 function saveArchived(){ Store.set('archived', archived); scheduleSync(); }
 function saveHidden(){ Store.set('hiddenTpl', hiddenTpl); scheduleSync(); }
 function saveUserTpl(){ Store.set('userTpl', userTpl); scheduleSync(); }
@@ -1689,7 +1695,7 @@ function loadUserData(){
   finGoals = Store.get('finGoals', []);
   investments = Store.get('investments', []);
   aiAdvice = Store.get('aiAdvice', null);
-  notifPrefs = Store.get('notifPrefs', {enabled:false, freq:'daily'});
+  notifPrefs = migrateNotifPrefs(Store.get('notifPrefs', {enabled:false, intervalMin:60}));
   piggy = Store.get('piggy', null);
   if(piggy && !finGoals.length){ // ескі жалғыз "ақша жинау" мақсатын жаңа тізімге бір рет көшіру
     finGoals.push({id:uid(), name:piggy.name, target:piggy.target, deadline:'', createdAt:piggy.createdAt||todayStr(), image:piggy.image||null, pieces:piggy.pieces||[]});
@@ -3537,7 +3543,7 @@ function renderProfile(){
   document.getElementById('profName').value = name;
   document.getElementById('profEmail').value = currentUser || '';
   document.getElementById('profilePersonalSub').textContent = name ? (currentUser ? `${name} · ${currentUser}` : name) : 'Аты, телефон, email';
-  document.getElementById('notifFreq').value = notifPrefs.freq || 'daily';
+  document.getElementById('notifInterval').value = notifPrefs.intervalMin || 60;
   document.getElementById('notifEnabled').checked = !!notifPrefs.enabled;
   document.getElementById('curPass').value = '';
   document.getElementById('newPass1').value = '';
@@ -3576,7 +3582,10 @@ async function changePassword(){
   }catch(e){ errEl.textContent = e.message; }
 }
 function onNotifPrefsChange(){
-  notifPrefs = { enabled: document.getElementById('notifEnabled').checked, freq: document.getElementById('notifFreq').value };
+  const raw = parseInt(document.getElementById('notifInterval').value, 10);
+  const intervalMin = Math.max(15, isNaN(raw) ? 60 : raw);
+  document.getElementById('notifInterval').value = intervalMin; // теріс/бос/15-тен аз мән енгізсе, өрісті түзетіп көрсетеді
+  notifPrefs = { enabled: document.getElementById('notifEnabled').checked, intervalMin };
   saveNotifPrefs();
 }
 
