@@ -240,6 +240,13 @@
     display:flex;align-items:center;justify-content:center;box-shadow:0 8px 16px -8px currentColor}
   .quick-pill .qp-label{font-weight:800;font-size:13.5px;line-height:1.3}
   .quick-pill .qp-sub{font-size:11.5px;color:var(--muted);font-weight:600}
+  /* Тар экранда (телефон) көлденең scroll ыңғайлы, бірақ кең экранда солай қалса,
+     4 карточка контейнердің толық енін жаппай, сол жақта қалыпсыз тығыз тұрып қалады —
+     сол үшін ені жеткілікті жерде тең 4 бағанды торға ауыстырамыз. */
+  @media(min-width:640px){
+    .quick-pills{display:grid;grid-template-columns:repeat(4,1fr);overflow-x:visible}
+    .quick-pill{min-width:0}
+  }
 
   /* ---------- Category tiles (home) ---------- */
   .cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px}
