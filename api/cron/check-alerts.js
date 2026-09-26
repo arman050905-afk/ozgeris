@@ -150,6 +150,7 @@ module.exports = async (req, res) => {
 
     return res.status(200).json({ ok: true, sent });
   } catch (e) {
-    return res.status(500).json({ error: 'Сервер қатесі' });
+    console.error('check-alerts failed:', e);
+    return res.status(500).json({ error: 'Сервер қатесі: ' + e.message });
   }
 };
