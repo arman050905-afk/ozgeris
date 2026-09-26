@@ -1650,6 +1650,7 @@ const TEMPLATES = [
   {cat:'edu',    emo:'laptop',      name:'Код жазу',         desc:'Күнде аз да болса практика — дағды өседі.'},
   {cat:'sport',  emo:'dumbbell',    name:'Отжимания',        desc:'Күнді белгіле, қанша рет жасағаныңды жаз.', type:'value', unit:'рет'},
   {cat:'sport',  emo:'footprints',  name:'10 000 қадам',     desc:'Күнді белгіле, қадам санын жаз.', type:'count', goal:10000, unit:'қадам'},
+  {cat:'sport',  emo:'dumbbell',    name:'Тренажер залы',    desc:'Ай күнтізбесінен барған күндеріңді белгіле.', kind:'gym'},
 ];
 
 const EMOJIS = ['target','flame','dumbbell','book','sprout','footprints','droplet','apple','bed','wallet','palette','music','brain','clock','noSmoking','sprout'];
@@ -1777,7 +1778,7 @@ function monthGrid(cells){
 /* ---- Трекер типтері: check / count / value ---- */
 function dtype(t){ return t.type||'check'; }
 // Күнге негізделмеген трекерлер (тізім түрлі)
-function isDayBased(t){ return !(t.kind==='english'||t.kind==='podcast'||t.kind==='vitamins'||t.kind==='anxiety'||t.kind==='emotion'||t.kind==='plan'); }
+function isDayBased(t){ return !(t.kind==='english'||t.kind==='podcast'||t.kind==='vitamins'||t.kind==='anxiety'||t.kind==='emotion'||t.kind==='plan'||t.kind==='gym'); }
 function isDaySuccess(t,v){
   if(t.kind==='sleep') return isSleepOk(v);
   const ty=dtype(t);
@@ -2179,6 +2180,7 @@ function startTracker(t){
   if(nt.kind==='anxiety'){ nt.tests=[]; }
   if(nt.kind==='emotion'){ nt.entries=[]; }
   if(nt.kind==='plan'){ nt.plans=[]; }
+  if(nt.kind==='gym'){ nt.gymDates={}; }
   trackers.push(nt);
   save();
   toast(`${ic('checkCircle')} Трекер қосылды!`);
@@ -2264,6 +2266,7 @@ function renderMine(){
       else if(t.kind==='anxiety'){ n=(t.tests||[]).length; lbl='тест тапсырдың'; }
       else if(t.kind==='emotion'){ n=(t.entries||[]).length; lbl='жазба'; }
       else if(t.kind==='plan'){ n=(t.plans||[]).length; lbl='жоспар'; }
+      else if(t.kind==='gym'){ n=Object.values(t.gymDates||{}).filter(Boolean).length; lbl='рет барды'; }
       body = `<div class="tcard-meta" style="margin-top:6px"><span><b>${n}</b> ${lbl}</span><span>${ic('arrowRight')}</span></div>`;
     }
     return `<div class="tcard" onclick="openTracker('${t.id}')">
@@ -2303,6 +2306,7 @@ function renderDetail(t){
   if(t.kind==='english') return renderEnglish(t);
   if(t.kind==='podcast') return renderPodcast(t);
   if(t.kind==='vitamins')return renderVitamins(t);
+  if(t.kind==='gym')     return renderGym(t);
   const cat = CATEGORIES.find(c=>c.id===t.cat)||CATEGORIES[4];
   const passed = daysPassed(t);
   const pct = completion(t);
@@ -2833,6 +2837,68 @@ function drawMoodChart(t){
   const pts=vals.map((v,i)=>v==null?null:[xAt(i),yAt(v)]).filter(Boolean);
   ctx.beginPath();pts.forEach((p,k)=>k?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.strokeStyle='#199e70';ctx.lineWidth=2;ctx.stroke();
   pts.forEach(p=>{ctx.beginPath();ctx.arc(p[0],p[1],3.5,0,Math.PI*2);ctx.fillStyle='#199e70';ctx.fill();ctx.strokeStyle='#1a2130';ctx.lineWidth=2;ctx.stroke();});
+}
+
+/* ============================================================
+   SPECIAL: Тренажер залы (нақты ай күнтізбесі — апта күндері бойынша тор)
+   ============================================================ */
+let gymViewMonth = null; // {y,m} — ай күнтізбесінің көрініс күйі (модуль деңгейінде, sleep/mood секілді)
+const GYM_MONTHS = ['Қаңтар','Ақпан','Наурыз','Сәуір','Мамыр','Маусым','Шілде','Тамыз','Қыркүйек','Қазан','Қараша','Желтоқсан'];
+const GYM_WEEKDAYS = ['Дс','Сс','Ср','Бс','Жм','Сб','Жс'];
+function renderGym(t){
+  t.gymDates = t.gymDates || {};
+  if(!gymViewMonth){ const now=new Date(); gymViewMonth={y:now.getFullYear(), m:now.getMonth()}; }
+  const {y,m} = gymViewMonth;
+  const first = new Date(y,m,1);
+  const daysInMonth = new Date(y,m+1,0).getDate();
+  const offset = (first.getDay()+6)%7; // Дүйсенбіден басталатын аптаға ыңғайлау (getDay: 0=Жс)
+  const today = todayStr();
+  let visitCount = 0;
+  const cells = [];
+  for(let i=0;i<offset;i++) cells.push(`<div class="day" style="background:transparent;border-color:transparent;cursor:default"></div>`);
+  for(let d=1; d<=daysInMonth; d++){
+    const ds = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const done = !!t.gymDates[ds];
+    if(done) visitCount++;
+    const cls = 'day'+(done?' done':'')+(ds===today?' today':'');
+    cells.push(`<div class="${cls}" onclick="toggleGymDate('${t.id}','${ds}')">${d}</div>`);
+  }
+  const totalVisits = Object.values(t.gymDates).filter(Boolean).length;
+  document.getElementById('detailBody').innerHTML = `
+    <div class="detail-card">
+      ${detailHeader(t,`<div class="detail-stats">
+        <div class="stat"><div class="num">${visitCount}</div><div class="lbl">Осы айда барды</div></div>
+        <div class="stat"><div class="num">${totalVisits}</div><div class="lbl">Барлығы</div></div>
+      </div>`)}
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:18px 0 10px">
+        <button class="btn ghost sm" onclick="gymNavMonth(-1,'${t.id}')" aria-label="Алдыңғы ай">${ic('arrowLeft')}</button>
+        <div style="font-weight:800;font-size:15px">${GYM_MONTHS[m]} ${y}</div>
+        <button class="btn ghost sm" onclick="gymNavMonth(1,'${t.id}')" aria-label="Келесі ай">${ic('arrowRight')}</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:8px">
+        ${GYM_WEEKDAYS.map(w=>`<div style="text-align:center;font-size:12px;color:var(--muted);font-weight:700">${w}</div>`).join('')}
+      </div>
+      <div class="days" style="grid-template-columns:repeat(7,1fr)">${cells.join('')}</div>
+      <div class="days-hint" style="margin-top:14px">Ұяшықты бас — сол күні залда болғаныңды белгіле.</div>
+      ${detailFooter(t)}
+    </div>`;
+}
+function gymNavMonth(delta, id){
+  if(!gymViewMonth){ const now=new Date(); gymViewMonth={y:now.getFullYear(), m:now.getMonth()}; }
+  let {y,m} = gymViewMonth;
+  m += delta;
+  if(m<0){ m=11; y--; } else if(m>11){ m=0; y++; }
+  gymViewMonth = {y,m};
+  const t = trackers.find(x=>x.id===id);
+  if(t) renderGym(t);
+}
+function toggleGymDate(id, ds){
+  const t = trackers.find(x=>x.id===id);
+  if(!t) return;
+  t.gymDates = t.gymDates || {};
+  if(t.gymDates[ds]) delete t.gymDates[ds]; else t.gymDates[ds]=true;
+  save();
+  renderGym(t);
 }
 
 /* ============================================================
