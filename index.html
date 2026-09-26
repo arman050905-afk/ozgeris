@@ -450,6 +450,17 @@
   .ach .ae{font-size:28px}
   .ach .an{font-size:22px}
   .ach .al{font-size:12px;color:var(--muted)}
+  /* ---------- Талдау: streak leaderboard ---------- */
+  .lb-row{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--line)}
+  .lb-row:last-child{border-bottom:none}
+  .lb-rank{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:13px;flex-shrink:0;color:#241a00}
+  .lb-rank.r1{background:linear-gradient(165deg,#ffe08a,#e8b13c)}
+  .lb-rank.r2{background:linear-gradient(165deg,#e6e6ee,#b9b9c9)}
+  .lb-rank.r3{background:linear-gradient(165deg,#e8b98a,#c47f45)}
+  .lb-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .lb-name{flex:1;font-weight:700;font-size:14.5px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lb-streak{font-weight:800;color:var(--s7);white-space:nowrap;display:flex;align-items:center;gap:5px}
   .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}
   .kpi{min-width:0;background:linear-gradient(165deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow-card)}
   .kpi .big{font-size:32px}
@@ -1138,7 +1149,13 @@
     <p class="page-sub">Барлық трекерлерің бойынша қорытынды.</p>
     <div id="healthPanel"></div>
     <div class="kpis" id="kpis"></div>
+    <div id="analyticsInsights"></div>
     <div id="achievements"></div>
+    <div class="chart-box" style="margin-bottom:20px">
+      <h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='3' y='5' width='18' height='16' rx='2'/><line x1='3' y1='10' x2='21' y2='10'/><line x1='8' y1='3' x2='8' y2='7'/><line x1='16' y1='3' x2='16' y2='7'/></svg> Соңғы 12 апта</h3>
+      <div class="cd">Әр шаршы — сол күнгі орындалу деңгейі (қызыл → сары → жасыл)</div>
+      <div style="overflow-x:auto"><canvas id="heatmapChart" width="820" height="150"></canvas></div>
+    </div>
     <div class="charts">
       <div class="chart-box">
         <h3>Категория бойынша прогресс</h3>
@@ -1151,6 +1168,7 @@
         <canvas id="lineChart" width="560" height="300"></canvas>
       </div>
     </div>
+    <div id="streakLeaderboard" style="margin-top:20px"></div>
     <div id="derived" style="margin-top:24px"></div>
   </div>
 </section>
@@ -4301,6 +4319,110 @@ function drawGauge(cv,val){
   ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,2*Math.PI);ctx.strokeStyle=cssVar('--line');ctx.stroke();
   ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,Math.PI+(val/100)*Math.PI);ctx.strokeStyle=col;ctx.stroke();
 }
+/* ---------- Талдау: 12-апталық heatmap (GitHub-стиліндегі) ---------- */
+function analyticsHeatmapData(weeks){
+  weeks = weeks || 12;
+  const days = weeks*7;
+  const todayMid = new Date(todayStr()+'T00:00:00').getTime();
+  const dayBased = trackers.filter(isDayBased);
+  const out=[];
+  for(let o=days-1; o>=0; o--){
+    const ts = todayMid - o*86400000;
+    let total=0, ok=0;
+    dayBased.forEach(t=>{
+      const startTs = new Date(t.start+'T00:00:00').getTime();
+      const idx = Math.round((ts-startTs)/86400000);
+      if(idx>=0 && idx<t.days.length && idx<daysPassed(t)){
+        total++;
+        if(isDaySuccess(t,t.days[idx])) ok++;
+      }
+    });
+    out.push({dateObj:new Date(ts), ratio: total? ok/total : null});
+  }
+  return out; // ескіден жаңаға қарай, ұзындығы weeks*7
+}
+function drawHeatmap(){
+  const cv=document.getElementById('heatmapChart'); if(!cv) return;
+  const {ctx,w,h}=setupCanvas(cv);
+  ctx.clearRect(0,0,w,h);
+  const weeks=12, rows=7;
+  const data=analyticsHeatmapData(weeks);
+  const pad={l:6,r:6,t:6,b:6};
+  const cw=w-pad.l-pad.r, ch=h-pad.t-pad.b;
+  const gap=4;
+  const size=Math.min((cw-(weeks-1)*gap)/weeks, (ch-(rows-1)*gap)/rows);
+  data.forEach((d,i)=>{
+    const col=Math.floor(i/rows), row=i%rows;
+    const x=pad.l+col*(size+gap);
+    const y=pad.t+row*(size+gap);
+    ctx.fillStyle = d.ratio==null ? cssVar('--line') : gradeColor(d.ratio);
+    ctx.beginPath();
+    if(ctx.roundRect) ctx.roundRect(x,y,size,size,3); else ctx.rect(x,y,size,size);
+    ctx.fill();
+  });
+}
+/* ---------- Талдау: автоматты түсіндірме (жедел байқаулар) ---------- */
+function analyticsInsightsList(){
+  const insights=[];
+  if(!trackers.length) return insights;
+  const dayBasedT = trackers.filter(isDayBased);
+  const cats = CATEGORIES.filter(c=>!['finance','goal','gratitude'].includes(c.id)).map(c=>{
+    const ts=dayBasedT.filter(t=>t.cat===c.id);
+    if(!ts.length) return null;
+    return {name:c.name, avg:Math.round(ts.reduce((s,t)=>s+completion(t),0)/ts.length)};
+  }).filter(Boolean);
+  if(cats.length){
+    const best=cats.reduce((a,b)=>b.avg>a.avg?b:a);
+    const worst=cats.reduce((a,b)=>b.avg<a.avg?b:a);
+    insights.push(`Ең мықты саланың — «${best.name}» (${best.avg}%).`);
+    if(worst.name!==best.name && worst.avg<60) insights.push(`«${worst.name}» саласына көбірек көңіл бөлген жөн — орташа ${worst.avg}% қана.`);
+  }
+  const topStreakTracker = [...trackers].sort((a,b)=>bestStreak(b)-bestStreak(a))[0];
+  if(topStreakTracker && bestStreak(topStreakTracker)>0){
+    insights.push(`«${topStreakTracker.name}» трекерің ең ұзын серияны ұстап тұр — ${bestStreak(topStreakTracker)} күн.`);
+  }
+  const heat=analyticsHeatmapData(2);
+  const thisWeek=heat.slice(7).filter(d=>d.ratio!=null);
+  const lastWeek=heat.slice(0,7).filter(d=>d.ratio!=null);
+  if(thisWeek.length && lastWeek.length){
+    const twAvg=Math.round(thisWeek.reduce((s,d)=>s+d.ratio,0)/thisWeek.length*100);
+    const lwAvg=Math.round(lastWeek.reduce((s,d)=>s+d.ratio,0)/lastWeek.length*100);
+    const delta=twAvg-lwAvg;
+    if(Math.abs(delta)>=5) insights.push(`Осы апта өткен аптамен салыстырғанда ${delta>0?'+':''}${delta}% ${delta>0?'жақсарды':'төмендеді'}.`);
+  }
+  if(!insights.length) insights.push('Деректер жинақталған сайын талдау тереңдей береді — жалғастыра бер!');
+  return insights;
+}
+function renderAnalyticsInsights(){
+  const el=document.getElementById('analyticsInsights'); if(!el) return;
+  if(!trackers.length){ el.innerHTML=''; return; }
+  const list=analyticsInsightsList();
+  el.innerHTML=`<div class="chart-box" style="margin-bottom:20px">
+    <h3>${ic('sparkles')} Талдау қорытындысы</h3>
+    <div class="cd">Деректеріңе негізделген жедел байқаулар</div>
+    ${list.map(t=>`<div class="split-item"><span class="k">${ic('lightbulb')} ${t}</span></div>`).join('')}
+  </div>`;
+}
+/* ---------- Талдау: ағымдағы streak көшбасшылары ---------- */
+function renderStreakLeaderboard(){
+  const el=document.getElementById('streakLeaderboard'); if(!el) return;
+  const top=[...trackers].filter(t=>currentStreak(t)>0).sort((a,b)=>currentStreak(b)-currentStreak(a)).slice(0,5);
+  if(!top.length){ el.innerHTML=''; return; }
+  el.innerHTML=`<div class="chart-box">
+    <h3>${ic('trophy')} Ағымдағы streak көшбасшылары</h3>
+    <div class="cd">Қазір ең ұзын қатарды кім ұстап тұр</div>
+    ${top.map((t,i)=>{
+      const cat=CATEGORIES.find(c=>c.id===t.cat);
+      const rankClass = i===0?'r1':i===1?'r2':i===2?'r3':'';
+      return `<div class="lb-row">
+        <span class="lb-rank ${rankClass}" style="${!rankClass?'background:var(--panel-2);color:var(--muted)':''}">${i+1}</span>
+        <span class="lb-icon" style="background:${(cat?cat.color:'var(--s7)')}22;color:${cat?cat.color:'var(--s7)'}">${ic(t.emo||(cat?cat.emo:'target'))}</span>
+        <span class="lb-name">${t.name}</span>
+        <span class="lb-streak">${ic('flame')} ${currentStreak(t)} күн</span>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
 function renderAchievements(){
   const el=document.getElementById('achievements');
   if(!trackers.length){ el.innerHTML=''; return; }
@@ -4314,12 +4436,13 @@ function renderAchievements(){
 function renderAnalytics(){
   const kpi=document.getElementById('kpis');
   renderHealthPanel(); renderAchievements();
+  renderAnalyticsInsights(); renderStreakLeaderboard();
   if(!trackers.length){
     kpi.innerHTML='';
     document.getElementById('derived').innerHTML=
       `<div class="empty"><span class="em">${ic('barChart')}</span>Талдау үшін алдымен трекер қос.</div>`;
     // бос диаграммалар
-    drawBar(); drawLine();
+    drawBar(); drawLine(); drawHeatmap();
     return;
   }
   const formed = trackers.filter(t=>completion(t)>=80 && daysPassed(t)>=7).length;
@@ -4334,7 +4457,7 @@ function renderAnalytics(){
     <div class="kpi"><div class="big">${ic('flame')} ${best}</div><div class="lbl">Ең ұзын қатар</div></div>
     <div class="kpi"><div class="big">${totalDone}</div><div class="lbl">Барлығы орындалған күн</div></div>`;
 
-  drawBar(); drawLine();
+  drawBar(); drawLine(); drawHeatmap();
 
   // Туынды метрикалар — категория бойынша "неше %-ға артты"
   const rows=CATEGORIES.filter(c=>!['finance','goal','gratitude'].includes(c.id)).map(c=>{
@@ -4389,7 +4512,7 @@ renderCatTiles();
   else { document.getElementById('authScreen').style.display='flex'; }
 })();
 window.addEventListener('resize',()=>{
-  if(document.getElementById('analytics').classList.contains('active')){ drawBar(); drawLine(); }
+  if(document.getElementById('analytics').classList.contains('active')){ drawBar(); drawLine(); drawHeatmap(); }
   if(document.getElementById('finance').classList.contains('active') && FIN_RENDERERS[finTab]){ FIN_RENDERERS[finTab](); }
 });
 </script>
