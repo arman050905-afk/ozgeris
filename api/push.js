@@ -35,7 +35,7 @@ module.exports = async (req, res) => {
         const sub = { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } };
         try {
           await webpush.sendNotification(sub, JSON.stringify({
-            title: 'ÖZGERIS — тест',
+            title: 'ÖZGERIS',
             body: 'Бұл тестілік хабарлама. Көріп тұрсаң — push дұрыс жұмыс істейді!',
           }));
           sent++;

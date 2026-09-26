@@ -109,7 +109,7 @@ module.exports = async (req, res) => {
       const wantsGeneric = !!(data.notifPrefs && data.notifPrefs.enabled)
         && isGenericDue(intervalMin, u.last_reminder_sent_at);
 
-      let title = 'ÖZGERIS — Қаржы ескертуі';
+      let title = 'ÖZGERIS';
       let body;
       let isGeneric = false;
       if (overdueRecur.length || dueDebts.length) {
