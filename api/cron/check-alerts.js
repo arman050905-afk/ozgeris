@@ -43,8 +43,9 @@ function debtsDueSoon(data) {
 }
 
 // Профиль→Хабарландырулар-да "Жалпы еске салғыштарды қосу" таңдалған адамдарға арналған
-// қысқа, айналмалы (rotating) сөйлемдер. Тек финанс алерты болмаған жағдайда ғана жіберіледі —
-// бір cron өтуінде бір адамға екі хабарлама бірден кетпейді.
+// қысқа сөйлемдер — әр хабарламада кездейсоқ біреуі таңдалады (күн бойынша тұрақты емес).
+// Тек финанс алерты болмаған жағдайда ғана жіберіледі — бір cron өтуінде бір адамға екі
+// хабарлама бірден кетпейді.
 const GENERIC_LINES = [
   '5 минут бөл — болашақта өзіңе рахмет айтасың.',
   'Білесің ғой — бүгін жасамасаң, ертең де жасамайсың.',
@@ -52,9 +53,7 @@ const GENERIC_LINES = [
   'Ешкім сен үшін өзгермейді. Тек өзің ғана.',
 ];
 function genericReminderLine() {
-  const start = new Date(new Date().getUTCFullYear(), 0, 0);
-  const dayOfYear = Math.floor((Date.now() - start) / 86400000);
-  return GENERIC_LINES[dayOfYear % GENERIC_LINES.length];
+  return GENERIC_LINES[Math.floor(Math.random() * GENERIC_LINES.length)];
 }
 
 // Бұл cron енді GitHub Actions арқылы ӘР 15 МИНУТ САЙЫН шақырылады (.github/workflows/
