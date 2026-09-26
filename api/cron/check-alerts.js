@@ -98,6 +98,7 @@ module.exports = async (req, res) => {
     // қалған 15-минуттық тиктерде (08:15, 08:30, 08:45) қайталанып кетер еді.
     const financialDue = hourUTC === 8 && minuteUTC < 15;
     let sent = 0;
+    const debug = []; // УАҚЫТША диагностика — мәселе шешілген соң алынып тасталады
 
     for (const u of users) {
       const rows = await sql`select data from user_data where user_id = ${u.id}`;
@@ -106,8 +107,14 @@ module.exports = async (req, res) => {
       const overdueRecur = financialDue ? recurringOverdue(data) : [];
       const dueDebts = financialDue ? debtsDueSoon(data) : [];
       const intervalMin = Math.max(15, (data.notifPrefs && data.notifPrefs.intervalMin) || 1440);
-      const wantsGeneric = !!(data.notifPrefs && data.notifPrefs.enabled)
-        && isGenericDue(intervalMin, u.last_reminder_sent_at);
+      const enabledFlag = !!(data.notifPrefs && data.notifPrefs.enabled);
+      const dueFlag = isGenericDue(intervalMin, u.last_reminder_sent_at);
+      const wantsGeneric = enabledFlag && dueFlag;
+      const subsCount = (await sql`select count(*)::int as c from push_subscriptions where user_id = ${u.id}`)[0].c;
+      debug.push({
+        uid: u.id, enabled: enabledFlag, intervalMin, due: dueFlag,
+        lastSentAt: u.last_reminder_sent_at, subs: subsCount, wantsGeneric,
+      });
 
       let title = 'ÖZGERIS';
       let body;
@@ -148,7 +155,7 @@ module.exports = async (req, res) => {
       }
     }
 
-    return res.status(200).json({ ok: true, sent });
+    return res.status(200).json({ ok: true, sent, debug });
   } catch (e) {
     console.error('check-alerts failed:', e);
     return res.status(500).json({ error: 'Сервер қатесі: ' + e.message });
