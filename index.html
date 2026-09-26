@@ -4414,7 +4414,7 @@ function renderStreakLeaderboard(){
     ${top.map((t,i)=>{
       const cat=CATEGORIES.find(c=>c.id===t.cat);
       const rankClass = i===0?'r1':i===1?'r2':i===2?'r3':'';
-      return `<div class="lb-row">
+      return `<div class="lb-row" style="cursor:pointer" onclick="openTracker('${t.id}')">
         <span class="lb-rank ${rankClass}" style="${!rankClass?'background:var(--panel-2);color:var(--muted)':''}">${i+1}</span>
         <span class="lb-icon" style="background:${(cat?cat.color:'var(--s7)')}22;color:${cat?cat.color:'var(--s7)'}">${ic(t.emo||(cat?cat.emo:'target'))}</span>
         <span class="lb-name">${t.name}</span>
