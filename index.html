@@ -553,7 +553,11 @@
     /* күн торы — телефонда ықшам */
     .days{grid-template-columns:repeat(7,1fr);gap:6px}
     .day{font-size:12px;border-radius:8px}
-    .vgrid{grid-template-columns:repeat(10,1fr)}
+    /* !important — .vgrid файлда КЕЙІНІРЕК тағы бір рет анықталады (repeat(15,1fr)), сол
+       рет media query-ден тыс болғандықтан, каскад тәртібі бойынша осы мобильді ережені
+       жеңіп кетіп тұрған (нақты 15 баған телефонда да шығып, күн торы шекарадан асатын
+       болған) — !important осыны мәжбүрлі түрде түзетеді */
+    .vgrid{grid-template-columns:repeat(10,minmax(0,1fr))!important}
 
     .detail-head,.cat-head{flex-wrap:wrap;gap:12px}
     .detail-stats{margin-left:0;width:100%}
@@ -567,7 +571,9 @@
     .fin-grid{grid-template-columns:1fr}
 
     .modal,.welcome-card{padding:24px}
-    .welcome-title{font-size:21px}
+    /* !important — сол себеп: .welcome-title файлда кейінірек тағы бір рет (26px) анықталады,
+       media query-ден тыс болғандықтан, сол мобильді емес мән телефонда да жеңіп тұрған */
+    .welcome-title{font-size:21px!important}
     .emo-pick,.badges{gap:6px}
     .tabs{flex-wrap:wrap}
 
@@ -635,7 +641,7 @@
   .vit-head .del:hover{color:var(--crit)}
   .vmonth{margin-bottom:12px}
   .vmonth-t{font-size:13px;color:var(--muted);font-weight:600;margin-bottom:6px}
-  .vgrid{display:grid;grid-template-columns:repeat(15,1fr);gap:4px}
+  .vgrid{display:grid;grid-template-columns:repeat(15,minmax(0,1fr));gap:4px}
   .vday{aspect-ratio:1;border-radius:6px;background:var(--panel);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--faint);cursor:pointer;transition:.15s}
   .vday:hover{border-color:var(--s3);transform:scale(1.08)}
   .vday.on{background:var(--s3);border-color:var(--s3);color:#02261a;font-weight:700}
