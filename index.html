@@ -398,6 +398,32 @@
   .settings-panel{display:none;padding:4px 4px 20px 62px}
   .settings-panel.open{display:block}
   @media(max-width:520px){.settings-panel{padding-left:4px}}
+
+  /* ---------- Қаржылық сауаттылық — "кітап тарауы" карточкалары ---------- */
+  .lit-cover{background:var(--grad);border-radius:22px;padding:26px 28px;margin-bottom:18px;
+    text-align:center;box-shadow:var(--glow);color:#fff}
+  .lit-cover-icon{width:52px;height:52px;border-radius:16px;background:rgba(255,255,255,.2);
+    display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 14px}
+  .lit-cover h3{font-family:var(--font-display);font-size:22px;margin-bottom:8px}
+  .lit-cover p{font-size:14px;opacity:.92;line-height:1.6;max-width:520px;margin:0 auto}
+  .lit-card{background:linear-gradient(165deg,var(--panel),var(--panel-2));border:1px solid var(--line);
+    border-radius:18px;margin-bottom:12px;overflow:hidden;box-shadow:var(--shadow-card);transition:.2s}
+  .lit-card:hover{border-color:#4c3fa855}
+  .lit-card.open{border-color:var(--s7)}
+  .lit-card-head{display:flex;align-items:center;gap:14px;padding:16px 18px;cursor:pointer}
+  .lit-icon{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;
+    font-size:20px;flex-shrink:0}
+  .lit-card-text{flex:1;min-width:0}
+  .lit-num{font-size:10.5px;color:var(--faint);text-transform:uppercase;letter-spacing:.06em;font-weight:800}
+  .lit-title{font-family:var(--font-display);font-weight:800;font-size:15.5px;margin-top:1px}
+  .lit-sub{color:var(--muted);font-size:13px;margin-top:2px}
+  .lit-chevron{color:var(--faint);transition:transform .2s;flex-shrink:0}
+  .lit-card.open .lit-chevron{transform:rotate(90deg);color:var(--s7)}
+  .lit-body{max-height:0;overflow:hidden;transition:max-height .35s ease}
+  .lit-card.open .lit-body{max-height:3000px}
+  .lit-body-inner{padding:2px 20px 22px;margin-left:58px;border-left:2px solid var(--line);
+    line-height:1.75;font-size:14.5px;color:var(--text)}
+  @media(max-width:520px){.lit-body-inner{margin-left:0;border-left:none;padding:2px 18px 20px}}
   .sum-badge{font-weight:800;font-size:15px;padding:4px 12px;border-radius:20px}
   .sum-badge.in{color:var(--good);background:#22c55e22}
   .sum-badge.out{color:#f0a5a5;background:#ef444422}
@@ -1135,20 +1161,6 @@
       </div>
     </div>
 
-    <!-- ---------- AI ҚАРЖЫЛЫҚ КӨМЕКШІ ---------- -->
-    <div id="fp-ai" class="fin-panel">
-      <div class="box" style="margin-bottom:20px">
-        <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M9,18 H15'/><path d='M10,21 H14'/><path d='M12,3 a6,6 0 0 0 -3.5,10.9 c0.7,0.5 1,1.3 1,2.1 H14.5 c0,-0.8 0.3,-1.6 1,-2.1 A6,6 0 0 0 12,3 Z'/></svg> Жедел талдау</h3></div>
-        <div id="aiRuleInsights"></div>
-      </div>
-      <div class="box">
-        <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M12,2 L13.5,9.5 L21,11 L13.5,12.5 L12,20 L10.5,12.5 L3,11 L10.5,9.5 Z'/><circle cx='19' cy='5' r='1' fill='currentColor' stroke='none'/></svg> Қаржы менеджері</h3></div>
-        <div class="cd" style="color:var(--muted);font-size:14px;margin-bottom:14px">Қаржы деректеріңе негізделген толық жазбаша қорытынды — кіріс/шығын салыстыруы, бюджет күйі, мақсаттар мен қарыздар бойынша кеңес. Толығымен тегін, браузерде есептеледі.</div>
-        <button class="btn" id="aiAskBtn" onclick="askAiAdvice()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M9,18 H15'/><path d='M10,21 H14'/><path d='M12,3 a6,6 0 0 0 -3.5,10.9 c0.7,0.5 1,1.3 1,2.1 H14.5 c0,-0.8 0.3,-1.6 1,-2.1 A6,6 0 0 0 12,3 Z'/></svg> Талдау сұрау</button>
-        <div id="aiAdviceBody" style="margin-top:16px"></div>
-      </div>
-    </div>
-
     <!-- ---------- LITERACY (қаржылық сауаттылық, статикалық білім беру мазмұны) ---------- -->
     <div id="fp-literacy" class="fin-panel">
       <div id="literacyBody"></div>
@@ -1570,7 +1582,7 @@ const API_BASE = '/api';
 // Push ескертулердің public VAPID кілті (құпия емес). Толтырылмаса, push батырмасы
 // "әлі орнатылмаған" деп ескертеді де, қалған функционал өзгеріссіз жұмыс істей береді.
 const VAPID_PUBLIC_KEY = 'BMzhPyWVBcNfq3lvl2lwQ6IB-dp554rtnF_d5gEmMOAxGedWg9vMMQCnCPLLAcQVUWaTNcKyEcCqzXgcrq5VQtM';
-const DATA_KEYS = ['trackers','archived','hiddenTpl','userTpl','txs','goals','gratitude','seenWelcome','piggy','debts','finGoals','recurring','aiAdvice','notifPrefs'];
+const DATA_KEYS = ['trackers','archived','hiddenTpl','userTpl','txs','goals','gratitude','seenWelcome','piggy','debts','finGoals','recurring','notifPrefs'];
 let cloudOk = true; // backend қолжетімсіз болса, локал кэшпен жұмыс жалғасады
 function authToken(){ return Store.getGlobal('app_token', null); }
 async function apiCall(path, method, body){
@@ -1601,7 +1613,7 @@ function scheduleSync(){
 async function syncToCloud(){
   if(!currentUser) return;
   const data = { trackers, archived, hiddenTpl, userTpl, txs, goals, gratitude, piggy, debts,
-    finGoals, recurring, aiAdvice, notifPrefs,
+    finGoals, recurring, notifPrefs,
     seenWelcome: Store.get('seenWelcome', false) };
   try{ await apiCall('/data', 'PUT', {data}); cloudOk = true; }
   catch(e){ cloudOk = false; }
@@ -1786,7 +1798,6 @@ let finGoals = [];   // [{id,name,target,deadline,createdAt,image,pieces:[{id,am
 // dueDay (1-31) — monthly/subscription/installment үшін. brand — тек subscription (BRANDS кілті).
 // paid — { 'YYYY-MM':true } (monthly/subscription/installment) немесе { 'YYYY-MM-DD':true } (daily).
 let recurring = [];  // [{id,name,kind,amount,dueDay,brand,paid:{}}]
-let aiAdvice = null; // {text, generatedAt} — соңғы LLM талдауының кэші
 let notifPrefs = {enabled:false, intervalMin:60}; // {enabled, intervalMin: минут, кемінде 15} — Профиль→Хабарландырулар
 // Ескі нұсқада `freq:'daily'|'3h'|'1h'` болатын — сақталған ескі деректі минутқа айналдырады
 // (жаңа қолданушыда intervalMin бірден бар болғандықтан бұл жай ғана айналып өтіледі).
@@ -1829,7 +1840,6 @@ function loadUserData(){
   debts = Store.get('debts', []);
   finGoals = Store.get('finGoals', []);
   recurring = Store.get('recurring', []);
-  aiAdvice = Store.get('aiAdvice', null);
   notifPrefs = migrateNotifPrefs(Store.get('notifPrefs', {enabled:false, intervalMin:60}));
   piggy = Store.get('piggy', null);
   if(piggy && !finGoals.length){ // ескі жалғыз "ақша жинау" мақсатын жаңа тізімге бір рет көшіру
@@ -2035,7 +2045,7 @@ function renderCatTiles(){
   ];
   const qp = document.getElementById('quickPills');
   if(qp) qp.innerHTML = pills.map(p=>`<div class="quick-pill" onclick="${p.onclick}">
-      <div class="qp-icon" style="background:${p.color}22;color:${p.color}">${ic(p.icon)}</div>
+      <div class="qp-icon" style="background:color-mix(in srgb, ${p.color} 13%, transparent);color:${p.color}">${ic(p.icon)}</div>
       <div><div class="qp-label">${p.label}</div><div class="qp-sub">${p.sub}</div></div>
     </div>`).join('');
   document.getElementById('catGrid').innerHTML = CATEGORIES.map(c=>{
@@ -2043,7 +2053,7 @@ function renderCatTiles(){
                 : c.id==='gratitude' ? ic('hands')+' Күнделік' : TEMPLATES.filter(t=>t.cat===c.id).length+' дайын әдет';
     return `<div class="cat-tile" onclick="openCategory('${c.id}')">
       <div class="glow" style="background:${c.color}"></div>
-      <div class="big-icon" style="background:${c.color}22;color:${c.color}">${ic(c.emo)}</div>
+      <div class="big-icon" style="background:color-mix(in srgb, ${c.color} 13%, transparent);color:${c.color}">${ic(c.emo)}</div>
       <h2>${catName(c)}</h2>
       <p>${c.desc}</p>
       <div class="go"><span>Ашу ${ic('arrowRight')}</span><span class="count">${count}</span></div>
@@ -2173,7 +2183,7 @@ function openCategory(id){
   activeCat = id;
   const cat = CATEGORIES.find(c=>c.id===id);
   document.getElementById('catHead').innerHTML = `
-    <div class="big-icon" style="background:${cat.color}22;color:${cat.color}">${ic(cat.emo)}</div>
+    <div class="big-icon" style="background:color-mix(in srgb, ${cat.color} 13%, transparent);color:${cat.color}">${ic(cat.emo)}</div>
     <div><h1>${catName(cat)}</h1><p>${cat.desc}</p></div>`;
   const special = (id==='goal'||id==='gratitude');
   document.getElementById('catAddOwn').style.display = special?'none':'flex';
@@ -2239,7 +2249,7 @@ function renderCards(){
       : `<button class="btn" onclick='startTracker(${JSON.stringify(t).replace(/'/g,"&#39;")})'>Бастау</button>`;
     return `<div class="card">
       ${xBtn}
-      <div class="icon" style="background:${cat.color}22;color:${cat.color}">${ic(t.emo)}</div>
+      <div class="icon" style="background:color-mix(in srgb, ${cat.color} 13%, transparent);color:${cat.color}">${ic(t.emo)}</div>
       <h3>${t.name}</h3>
       <div class="tag">${ic(cat.emo)} ${catName(cat)}${t.isUser?' · менікі':''}</div>
       <p>${t.desc}</p>
@@ -2379,7 +2389,7 @@ function renderMine(){
     }
     return `<div class="tcard" onclick="openTracker('${t.id}')">
       <div class="tcard-top">
-        <div class="icon" style="background:${cat.color}22;color:${cat.color}">${ic(t.emo)}</div>
+        <div class="icon" style="background:color-mix(in srgb, ${cat.color} 13%, transparent);color:${cat.color}">${ic(t.emo)}</div>
         <div class="ttl">
           <h3>${t.name}</h3>
           <div class="tag">${ic(cat.emo)} ${catName(cat)}</div>
@@ -2456,7 +2466,7 @@ function renderDetail(t){
   document.getElementById('detailBody').innerHTML = `
     <div class="detail-card">
       <div class="detail-head">
-        <div class="icon" style="background:${cat.color}22;color:${cat.color}">${ic(t.emo)}</div>
+        <div class="icon" style="background:color-mix(in srgb, ${cat.color} 13%, transparent);color:${cat.color}">${ic(t.emo)}</div>
         <div>
           <h1>${t.name}</h1>
           <div class="tag">${ic(cat.emo)} ${catName(cat)} · басталды ${fmtDate(t.start)}</div>
@@ -2541,7 +2551,7 @@ function renderArchive(){
     const cat=CATEGORIES.find(c=>c.id===t.cat)||CATEGORIES[6];
     return `<div class="tcard">
       <div class="tcard-top">
-        <div class="icon" style="background:${cat.color}22;color:${cat.color}">${ic(t.emo)}</div>
+        <div class="icon" style="background:color-mix(in srgb, ${cat.color} 13%, transparent);color:${cat.color}">${ic(t.emo)}</div>
         <div class="ttl"><h3>${t.name}</h3><div class="tag">${ic(cat.emo)} ${catName(cat)}${t.archivedAt?` · жойылды ${fmtDate(t.archivedAt)}`:''}</div></div>
       </div>
       <div style="display:flex;gap:10px;margin-top:14px">
@@ -2568,7 +2578,7 @@ function shareTracker(id){
 function detailHeader(t, statsHtml){
   const cat = CATEGORIES.find(c=>c.id===t.cat)||CATEGORIES[6];
   return `<div class="detail-head">
-      <div class="icon" style="background:${cat.color}22;color:${cat.color}">${ic(t.emo)}</div>
+      <div class="icon" style="background:color-mix(in srgb, ${cat.color} 13%, transparent);color:${cat.color}">${ic(t.emo)}</div>
       <div><h1>${t.name}</h1><div class="tag">${ic(cat.emo)} ${catName(cat)} · басталды ${fmtDate(t.start)}</div></div>
       ${statsHtml||''}
     </div>`;
@@ -3420,7 +3430,6 @@ const FIN_TABS = [
   ['goals','Мақсаттар','target'],
   ['cashflow','Cash Flow','trend'],
   ['debts','Қарыздар','scale'],
-  ['ai','AI көмекші','lightbulb'],
   ['literacy','Сауаттылық','book'],
 ];
 function switchFinTab(k){ finTab = k; renderFinance(); }
@@ -4068,113 +4077,6 @@ function renderFinCashflow(){
       </span></div>`).join('');
 }
 
-/* ---------- AI ҚАРЖЫЛЫҚ КӨМЕКШІ ---------- */
-function computeRuleInsights(){
-  const insights=[];
-  const {from,to}=periodRange('month');
-  const {from:pfrom,to:pto}=prevPeriodRange('month');
-  const curByCat={}, prevByCat={};
-  txs.filter(t=>t.type==='out'&&t.date>=from&&t.date<=to).forEach(t=>curByCat[t.cat]=(curByCat[t.cat]||0)+t.amount);
-  txs.filter(t=>t.type==='out'&&t.date>=pfrom&&t.date<=pto).forEach(t=>prevByCat[t.cat]=(prevByCat[t.cat]||0)+t.amount);
-  Object.keys(curByCat).forEach(cat=>{
-    const prev=prevByCat[cat];
-    if(prev && prev>0){
-      const delta=Math.round((curByCat[cat]-prev)/prev*100);
-      if(Math.abs(delta)>=15) insights.push(`Осы айда сіз «${cat}» санатына өткен айдан ${Math.abs(delta)}% ${delta>0?'көп':'аз'} ақша жұмсадыңыз.`);
-    }
-  });
-  recurringOverdueList().forEach(r=>{
-    insights.push(`«${r.name}» міндетті төлемінің мерзімі өтіп кетті (${fmt(r.amount)}).`);
-  });
-  const topCat=Object.entries(curByCat).sort((a,b)=>b[1]-a[1])[0];
-  if(topCat) insights.push(`Осы айда ең көп шығын — «${topCat[0]}» (${fmt(topCat[1])}).`);
-  const monthIn=sumTx('in',from,to), monthOut=sumTx('out',from,to);
-  if(monthIn>0){
-    const rate=Math.round((monthIn-monthOut)/monthIn*100);
-    insights.push(rate>=20 ? `Жинақ қарқының жақсы: осы ай кірістің ${rate}%-ын жинадыңыз.` :
-      rate>=0 ? `Осы ай кірістің тек ${rate}%-ын жинадыңыз — жинақ үлесін арттыруға болады.` :
-      `Осы ай шығын кірістен асып кетті — бюджетіңді қайта қара.`);
-  }
-  debts.filter(d=>!d.closedAt && d.due).forEach(d=>{
-    const diff=Math.ceil((new Date(d.due)-new Date(todayStr()))/86400000);
-    if(diff>=0 && diff<=7) insights.push(`«${d.person}» қарызының мерзіміне ${diff} күн қалды.`);
-    if(diff<0) insights.push(`«${d.person}» қарызының мерзімі өтіп кетті.`);
-  });
-  if(!insights.length) insights.push('Әзірге назар аударарлық ерекшелік жоқ — деректер жинақталған сайын талдау тереңдейді.');
-  return insights;
-}
-function renderFinAI(){
-  const insights=computeRuleInsights();
-  document.getElementById('aiRuleInsights').innerHTML = insights.map(t=>`<div class="split-item"><span class="k">${ic('lightbulb')} ${t}</span></div>`).join('');
-  renderAiAdviceBody();
-}
-function renderAiAdviceBody(){
-  const el=document.getElementById('aiAdviceBody');
-  if(!aiAdvice){ el.innerHTML=''; return; }
-  el.innerHTML = `<div style="white-space:pre-line;line-height:1.6">${aiAdvice.text.replace(/</g,'&lt;')}</div>
-    <div style="color:var(--faint);font-size:12px;margin-top:10px">${fmtDate(aiAdvice.generatedAt.slice(0,10))} жасалды</div>`;
-}
-// Толығымен тегін, браузерде есептелетін "қаржы менеджері" — сыртқы AI API-ға тәуелді емес
-function generateManagerReport(){
-  const {from,to}=periodRange('month');
-  const {from:pfrom,to:pto}=prevPeriodRange('month');
-  const monthIn=sumTx('in',from,to), monthOut=sumTx('out',from,to), net=monthIn-monthOut;
-  const pIn=sumTx('in',pfrom,pto), pOut=sumTx('out',pfrom,pto);
-  const byCat={}; txs.filter(t=>t.type==='out'&&t.date>=from&&t.date<=to).forEach(t=>byCat[t.cat]=(byCat[t.cat]||0)+t.amount);
-  const topCats=Object.entries(byCat).sort((a,b)=>b[1]-a[1]).slice(0,3);
-  const lines=[];
-
-  lines.push(`Осы ай сіз ${fmt(monthIn)} таптыңыз, ${fmt(monthOut)} жұмсадыңыз, таза пайда — ${fmt(net)}.`);
-  const incDelta = pIn? Math.round((monthIn-pIn)/pIn*100) : null;
-  const outDelta = pOut? Math.round((monthOut-pOut)/pOut*100) : null;
-  if(incDelta!=null) lines.push(`Кірісіңіз өткен айға қарағанда ${incDelta>=0?'+':''}${incDelta}% өзгерді.`);
-  if(outDelta!=null) lines.push(`Шығыныңыз өткен айға қарағанда ${outDelta>=0?'+':''}${outDelta}% өзгерді.`);
-  if(topCats.length) lines.push(`Ең көп шығын кеткен санаттар: ${topCats.map(([c,v])=>`«${c}» (${fmt(v)})`).join(', ')}.`);
-
-  const overdueRecur = recurringOverdueList();
-  if(overdueRecur.length) lines.push(`Мерзімі өткен міндетті төлемдер: ${overdueRecur.map(r=>r.name).join(', ')}. Осыларды жедел төлеп қойған дұрыс.`);
-  else if(recurring.length) lines.push('Барлық міндетті төлемдер уақытында — жақсы нәтиже.');
-
-  if(monthIn>0){
-    const rate=Math.round(net/monthIn*100);
-    lines.push(rate>=20 ? `Жинақ қарқыны жақсы: кірістің ${rate}%-ын жинадыңыз.`
-      : rate>=0 ? `Кірістің тек ${rate}%-ын жинадыңыз — үнемдеу үлесін кемінде 20%-ға жеткізуге тырысыңыз.`
-      : `Бұл ай шығын кірістен ${fmt(-net)}-ге асып кетті — келесі айда шығынды қатаң бақылау керек.`);
-  }
-
-  const buckets=monthBuckets(3);
-  const avg3=Math.round(buckets.reduce((s,b)=>s+b.net,0)/buckets.length);
-  lines.push(`Соңғы 3 айдың орташа таза ағыны — ${fmt(avg3)}. Осы қарқынмен жалғасса, келесі ай шамамен сол мөлшерде жинауыңыз мүмкін.`);
-
-  if(finGoals.length){
-    const parts=finGoals.map(g=>{
-      const saved=finGoalSaved(g), pct=Math.round(saved/g.target*100);
-      let deadlineNote='';
-      if(g.deadline){
-        const days=Math.ceil((new Date(g.deadline)-new Date(todayStr()))/86400000);
-        deadlineNote = days>=0 ? `, ${days} күн қалды` : ', мерзімі өтіп кетті';
-      }
-      return `«${g.name}» — ${pct}%${deadlineNote}`;
-    });
-    lines.push(`Қаржылық мақсаттар: ${parts.join('; ')}.`);
-  }
-
-  const activeDebts=debts.filter(d=>!d.closedAt);
-  if(activeDebts.length){
-    const iowe=activeDebts.filter(d=>d.type==='iowe').reduce((s,d)=>s+debtRemaining(d),0);
-    const owed=activeDebts.filter(d=>d.type==='owed').reduce((s,d)=>s+debtRemaining(d),0);
-    lines.push(`Қарыздар: сіз ${fmt(iowe)} қарызсыз, сізге ${fmt(owed)} қарыз бар.`);
-  }
-
-  lines.push('Кеңес: тұрақты кіріс пен бақыланатын шығын — қаржылық еркіндіктің негізі. Бюджет лимиттерін апта сайын тексеріп отырыңыз.');
-  return lines.join('\n\n');
-}
-function askAiAdvice(){
-  aiAdvice = {text: generateManagerReport(), generatedAt:new Date().toISOString()};
-  Store.set('aiAdvice', aiAdvice); scheduleSync();
-  renderAiAdviceBody();
-}
-
 /* ---------- Қарыз (мен қарызбын / маған қарыз) ---------- */
 let debtTab = 'iowe';
 function switchDebtTab(k){ debtTab = k; renderDebts(); }
@@ -4277,7 +4179,7 @@ function renderDebts(){
    «Мақсаттар» (finGoals/renderFinGoals) мүлдем бөлек, бұған тимейді.
    ============================================================ */
 const LITERACY_ARTICLES = [
-  {key:'litbudget', icon:'calculator', title:'50/30/20 бюджет ережесі',
+  {key:'litbudget', icon:'calculator', color:'var(--s1)', title:'50/30/20 бюджет ережесі',
     sub:'Табысыңды үшке қалай бөлу керек',
     body:`Бұл — бюджетті жоспарлаудың ең қарапайым және кеңінен танымал әдістерінің бірі. Салықтан кейінгі
       (қолыңа тиетін) табысыңды үш бөлікке бөл:
@@ -4290,7 +4192,7 @@ const LITERACY_ARTICLES = [
       <br><br>Бұл — қатаң заң емес, бағдар ғана. Егер қажеттіліктерің 50%-дан көп болса (мыс. үлкен қалада
       жалдау ақысы қымбат), 20% жинақ бөлігін кішірейтпей, қалаулар бөлігінен қысқарт. Маңыздысы — үш
       санатты да көзбен көріп, санамен бөлу, әйтпесе ақша «қайда кеткенін білмей» бітіп қалады.`},
-  {key:'litemergency', icon:'shield', title:'Қауіпсіздік қоры дегеніміз не?',
+  {key:'litemergency', icon:'shield', color:'var(--s3)', title:'Қауіпсіздік қоры дегеніміз не?',
     sub:'Күтпеген жағдайға дайын бол',
     body:`Қауіпсіздік қоры (emergency fund) — жұмыстан айырылу, ауру, көлік/техника бұзылуы секілді
       күтпеген жағдайларға арналған, тез қолжетімді ақша қоры. Ол несие карта немесе таныстан қарыз
@@ -4303,7 +4205,7 @@ const LITERACY_ARTICLES = [
       <br><br><b>Қалай жинау керек?</b> Бірден емес, аз-аздан. Айына табысыңның 10%-ын осы мақсатқа
       бөлсең, жылдың соңында толыққанды қор қалыптасады. ÖZGERIS-тегі «Мақсаттар» бетінен осыған
       арнайы мақсат ашып, мерзіммен бақылауға болады.`},
-  {key:'litdebt', icon:'scale', title:'Қарызды тезірек жабудың екі стратегиясы',
+  {key:'litdebt', icon:'scale', color:'var(--s8)', title:'Қарызды тезірек жабудың екі стратегиясы',
     sub:'Снежный ком vs Лавина',
     body:`Бірнеше қарызың болса (несие, кредит карта, рассрочка), қайсысын бірінші жабу керектігін
       таңдаудың екі танымал әдісі бар:
@@ -4317,7 +4219,7 @@ const LITERACY_ARTICLES = [
       уәделеріңді ұстау қиын болса және тез нәтиже көріп, ынтаңды сақтау керек болса — снежный ком
       сен үшін ыңғайлырақ болуы мүмкін. Екеуі де — жүйелі түрде артық төлем жасаудан гөрі әлдеқайда
       тиімді.`},
-  {key:'litcompound', icon:'trend', title:'Күрделі пайыздың күші',
+  {key:'litcompound', icon:'trend', color:'var(--s6)', title:'Күрделі пайыздың күші',
     sub:'Уақыт — ең үлкен одақтасың',
     body:`Күрделі пайыз (compound interest) — салымыңның не инвестицияңның пайызы өз кезегінде тағы
       пайыз әкелетін құбылыс. Қарапайым тілмен: пайызға пайыз қосылады.
@@ -4332,7 +4234,7 @@ const LITERACY_ARTICLES = [
       Бұл сол принцип қарыз бойынша да КЕРІ бағытта жұмыс істейді — жоғары пайызды қарызды кешіктірген
       сайын, ол да «күрделеніп» өседі. Сондықтан қарызды тез жабу да, жинақты ерте бастау да — бір
       логиканың екі жағы.`},
-  {key:'litpay', icon:'piggyBank', title:'«Алдымен өзіңе төле» принципі',
+  {key:'litpay', icon:'piggyBank', color:'var(--s4)', title:'«Алдымен өзіңе төле» принципі',
     sub:'Жинақты қалғаннан емес, бірінші кезектен бөл',
     body:`Көп адам осылай ойлайды: «Айдың соңында қанша қалса, соны жинаймын». Іс жүзінде — соңында
       әдетте ештеңе қалмайды.
@@ -4352,18 +4254,27 @@ const LITERACY_GLOSSARY = [
   {t:'Кредиттік тарих', d:'Банктердің сені қаншалықты «сенімді қарызгер» деп бағалайтынын көрсететін жазба — уақытында төлеген/төлемеген несиелердің тарихы.'},
   {t:'Активті/пассивті табыс', d:'Активті табыс — тікелей еңбегің үшін алатын ақша (жалақы). Пассивті табыс — салынған капитал не еңбек арқылы, тұрақты қатыспай-ақ түсетін табыс (жалдау ақысы, дивиденд, пайыз).'},
 ];
+// Бір мезгілде тек бір тарау ашық тұрсын — кітап парақтап отырған әсер үшін
+function toggleLitChapter(key){
+  const card = document.getElementById('lc-'+key);
+  if(!card) return;
+  const wasOpen = card.classList.contains('open');
+  document.querySelectorAll('#literacyBody .lit-card.open').forEach(c=>c.classList.remove('open'));
+  if(!wasOpen) card.classList.add('open');
+}
 function renderFinLiteracy(){
-  const rows = LITERACY_ARTICLES.map(a=>`
-    <div class="settings-row" id="sr-${a.key}" onclick="toggleSettingsRow('${a.key}')">
-      <div class="settings-icon" style="color:var(--s3)">${ic(a.icon)}</div>
-      <div>
-        <div class="settings-row-title">${a.title}</div>
-        <div class="settings-row-sub">${a.sub}</div>
+  const chapters = LITERACY_ARTICLES.map((a,i)=>`
+    <div class="lit-card" id="lc-${a.key}">
+      <div class="lit-card-head" onclick="toggleLitChapter('${a.key}')">
+        <div class="lit-icon" style="background:color-mix(in srgb, ${a.color} 13%, transparent);color:${a.color}">${ic(a.icon)}</div>
+        <div class="lit-card-text">
+          <div class="lit-num">${i+1}-тарау</div>
+          <div class="lit-title">${a.title}</div>
+          <div class="lit-sub">${a.sub}</div>
+        </div>
+        <div class="lit-chevron">${ic('arrowRight')}</div>
       </div>
-      <div class="settings-chevron">${ic('arrowRight')}</div>
-    </div>
-    <div class="settings-panel" id="sp-${a.key}">
-      <div style="line-height:1.7;color:var(--text);font-size:14.5px">${a.body}</div>
+      <div class="lit-body"><div class="lit-body-inner">${a.body}</div></div>
     </div>`).join('');
   const glossaryRows = LITERACY_GLOSSARY.map(g=>`
     <div style="padding:12px 0;border-bottom:1px solid var(--line)">
@@ -4371,27 +4282,31 @@ function renderFinLiteracy(){
       <div style="color:var(--muted);font-size:13.5px;line-height:1.5">${g.d}</div>
     </div>`).join('');
   document.getElementById('literacyBody').innerHTML = `
-    <div class="box" style="margin-bottom:20px">
-      <div class="box-head"><h3>${ic('book')} Қаржылық сауаттылық</h3></div>
-      <div class="cd" style="color:var(--muted);font-size:14px;margin-bottom:6px">Қысқа, тәжірибелік мақалалар — бюджет жоспарлау, қауіпсіздік қоры, қарызды жабу стратегиялары. Толығымен жергілікті мазмұн, ешбір сыртқы қызметке жүгінбейді.</div>
+    <div class="lit-cover">
+      <div class="lit-cover-icon">${ic('book')}</div>
+      <h3>Қаржылық сауаттылық</h3>
+      <p>Қысқа, тәжірибелік тараулар — бюджет жоспарлау, қауіпсіздік қоры, қарызды жабу стратегиялары.
+        Тарауды ашу үшін бас. Толығымен жергілікті мазмұн, ешбір сыртқы қызметке жүгінбейді.</p>
     </div>
-    <div class="box" style="padding:6px 20px;margin-bottom:20px">${rows}
-      <div class="settings-row no-border" id="sr-litglossary" onclick="toggleSettingsRow('litglossary')">
-        <div class="settings-icon" style="color:var(--s3)">${ic('book2')}</div>
-        <div>
-          <div class="settings-row-title">Қаржылық сөздік</div>
-          <div class="settings-row-sub">Жиі кездесетін терминдер қысқаша</div>
+    ${chapters}
+    <div class="lit-card" id="lc-litglossary">
+      <div class="lit-card-head" onclick="toggleLitChapter('litglossary')">
+        <div class="lit-icon" style="background:var(--s7)22;color:var(--s7)">${ic('book2')}</div>
+        <div class="lit-card-text">
+          <div class="lit-num">Қосымша</div>
+          <div class="lit-title">Қаржылық сөздік</div>
+          <div class="lit-sub">Жиі кездесетін терминдер қысқаша</div>
         </div>
-        <div class="settings-chevron">${ic('arrowRight')}</div>
+        <div class="lit-chevron">${ic('arrowRight')}</div>
       </div>
-      <div class="settings-panel" id="sp-litglossary">${glossaryRows}</div>
+      <div class="lit-body"><div class="lit-body-inner">${glossaryRows}</div></div>
     </div>`;
 }
 
 const FIN_RENDERERS = {
   dash: renderFinDash, income: renderFinIncomeExpense, expense: renderFinIncomeExpense,
   analytics: renderFinAnalytics, recurring: renderFinRecurring, goals: renderFinGoals,
-  cashflow: renderFinCashflow, debts: renderDebts, ai: renderFinAI,
+  cashflow: renderFinCashflow, debts: renderDebts,
   literacy: renderFinLiteracy,
 };
 
@@ -4655,14 +4570,24 @@ function wrapLabel(ctx,text,x,y,maxw){
 /* ============================================================
    ANALYTICS
    ============================================================ */
+// "Соңғы аптада N%-ға жақсарды/төмендеді" — соңғы 7 күнді БАРЛЫҚ УАҚЫТ орташасымен емес,
+// АЛДЫҢҒЫ 7 күнмен салыстырады (нағыз апта-апта трендісі). Ескі нұсқа all-time орташамен
+// салыстыратын, сол себепті трекер жаңа болса (all-time орташа әлі төмен) "47%-ға жақсарды"
+// секілді шатастыратын, іс жүзінде дұрыс емес сандар шығатын.
 function healthStats(){
   const hs=trackers.filter(t=>t.cat==='health' && isDayBased(t));
   if(!hs.length) return null;
   const index=Math.round(hs.reduce((s,t)=>s+completion(t),0)/hs.length);
-  let recS=0,recT=0;
-  hs.forEach(t=>{ const p=daysPassed(t); for(let i=Math.max(0,p-7);i<p;i++){ recT++; if(isDaySuccess(t,t.days[i])) recS++; } });
+  let recS=0,recT=0, prevS=0,prevT=0;
+  hs.forEach(t=>{
+    const p=daysPassed(t);
+    for(let i=Math.max(0,p-7);i<p;i++){ recT++; if(isDaySuccess(t,t.days[i])) recS++; }
+    for(let i=Math.max(0,p-14);i<Math.max(0,p-7);i++){ prevT++; if(isDaySuccess(t,t.days[i])) prevS++; }
+  });
   const recent = recT? Math.round(recS/recT*100): index;
-  return {index, recent, delta: recent-index, count:hs.length};
+  // алдыңғы апта деректері жоқ болса (трекер 14 күннен жас), салыстыруға негіз жоқ — өзгеріс 0
+  const prevWeek = prevT? Math.round(prevS/prevT*100): recent;
+  return {index, recent, delta: recent-prevWeek, count:hs.length};
 }
 function renderHealthPanel(){
   const el=document.getElementById('healthPanel');
@@ -4790,7 +4715,7 @@ function renderStreakLeaderboard(){
       const rankClass = i===0?'r1':i===1?'r2':i===2?'r3':'';
       return `<div class="lb-row" style="cursor:pointer" onclick="openTracker('${t.id}')">
         <span class="lb-rank ${rankClass}" style="${!rankClass?'background:var(--panel-2);color:var(--muted)':''}">${i+1}</span>
-        <span class="lb-icon" style="background:${(cat?cat.color:'var(--s7)')}22;color:${cat?cat.color:'var(--s7)'}">${ic(t.emo||(cat?cat.emo:'target'))}</span>
+        <span class="lb-icon" style="background:color-mix(in srgb, ${cat?cat.color:'var(--s7)'} 13%, transparent);color:${cat?cat.color:'var(--s7)'}">${ic(t.emo||(cat?cat.emo:'target'))}</span>
         <span class="lb-name">${t.name}</span>
         <span class="lb-streak">${ic('flame')} ${currentStreak(t)} күн</span>
       </div>`;
@@ -4812,7 +4737,7 @@ function ovListRow(t){
   const pct=completion(t);
   const color = pct>=70?'var(--good)':pct>=40?'var(--warn)':'var(--crit)';
   return `<div class="ov-row ${t.id===ovSelectedId?'active':''}" onclick="selectOvTracker('${t.id}')">
-    <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;background:${cat?cat.color:'var(--s7)'}22;color:${cat?cat.color:'var(--s7)'};flex-shrink:0">${ic(t.emo||(cat?cat.emo:'target'))}</span>
+    <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;background:color-mix(in srgb, ${cat?cat.color:'var(--s7)'} 13%, transparent);color:${cat?cat.color:'var(--s7)'};flex-shrink:0">${ic(t.emo||(cat?cat.emo:'target'))}</span>
     <div style="flex:1;min-width:0">
       <div style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.name}</div>
       <div class="progressbar" style="margin-top:5px"><span style="width:${pct}%;background:${color}"></span></div>
@@ -4836,7 +4761,7 @@ function ovDetailHtml(list){
   const cat=CATEGORIES.find(c=>c.id===t.cat);
   return `<div>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-      <span style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:12px;background:${cat?cat.color:'var(--s7)'}22;color:${cat?cat.color:'var(--s7)'};flex-shrink:0">${ic(t.emo||(cat?cat.emo:'target'))}</span>
+      <span style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:12px;background:color-mix(in srgb, ${cat?cat.color:'var(--s7)'} 13%, transparent);color:${cat?cat.color:'var(--s7)'};flex-shrink:0">${ic(t.emo||(cat?cat.emo:'target'))}</span>
       <div><h3 style="margin:0">${t.name}</h3><div style="font-size:12.5px;color:var(--muted)">${cat?catName(cat):''}</div></div>
     </div>
     <div class="kpis" style="margin-bottom:6px">
@@ -4888,9 +4813,9 @@ function renderAnalytics(){
 
   kpi.innerHTML=`
     <div class="kpi"><div class="big">${trackers.length}</div><div class="lbl">Белсенді трекер</div></div>
-    <div class="kpi"><div class="big" style="color:var(--s3)">${formed}</div><div class="lbl">Қалыптасқан әдет</div><div class="sub">≥80% & 7+ күн</div></div>
+    <div class="kpi"><div class="big" style="color:var(--s3)">${formed}</div><div class="lbl">Қалыптасқан әдет</div></div>
     <div class="kpi"><div class="big">${avgAll}%</div><div class="lbl">Орташа тұрақтылық</div></div>
-    <div class="kpi"><div class="big">${ic('flame')} ${best}</div><div class="lbl">Ең ұзын қатар</div></div>
+    <div class="kpi"><div class="big">${ic('flame')} ${best} <span style="font-size:15px;font-weight:600;color:var(--muted)">күн</span></div><div class="lbl">Ең ұзын streak (қатарынан орындалған күн)</div></div>
     <div class="kpi"><div class="big">${totalDone}</div><div class="lbl">Барлығы орындалған күн</div></div>`;
 
   drawBar(); drawLine(); drawHeatmap();
