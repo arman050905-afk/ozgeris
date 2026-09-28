@@ -429,7 +429,7 @@
   .tx .amt{font-weight:700}
   .tx .amt.in{color:var(--good)}
   .tx .amt.out{color:#f0a5a5}
-  .tx .del{cursor:pointer;color:var(--faint);font-size:18px;line-height:1;padding:11px;margin:-11px}
+  .tx .del{cursor:pointer;color:var(--faint);font-size:18px;line-height:1;padding:11px;margin:-11px 0 -11px -11px}
   .tx .del:hover{color:var(--crit)}
   .mini-date{width:100%;min-width:0;max-width:100%;box-sizing:border-box;background:transparent;border:1px solid transparent;color:var(--faint);font-size:12px;padding:2px 4px;margin:2px 0 0;border-radius:6px;font-family:inherit;color-scheme:dark}
   .mini-date:focus{outline:none;border-color:var(--s7);color:var(--text)}
@@ -592,6 +592,10 @@
     .card-x{width:40px;height:40px}
     .tcard-acts{gap:2px}
     .tx .del,.calc-row .c-del,.goal-item .del,.vit-head .del,.grat-date .del,.ins-foot .del{padding:13px;margin:-13px}
+    /* .tx .del — жолдың СОҢҒЫ элементі, теріс оң margin картаның ішкі padding-ін жеп, жол
+       шекарасынан асып кетуге әкеледі (өлшегенде 13px асып тұрғаны расталды) — оң жақтан
+       теріс margin-ды алып тастаймыз, tap-аймағы сол/жоғары/төмен жағынан үлкен болып қалады */
+    .tx .del{margin-right:0}
 
     /* #finTabs жиегінде тағы tab бар екенін білдіретін көмескіленген қиек */
     #finTabs{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);
