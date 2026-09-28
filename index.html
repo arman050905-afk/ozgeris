@@ -401,16 +401,6 @@
   .sum-badge{font-weight:800;font-size:15px;padding:4px 12px;border-radius:20px}
   .sum-badge.in{color:var(--good);background:#22c55e22}
   .sum-badge.out{color:#f0a5a5;background:#ef444422}
-  .calc-row{display:flex;gap:10px;align-items:center;margin-bottom:10px}
-  .calc-row input{margin-bottom:0}
-  .calc-row .c-name{flex:2}
-  .calc-row .c-pct{flex:1;max-width:90px}
-  .calc-row .c-amt{flex:1.3;text-align:right;font-weight:700;color:var(--text);white-space:nowrap;font-size:14px}
-  .calc-row .c-del{cursor:pointer;color:var(--faint);font-size:18px;padding:11px;margin:-11px;display:inline-flex}
-  .calc-row .c-del:hover{color:var(--crit)}
-  .calc-total{display:flex;justify-content:space-between;align-items:center;padding-top:12px;margin-top:6px;border-top:1px solid var(--line);font-weight:700}
-  .calc-total .ok{color:var(--good)}
-  .calc-total .bad{color:var(--warn)}
   .piggy-img{width:100%;aspect-ratio:16/7;object-fit:cover;border-radius:16px;margin-bottom:16px;display:block;background:var(--panel-2)}
   .piggy-name{font-size:19px;margin-bottom:10px}
   .piggy-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:6px;margin-bottom:16px;
@@ -597,11 +587,13 @@
     .icon-btn{width:44px;height:44px;font-size:18px}
     .card-x{width:40px;height:40px}
     .tcard-acts{gap:2px}
-    .tx .del,.calc-row .c-del,.goal-item .del,.vit-head .del,.grat-date .del,.ins-foot .del{padding:13px;margin:-13px}
-    /* .tx .del — жолдың СОҢҒЫ элементі, теріс оң margin картаның ішкі padding-ін жеп, жол
-       шекарасынан асып кетуге әкеледі (өлшегенде 13px асып тұрғаны расталды) — оң жақтан
-       теріс margin-ды алып тастаймыз, tap-аймағы сол/жоғары/төмен жағынан үлкен болып қалады */
-    .tx .del{margin-right:0}
+    .tx .del,.goal-item .del,.vit-head .del,.grat-date .del,.ins-foot .del{padding:13px;margin:-13px}
+    /* Осы 5 селектордың бәрі — flex жолдың СОҢҒЫ элементі (space-between/flex:1 арқылы оң
+       шетке итеріледі), теріс оң margin картаның ішкі padding-ін жеп, жол шекарасынан асып
+       кетуге әкеледі (.tx .del-де өлшегенде 13px асып тұрғаны расталған, қалғаны да дәл сол
+       үлгі) — барлығынан оң жақтан теріс margin-ды алып тастаймыз, tap-аймағы сол/жоғары/
+       төмен жағынан үлкен болып қалады */
+    .tx .del,.goal-item .del,.vit-head .del,.grat-date .del,.ins-foot .del{margin-right:0}
 
     /* #finTabs жиегінде тағы tab бар екенін білдіретін көмескіленген қиек */
     #finTabs{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);
@@ -630,14 +622,14 @@
   .ins-name{font-weight:700;font-size:14px;margin-bottom:8px;color:var(--s7)}
   .ins-text{font-size:14px;color:var(--text);margin-bottom:10px}
   .ins-foot{display:flex;justify-content:space-between;align-items:center}
-  .ins-foot .del{cursor:pointer;color:var(--faint);font-size:18px;padding:11px;margin:-11px}
+  .ins-foot .del{cursor:pointer;color:var(--faint);font-size:18px;padding:11px;margin:-11px;margin-right:0}
   .ins-foot .del:hover{color:var(--crit)}
 
   /* vitamins */
   .vit-desc{background:var(--panel-2);border-radius:14px;padding:18px;font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:18px}
   .vit{background:var(--panel-2);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:16px}
   .vit-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
-  .vit-head .del{cursor:pointer;color:var(--faint);font-size:20px;padding:10px;margin:-10px}
+  .vit-head .del{cursor:pointer;color:var(--faint);font-size:20px;padding:10px;margin:-10px;margin-right:0}
   .vit-head .del:hover{color:var(--crit)}
   .vmonth{margin-bottom:12px}
   .vmonth-t{font-size:13px;color:var(--muted);font-weight:600;margin-bottom:6px}
@@ -660,7 +652,7 @@
   .goal-item .gcheck{cursor:pointer;font-size:18px;user-select:none}
   .goal-item .gtext{flex:1}
   .goal-item.done .gtext{text-decoration:line-through;color:var(--faint)}
-  .goal-item .del{cursor:pointer;color:var(--faint);font-size:18px;padding:11px;margin:-11px}
+  .goal-item .del{cursor:pointer;color:var(--faint);font-size:18px;padding:11px;margin:-11px;margin-right:0}
   .goal-item .del:hover{color:var(--crit)}
   .plan-time{background:var(--panel-2);border:1px solid var(--line);border-radius:7px;padding:2px 9px;font-size:13px;font-weight:700;color:var(--s7);font-variant-numeric:tabular-nums}
 
@@ -746,7 +738,7 @@
   /* gratitude */
   .grat-card{background:var(--panel-2);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
   .grat-date{font-weight:700;font-size:14px;margin-bottom:10px;display:flex;justify-content:space-between}
-  .grat-date .del{cursor:pointer;color:var(--faint);padding:10px;margin:-10px}
+  .grat-date .del{cursor:pointer;color:var(--faint);padding:10px;margin:-10px;margin-right:0}
   .grat-date .del:hover{color:var(--crit)}
   .grat-q{font-size:13px;color:var(--muted);margin-top:8px}
   .grat-a{font-size:15px;color:var(--text)}
