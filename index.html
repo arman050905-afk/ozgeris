@@ -1059,6 +1059,9 @@
       </div>
       <div class="box" style="margin-bottom:20px">
         <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='3' y='5' width='18' height='16' rx='2'/><line x1='3' y1='10' x2='21' y2='10'/><line x1='8' y1='3' x2='8' y2='7'/><line x1='16' y1='3' x2='16' y2='7'/></svg> Жаңа міндетті төлем қосу</h3></div>
+        <label>Не төлейсің? (таңдау міндетті емес — тізімнен таңдасаң, атауы мен түрі өзі толады)</label>
+        <input type="text" id="recurPresetSearch" placeholder="Іздеу: оператор, банк, коммуналка, подписка..." oninput="renderPresetList()">
+        <div id="recurPresetList" style="max-height:230px;overflow-y:auto;margin-bottom:16px"></div>
         <label>Атауы</label>
         <input type="text" id="recurName" placeholder="Мыс: Жалдау ақысы, Садақа, Yandex Plus">
         <label>Түрі</label>
@@ -1078,10 +1081,6 @@
               <span style="font-weight:400;font-size:13px;color:var(--muted)">Күнін белгілемеймін</span>
             </label>
           </div>
-        </div>
-        <div id="recurBrandWrap" style="display:none">
-          <label>Қай сервис</label>
-          <select id="recurBrand"></select>
         </div>
         <button class="btn" onclick="addRecurring()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='5' x2='12' y2='19'/><line x1='5' y1='12' x2='19' y2='12'/></svg> Қосу</button>
         <div id="pushSection" style="margin-top:16px"></div>
@@ -3646,37 +3645,101 @@ const RECUR_KINDS = {
   subscription: {label:'Подписка',       icon:'refresh'},
   installment:  {label:'Рассрочка',      icon:'wallet'},
 };
-// Нақты логотип жоқ (сыртқы сурет/эмодзи саясатына сай) — әр брендке түсті монограмма-белгі.
-// Apple үшін ICONS ішінде дайын SVG бар, соны қолданамыз.
+// Нақты логотип жоқ (сыртқы сурет/эмодзи саясатына сай) — әр провайдерге түсті
+// монограмма-белгі (letter) немесе бар SVG иконка (icon), moi-finansy сайтындағы
+// "Платежи" тізіміне сай, бірақ ешбір кірістіру/сыртқы сурет жоқ.
 const BRANDS = {
-  yandex:    {label:'Yandex Plus',      color:'#ffcc00', letter:'Я'},
-  apple:     {label:'Apple',            color:'#8e8e93', letter:''},
-  netflix:   {label:'Netflix',          color:'#e50914', letter:'N'},
-  spotify:   {label:'Spotify',          color:'#1db954', letter:'S'},
-  youtube:   {label:'YouTube Premium',  color:'#ff0000', letter:'Y'},
-  kaspi:     {label:'Kaspi Gold',       color:'#ff0000', letter:'K'},
-  wolt:      {label:'Wolt',             color:'#00c2e8', letter:'W'},
-  chocofood: {label:'Chocofood',        color:'#7b2ff7', letter:'C'},
-  other:     {label:'Басқа',            color:'#8a8fa3', letter:'?'},
+  // ---- ескі деректермен үйлесімділік үшін қалдырылған ----
+  wolt:            {label:'Wolt',                color:'#00c2e8', letter:'W'},
+  chocofood:       {label:'Chocofood',            color:'#7b2ff7', letter:'C'},
+  other:           {label:'Басқа',                color:'#8a8fa3', letter:'?'},
+  // ---- Мобильді байланыс ----
+  tele2:           {label:'Tele2',                color:'#0d2c54', letter:'T2'},
+  kcell:           {label:'Kcell',                color:'#c7b500', letter:'Kc'},
+  beeline:         {label:'Beeline',               color:'#e8b800', letter:'Bl'},
+  activ:           {label:'Activ',                color:'#00a651', letter:'Ac'},
+  altel:           {label:'Altel',                color:'#e2001a', letter:'Al'},
+  // ---- Интернет және ТВ ----
+  megaline:        {label:'Megaline',             color:'#0072bc', letter:'Mg'},
+  kazakhtelecom:   {label:'Қазақтелеком',          color:'#00519e', letter:'KT'},
+  idtv:            {label:'iD TV',                 color:'#7b2ff7', letter:'iD'},
+  almatv:          {label:'АлмаТВ',                color:'#e2001a', letter:'AV'},
+  // ---- Коммуналка және жалдау ----
+  electricity:     {label:'Электр қуаты',          color:'#f0ab52', icon:'sun'},
+  water:           {label:'Су',                    color:'#3987e5', icon:'droplet'},
+  gas:             {label:'Газ',                   color:'#e66767', icon:'flame'},
+  heating:         {label:'Жылу',                  color:'#d95926', icon:'flame'},
+  trash:           {label:'Қоқыс шығару',          color:'#8a8fa3', icon:'trash'},
+  ksk:             {label:'КСК / ОСИ',             color:'#2ecfa8', icon:'home'},
+  rent:            {label:'Пәтер жалдау',          color:'#8b7cff', icon:'home'},
+  // ---- Несиелер мен рассрочка ----
+  kaspi_credit:    {label:'Kaspi Кредит',          color:'#ff0000', letter:'Kp'},
+  halyk_credit:    {label:'Halyk кредит',          color:'#00a651', letter:'Hl'},
+  freedom_credit:  {label:'Freedom Bank кредит',   color:'#001f5c', letter:'Fr'},
+  jusan_credit:    {label:'Jusan Bank кредит',     color:'#ff6a00', letter:'Js'},
+  bereke_credit:   {label:'Bereke Bank кредит',    color:'#00838f', letter:'Br'},
+  // ---- Подписка және қызметтер ----
+  netflix:         {label:'Netflix',               color:'#e50914', letter:'N'},
+  spotify:         {label:'Spotify',                color:'#1db954', letter:'S'},
+  youtube:         {label:'YouTube Premium',       color:'#ff0000', letter:'YT'},
+  icloud:          {label:'iCloud+',                color:'#8e8e93', letter:'iC'},
+  yandex:          {label:'Yandex Plus',           color:'#ffcc00', letter:'Я'},
+  apple:           {label:'Apple',                  color:'#8e8e93', icon:'apple'},
+  kaspi:           {label:'Kaspi Gold',             color:'#ff0000', letter:'K'},
+  gym:             {label:'Спортзал абонементі',    color:'#f2895f', icon:'dumbbell'},
+  // ---- Сақтандыру ----
+  osago:           {label:'ОСАГО',                  color:'#3987e5', icon:'shield'},
+  life_insurance:  {label:'Өмірді сақтандыру',      color:'#f2637e', icon:'heart'},
 };
+// Пресет тізімі топтармен — "Не төлейсің?" іздеу+таңдау виджетінде көрсетіледі.
+// Әр топтың default kind-і бар (таңдағанда recurKind автоматты орнатылады).
+const PAYMENT_PRESET_GROUPS = [
+  {group:'Мобильді байланыс',       kind:'monthly',      keys:['tele2','kcell','beeline','activ','altel']},
+  {group:'Интернет және ТВ',        kind:'monthly',      keys:['megaline','kazakhtelecom','idtv','almatv']},
+  {group:'Коммуналка және жалдау',  kind:'monthly',      keys:['electricity','water','gas','heating','trash','ksk','rent']},
+  {group:'Несиелер мен рассрочка',  kind:'installment',  keys:['kaspi_credit','halyk_credit','freedom_credit','jusan_credit','bereke_credit']},
+  {group:'Подписка және қызметтер', kind:'subscription', keys:['netflix','spotify','youtube','icloud','yandex','apple','kaspi','gym','wolt','chocofood']},
+  {group:'Сақтандыру',              kind:'monthly',      keys:['osago','life_insurance']},
+];
 function brandBadge(key,size){
   const b = BRANDS[key] || BRANDS.other;
   const s = size||22;
-  const inner = key==='apple' ? ic('apple') : (b.letter||'?');
+  const inner = b.icon ? ic(b.icon) : (b.letter||'?');
   return `<span title="${b.label}" style="display:inline-flex;align-items:center;justify-content:center;width:${s}px;height:${s}px;border-radius:50%;background:${b.color};color:#111;font-size:${Math.round(s*0.55)}px;font-weight:800;flex-shrink:0">${inner}</span>`;
+}
+// Таңдалған пресеттің кілті — addRecurring() осыны "brand" ретінде сақтайды
+// (қазір кез келген kind-те бренд болуы мүмкін, тек subscription емес)
+let selectedPresetKey = null;
+function renderPresetList(){
+  const box=document.getElementById('recurPresetList'); if(!box) return;
+  const q=(document.getElementById('recurPresetSearch').value||'').trim().toLowerCase();
+  let html='';
+  PAYMENT_PRESET_GROUPS.forEach(g=>{
+    const keys = g.keys.filter(k=>!q || BRANDS[k].label.toLowerCase().includes(q) || g.group.toLowerCase().includes(q));
+    if(!keys.length) return;
+    html += `<div style="font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.04em;margin:10px 0 6px">${g.group}</div>`;
+    html += `<div style="display:flex;flex-wrap:wrap;gap:8px">`;
+    keys.forEach(k=>{
+      const active = selectedPresetKey===k ? 'border-color:var(--s7);background:var(--panel-2)' : '';
+      html += `<button type="button" class="btn ghost sm" style="width:auto;display:inline-flex;align-items:center;gap:8px;${active}" onclick="pickPreset('${k}','${g.kind}')">${brandBadge(k,22)} ${BRANDS[k].label}</button>`;
+    });
+    html += `</div>`;
+  });
+  box.innerHTML = html || `<div style="color:var(--faint);font-size:13px;padding:8px 0">Табылмады — «Атауы» өрісіне қолмен жаз</div>`;
+}
+function pickPreset(key, kind){
+  selectedPresetKey = key;
+  document.getElementById('recurName').value = BRANDS[key].label;
+  document.getElementById('recurKind').value = kind;
+  onRecurKindChange();
+  renderPresetList();
 }
 function onRecurKindChange(){
   const kind = document.getElementById('recurKind').value;
   document.getElementById('recurDueDayWrap').style.display = kind==='daily' ? 'none' : '';
-  document.getElementById('recurBrandWrap').style.display = kind==='subscription' ? '' : 'none';
   const noDue = document.getElementById('recurNoDueDay').checked;
   document.getElementById('recurDueDay').disabled = noDue;
   document.getElementById('recurDueDay').style.opacity = noDue ? 0.4 : 1;
-}
-// recurBrand select-ін бір рет толтырамыз (renderFinRecurring әр шақыруда емес, тек қажет болса)
-function fillBrandSelect(){
-  const sel = document.getElementById('recurBrand');
-  if(sel && !sel.options.length) sel.innerHTML = Object.entries(BRANDS).map(([k,b])=>`<option value="${k}">${b.label}</option>`).join('');
 }
 function recurPeriodKey(r){ return r.kind==='daily' ? todayStr() : todayStr().slice(0,7); }
 function recurIsPaidNow(r){ return !!(r.paid && r.paid[recurPeriodKey(r)]); }
@@ -3711,7 +3774,7 @@ function addRecurring(){
   const noDueDay = document.getElementById('recurNoDueDay').checked;
   const dueDayRaw = document.getElementById('recurDueDay').value;
   const dueDay = (kind!=='daily' && !noDueDay) ? Math.min(31, Math.max(1, +dueDayRaw || 1)) : null;
-  const brand = kind==='subscription' ? document.getElementById('recurBrand').value : null;
+  const brand = selectedPresetKey; // пресеттен таңдалса ғана бар, қолмен жазылған атауда null
   if(!name){ toast('Атауын жаз'); return; }
   if(!amount || amount<=0){ toast('Соманы дұрыс енгіз'); return; }
   if(kind!=='daily' && !noDueDay && !dueDayRaw){ toast('Айдың нешесі екенін жаз, немесе «Күнін белгілемеймін» қой'); return; }
@@ -3719,6 +3782,7 @@ function addRecurring(){
   saveRecurring();
   document.getElementById('recurName').value=''; document.getElementById('recurAmount').value=''; document.getElementById('recurDueDay').value='';
   document.getElementById('recurNoDueDay').checked=false; onRecurKindChange();
+  document.getElementById('recurPresetSearch').value=''; selectedPresetKey=null; renderPresetList();
   renderFinRecurring();
   toast('Қосылды');
 }
@@ -3735,7 +3799,7 @@ function delRecurring(id){
 }
 function recurringOverdueList(){ return recurring.filter(recurIsOverdue); }
 function recurRowIcon(r){
-  if(r.kind==='subscription') return brandBadge(r.brand,36);
+  if(r.brand) return brandBadge(r.brand,36);
   const kindInfo = RECUR_KINDS[r.kind] || {icon:'calendar'};
   return `<span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;background:var(--panel-2);color:var(--muted);flex-shrink:0">${ic(kindInfo.icon)}</span>`;
 }
@@ -3760,7 +3824,7 @@ function recurRow(r){
   </div>`;
 }
 function renderFinRecurring(){
-  fillBrandSelect();
+  renderPresetList();
   onRecurKindChange();
   const monthlySum = recurring.filter(r=>r.kind!=='daily').reduce((s,r)=>s+r.amount,0);
   document.getElementById('recurMonthlySum').textContent = fmt(monthlySum);
