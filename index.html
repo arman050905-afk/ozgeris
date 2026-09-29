@@ -1210,11 +1210,11 @@
 <!-- ============ ADMIN ============ -->
 <section id="admin" class="view">
   <div class="container">
-    <h1 class="page-title"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M12,3 L19,6 L19,12 L12,20 L5,12 L5,6 Z'/></svg> Админ панель</h1>
-    <p class="page-sub">Пайдаланушыларға доступ беру/алу, парольді ысырып тастау.</p>
+    <h1 class="page-title"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M12,3 L19,6 L19,12 L12,20 L5,12 L5,6 Z'/></svg> <span data-i18n="admin.title">Админ панель</span></h1>
+    <p class="page-sub" data-i18n="admin.sub">Пайдаланушыларға доступ беру/алу, парольді ысырып тастау.</p>
     <div class="box" style="overflow-x:auto">
       <table class="admin-table" id="adminTable">
-        <thead><tr><th>Аты</th><th>Email</th><th>Статус</th><th>Тіркелген</th><th></th></tr></thead>
+        <thead><tr><th data-i18n="admin.thName">Аты</th><th>Email</th><th data-i18n="admin.thStatus">Статус</th><th data-i18n="admin.thRegistered">Тіркелген</th><th></th></tr></thead>
         <tbody id="adminBody"></tbody>
       </table>
     </div>
@@ -1224,8 +1224,8 @@
 <!-- ============ PROFILE / БАПТАУЛАР ============ -->
 <section id="profile" class="view">
   <div class="container">
-    <h1 class="page-title"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='3.2'/><polygon points='12,3 19,7.5 19,16.5 12,21 5,16.5 5,7.5'/></svg> Профиль</h1>
-    <p class="page-sub">Жеке деректеріңді, хабарландыруларды және қауіпсіздік баптауларын осында өзің өзгертесің.</p>
+    <h1 class="page-title"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='3.2'/><polygon points='12,3 19,7.5 19,16.5 12,21 5,16.5 5,7.5'/></svg> <span data-i18n="nav.profile">Профиль</span></h1>
+    <p class="page-sub" data-i18n="profile.sub">Жеке деректеріңді, хабарландыруларды және қауіпсіздік баптауларын осында өзің өзгертесің.</p>
 
     <div class="box" style="padding:6px 20px">
       <div class="settings-row" id="sr-personal" onclick="toggleSettingsRow('personal')">
@@ -1237,11 +1237,11 @@
         <div class="settings-chevron"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M5,12 H19 M12,5 L19,12 L12,19'/></svg></div>
       </div>
       <div class="settings-panel" id="sp-personal">
-        <label>Аты</label>
-        <input id="profName" placeholder="Атыңды енгіз">
+        <label data-i18n="profile.nameLabel">Аты</label>
+        <input id="profName" data-i18n-ph="profile.namePh" placeholder="Атыңды енгіз">
         <label>Email</label>
         <input id="profEmail" disabled>
-        <div style="font-size:12.5px;color:var(--faint);margin:-8px 0 14px">Email — кіру логині, оны осы жерден өзгерту мүмкін емес.</div>
+        <div style="font-size:12.5px;color:var(--faint);margin:-8px 0 14px" data-i18n="profile.emailNote">Email — кіру логині, оны осы жерден өзгерту мүмкін емес.</div>
         <button class="btn sm" style="width:auto" onclick="saveProfileName()"><span data-i18n="common.save">Сақтау</span></button>
       </div>
 
@@ -1257,11 +1257,11 @@
         <div id="profilePushStatus" style="margin-bottom:16px"></div>
         <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:14px">
           <input type="checkbox" id="notifEnabled" onchange="onNotifPrefsChange()" style="width:auto;margin:0">
-          <span style="font-weight:600;color:var(--text);font-size:14px">Жалпы еске салғыштарды қосу («Уақыт болды, өміріңді жүйеле» секілді)</span>
+          <span style="font-weight:600;color:var(--text);font-size:14px" data-i18n="profile.notif.enable">Жалпы еске салғыштарды қосу («Уақыт болды, өміріңді жүйеле» секілді)</span>
         </label>
-        <label>Еске салу аралығы (минут)</label>
+        <label data-i18n="profile.notif.intervalLabel">Еске салу аралығы (минут)</label>
         <input type="number" id="notifInterval" min="15" step="5" value="60" onchange="onNotifPrefsChange()">
-        <div style="font-size:12.5px;color:var(--faint);margin-top:-6px">
+        <div style="font-size:12.5px;color:var(--faint);margin-top:-6px" data-i18n="profile.notif.desc">
           Өзің қандай аралықпен хабарлама келетінін таңдайсың — кемінде 15 минут (мыс. 15, 30, 60,
           180, 1440 = күніне 1 рет). Серверден нағыз push ретінде келеді — телефон құлыпталса да,
           қосымша толық жабық тұрса да жұмыс істейді, бет ашық тұруын қажет етпейді. Дәлдігі
@@ -1279,11 +1279,11 @@
         <div class="settings-chevron"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M5,12 H19 M12,5 L19,12 L12,19'/></svg></div>
       </div>
       <div class="settings-panel" id="sp-security">
-        <label>Ағымдағы пароль</label>
+        <label data-i18n="profile.curPassLabel">Ағымдағы пароль</label>
         <input type="password" id="curPass">
-        <label>Жаңа пароль</label>
+        <label data-i18n="profile.newPassLabel">Жаңа пароль</label>
         <input type="password" id="newPass1">
-        <label>Жаңа парольді қайтала</label>
+        <label data-i18n="profile.newPass2Label">Жаңа парольді қайтала</label>
         <input type="password" id="newPass2">
         <div class="auth-err" id="passErr" style="margin:-8px 0 10px"></div>
         <button class="btn sm" style="width:auto" onclick="changePassword()"><span data-i18n="common.save">Сақтау</span></button>
@@ -1552,6 +1552,19 @@ const I18N = {
     'sleep.title':'Ұйқы —', 'sleep.bedLabel':'Нешеде жаттың?', 'sleep.wakeLabel':'Нешеде тұрдың?',
     'sleep.moodLabel':'Көңіл-күйің қандай болды?',
     'rt.title':'Бүгінгі мини-тапсырма', 'rt.another':'Басқа', 'rt.good':'Жақсы!',
+    'profile.sub':'Жеке деректеріңді, хабарландыруларды және қауіпсіздік баптауларын осында өзің өзгертесің.',
+    'profile.nameLabel':'Аты', 'profile.namePh':'Атыңды енгіз',
+    'profile.emailNote':'Email — кіру логині, оны осы жерден өзгерту мүмкін емес.',
+    'profile.notif.enable':'Жалпы еске салғыштарды қосу («Уақыт болды, өміріңді жүйеле» секілді)',
+    'profile.notif.intervalLabel':'Еске салу аралығы (минут)',
+    'profile.notif.desc':`Өзің қандай аралықпен хабарлама келетінін таңдайсың — кемінде 15 минут (мыс. 15, 30, 60,
+          180, 1440 = күніне 1 рет). Серверден нағыз push ретінде келеді — телефон құлыпталса да,
+          қосымша толық жабық тұрса да жұмыс істейді, бет ашық тұруын қажет етпейді. Дәлдігі
+          ~15 минутқа дейін ауытқуы мүмкін (сервер тексерісі 15 минут сайын өтеді). Тексеру үшін
+          жоғарыдағы «Тест жіберу» батырмасын бас.`,
+    'profile.curPassLabel':'Ағымдағы пароль', 'profile.newPassLabel':'Жаңа пароль', 'profile.newPass2Label':'Жаңа парольді қайтала',
+    'admin.title':'Админ панель', 'admin.sub':'Пайдаланушыларға доступ беру/алу, парольді ысырып тастау.',
+    'admin.thName':'Аты', 'admin.thStatus':'Статус', 'admin.thRegistered':'Тіркелген',
   },
   ru: {
     'nav.create':'Создать трекер', 'nav.mine':'Мои трекеры', 'nav.task':'Задание',
@@ -1641,6 +1654,19 @@ const I18N = {
     'sleep.title':'Сон —', 'sleep.bedLabel':'Во сколько лёг?', 'sleep.wakeLabel':'Во сколько встал?',
     'sleep.moodLabel':'Каким было настроение?',
     'rt.title':'Мини-задание на сегодня', 'rt.another':'Другое', 'rt.good':'Хорошо!',
+    'profile.sub':'Здесь ты меняешь личные данные, уведомления и настройки безопасности.',
+    'profile.nameLabel':'Имя', 'profile.namePh':'Введи своё имя',
+    'profile.emailNote':'Email — это логин для входа, его нельзя изменить отсюда.',
+    'profile.notif.enable':'Включить общие напоминания (например «Пора привести жизнь в порядок»)',
+    'profile.notif.intervalLabel':'Интервал напоминаний (минут)',
+    'profile.notif.desc':`Ты сам выбираешь, с каким интервалом приходят уведомления — минимум 15 минут (напр. 15, 30, 60,
+          180, 1440 = 1 раз в день). Приходит как настоящий push с сервера — работает даже если телефон
+          заблокирован или приложение полностью закрыто, страница не должна быть открыта. Точность может
+          отклоняться до ~15 минут (проверка на сервере происходит каждые 15 минут). Чтобы проверить,
+          нажми кнопку «Тестовая отправка» выше.`,
+    'profile.curPassLabel':'Текущий пароль', 'profile.newPassLabel':'Новый пароль', 'profile.newPass2Label':'Повтори новый пароль',
+    'admin.title':'Панель администратора', 'admin.sub':'Выдача/отмена доступа пользователям, сброс пароля.',
+    'admin.thName':'Имя', 'admin.thStatus':'Статус', 'admin.thRegistered':'Зарегистрирован',
 
     'tpl.sugar.name':'30 дней без сахара', 'tpl.sugar.desc':'Меньше сладкого — больше энергии и контроль питания.',
     'tpl.water.name':'Питьё воды (8 стаканов)', 'tpl.water.desc':'Держи дневную норму воды — нажми на ячейку +1 стакан.',
