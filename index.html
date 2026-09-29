@@ -1077,36 +1077,36 @@
     <div id="fp-recurring" class="fin-panel">
       <div class="box" style="margin-bottom:20px">
         <div style="display:flex;gap:14px;flex-wrap:wrap">
-          <div class="stat" style="flex:1"><div class="num" id="recurMonthlySum">0 ₸</div><div class="lbl">Айлық жалпы жүктеме</div></div>
-          <div class="stat" style="flex:1"><div class="num" style="color:var(--crit)" id="recurOverdueCount">0</div><div class="lbl">Мерзімі өткен</div></div>
+          <div class="stat" style="flex:1"><div class="num" id="recurMonthlySum">0 ₸</div><div class="lbl" data-i18n="recur.stat1">Айлық жалпы жүктеме</div></div>
+          <div class="stat" style="flex:1"><div class="num" style="color:var(--crit)" id="recurOverdueCount">0</div><div class="lbl" data-i18n="recur.stat2">Мерзімі өткен</div></div>
         </div>
       </div>
       <div class="box" style="margin-bottom:20px">
-        <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='3' y='5' width='18' height='16' rx='2'/><line x1='3' y1='10' x2='21' y2='10'/><line x1='8' y1='3' x2='8' y2='7'/><line x1='16' y1='3' x2='16' y2='7'/></svg> Жаңа міндетті төлем қосу</h3></div>
-        <label>Не төлейсің? (таңдау міндетті емес — тізімнен таңдасаң, атауы мен түрі өзі толады)</label>
-        <input type="text" id="recurPresetSearch" placeholder="Іздеу: оператор, банк, коммуналка, подписка..." oninput="renderPresetList()">
+        <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='3' y='5' width='18' height='16' rx='2'/><line x1='3' y1='10' x2='21' y2='10'/><line x1='8' y1='3' x2='8' y2='7'/><line x1='16' y1='3' x2='16' y2='7'/></svg> <span data-i18n="recur.addTitle">Жаңа міндетті төлем қосу</span></h3></div>
+        <label data-i18n="recur.whatLabel">Не төлейсің? (таңдау міндетті емес — тізімнен таңдасаң, атауы мен түрі өзі толады)</label>
+        <input type="text" id="recurPresetSearch" data-i18n-ph="recur.searchPh" placeholder="Іздеу: оператор, банк, коммуналка, подписка..." oninput="renderPresetList()">
         <div id="recurPresetList" style="max-height:230px;overflow-y:auto;margin-bottom:16px"></div>
-        <label>Атауы</label>
-        <input type="text" id="recurName" placeholder="Мыс: Жалдау ақысы, Садақа, Yandex Plus">
-        <label>Түрі</label>
+        <label data-i18n="recur.nameLabel">Атауы</label>
+        <input type="text" id="recurName" data-i18n-ph="recur.namePh" placeholder="Мыс: Жалдау ақысы, Садақа, Yandex Plus">
+        <label data-i18n="recur.kindLabel">Түрі</label>
         <select id="recurKind" onchange="onRecurKindChange()">
-          <option value="monthly">Айлық төлем</option>
-          <option value="daily">Күндік міндетті (мыс. садақа)</option>
-          <option value="subscription">Подписка (Yandex, Apple, т.б.)</option>
-          <option value="installment">Рассрочка</option>
+          <option value="monthly" data-i18n="recur.kind.monthly">Айлық төлем</option>
+          <option value="daily" data-i18n="recur.kind.daily">Күндік міндетті (мыс. садақа)</option>
+          <option value="subscription" data-i18n="recur.kind.subscription">Подписка (Yandex, Apple, т.б.)</option>
+          <option value="installment" data-i18n="recur.kind.installment">Рассрочка</option>
         </select>
         <div class="row">
-          <div><label>Сомасы (₸)</label><input type="number" id="recurAmount" placeholder="0"></div>
+          <div><label data-i18n="recur.amountLabel">Сомасы (₸)</label><input type="number" id="recurAmount" placeholder="0"></div>
           <div id="recurDueDayWrap">
-            <label>Айдың нешесінде</label>
-            <input type="number" id="recurDueDay" min="1" max="31" placeholder="1-31">
+            <label data-i18n="recur.dueDayLabel">Айдың нешесінде</label>
+            <input type="number" id="recurDueDay" min="1" max="31" data-i18n-ph="recur.dueDayPh" placeholder="1-31">
             <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:8px">
               <input type="checkbox" id="recurNoDueDay" onchange="onRecurKindChange()" style="width:auto;margin:0">
-              <span style="font-weight:400;font-size:13px;color:var(--muted)">Күнін белгілемеймін</span>
+              <span style="font-weight:400;font-size:13px;color:var(--muted)" data-i18n="recur.noDueDay">Күнін белгілемеймін</span>
             </label>
           </div>
         </div>
-        <button class="btn" onclick="addRecurring()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='5' x2='12' y2='19'/><line x1='5' y1='12' x2='19' y2='12'/></svg> Қосу</button>
+        <button class="btn" onclick="addRecurring()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='5' x2='12' y2='19'/><line x1='5' y1='12' x2='19' y2='12'/></svg> <span data-i18n="common.add">Қосу</span></button>
         <div id="pushSection" style="margin-top:16px"></div>
       </div>
       <div class="box"><div class="tx-list" id="recurList" style="max-height:none"></div></div>
@@ -1115,16 +1115,16 @@
     <!-- ---------- FINANCIAL GOALS ---------- -->
     <div id="fp-goals" class="fin-panel">
       <div class="box" style="margin-bottom:20px">
-        <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='5' x2='12' y2='19'/><line x1='5' y1='12' x2='19' y2='12'/></svg> Жаңа қаржылық мақсат</h3></div>
-        <label>Мақсат атауы</label>
-        <input type="text" id="fgName" placeholder="Мыс: iPhone 17, Дубайға саяхат">
+        <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='5' x2='12' y2='19'/><line x1='5' y1='12' x2='19' y2='12'/></svg> <span data-i18n="fg.addTitle">Жаңа қаржылық мақсат</span></h3></div>
+        <label data-i18n="fg.nameLabel">Мақсат атауы</label>
+        <input type="text" id="fgName" data-i18n-ph="fg.namePh" placeholder="Мыс: iPhone 17, Дубайға саяхат">
         <div class="row">
-          <div><label>Қажетті сома (₸)</label><input type="number" id="fgTarget" placeholder="100000"></div>
-          <div><label>Мерзімі</label><input type="date" id="fgDeadline"></div>
+          <div><label data-i18n="fg.targetLabel">Қажетті сома (₸)</label><input type="number" id="fgTarget" placeholder="100000"></div>
+          <div><label data-i18n="fg.deadlineLabel">Мерзімі</label><input type="date" id="fgDeadline"></div>
         </div>
-        <label>Сипаттама (қаласаң)</label>
-        <input type="text" id="fgDesc" placeholder="Қосымша ескертпе">
-        <button class="btn" onclick="addFinGoal()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><ellipse cx='10.5' cy='13' rx='9' ry='6.5'/><circle cx='19.3' cy='13.8' r='2.2'/><circle cx='20.1' cy='13' r='0.4' fill='currentColor' stroke='none'/><path d='M8,7.2 L9.3,4.5 L10.8,7'/><line x1='6' y1='19.3' x2='6' y2='21.5'/><line x1='13.5' y1='19.3' x2='13.5' y2='21.5'/><line x1='9' y1='7.3' x2='12.5' y2='7.3'/><path d='M1.3,12.5 C1,11 2,10.3 2.7,11.2 C3.3,12 2.6,13.3 1.3,12.5 Z'/></svg> Мақсат бастау</button>
+        <label data-i18n="fg.descLabel">Сипаттама (қаласаң)</label>
+        <input type="text" id="fgDesc" data-i18n-ph="fg.descPh" placeholder="Қосымша ескертпе">
+        <button class="btn" onclick="addFinGoal()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><ellipse cx='10.5' cy='13' rx='9' ry='6.5'/><circle cx='19.3' cy='13.8' r='2.2'/><circle cx='20.1' cy='13' r='0.4' fill='currentColor' stroke='none'/><path d='M8,7.2 L9.3,4.5 L10.8,7'/><line x1='6' y1='19.3' x2='6' y2='21.5'/><line x1='13.5' y1='19.3' x2='13.5' y2='21.5'/><line x1='9' y1='7.3' x2='12.5' y2='7.3'/><path d='M1.3,12.5 C1,11 2,10.3 2.7,11.2 C3.3,12 2.6,13.3 1.3,12.5 Z'/></svg> <span data-i18n="fg.startBtn">Мақсат бастау</span></button>
       </div>
       <div class="grid" id="finGoalsList"></div>
     </div>
@@ -1491,6 +1491,28 @@ const I18N = {
     'profile.notif.title':'Хабарландырулар', 'profile.notif.sub':'Дыбыс, жиілік',
     'profile.security.title':'Қауіпсіздік', 'profile.security.sub':'Құпия сөз',
     'profile.lang.title':'Тіл',
+    'catdesc.health':'Ұйқы, су, витаминдер — дене саулығының әдеттері.',
+    'catdesc.edu':'Ағылшын, кітап, подкаст — дағды дамыту.',
+    'catdesc.sport':'Жаттығу, қозғалыс, дене шынықтыру.',
+    'catdesc.finance':'Кіріс, шығын, бюджет, инвестиция, мақсат — бәрі бір жерде.',
+    'catdesc.goal':'Үлкен/кіші мақсаттар және айлық/апталық/күндік жоспарлар.',
+    'catdesc.gratitude':'Күнделікті шүкіршілік сұрақтары — ішкі тыныштық.',
+    'catdesc.other':'Өз әдетіңді қолмен жаз — күн сайын орындалды/орындалмады деп белгіле.',
+
+    'common.add':'Қосу', 'common.save':'Сақтау', 'common.cancel':'Бас тарту', 'common.close':'Жабу',
+    'recur.stat1':'Айлық жалпы жүктеме', 'recur.stat2':'Мерзімі өткен',
+    'recur.addTitle':'Жаңа міндетті төлем қосу',
+    'recur.whatLabel':'Не төлейсің? (таңдау міндетті емес — тізімнен таңдасаң, атауы мен түрі өзі толады)',
+    'recur.searchPh':'Іздеу: оператор, банк, коммуналка, подписка...',
+    'recur.nameLabel':'Атауы', 'recur.namePh':'Мыс: Жалдау ақысы, Садақа, Yandex Plus',
+    'recur.kindLabel':'Түрі',
+    'recur.kind.monthly':'Айлық төлем', 'recur.kind.daily':'Күндік міндетті (мыс. садақа)',
+    'recur.kind.subscription':'Подписка (Yandex, Apple, т.б.)', 'recur.kind.installment':'Рассрочка',
+    'recur.amountLabel':'Сомасы (₸)', 'recur.dueDayLabel':'Айдың нешесінде', 'recur.dueDayPh':'1-31',
+    'recur.noDueDay':'Күнін белгілемеймін', 'recur.empty':'Әзірге міндетті төлем жоқ',
+    'fg.addTitle':'Жаңа қаржылық мақсат', 'fg.nameLabel':'Мақсат атауы', 'fg.namePh':'Мыс: iPhone 17, Дубайға саяхат',
+    'fg.targetLabel':'Қажетті сома (₸)', 'fg.deadlineLabel':'Мерзімі',
+    'fg.descLabel':'Сипаттама (қаласаң)', 'fg.descPh':'Қосымша ескертпе', 'fg.startBtn':'Мақсат бастау',
   },
   ru: {
     'nav.create':'Создать трекер', 'nav.mine':'Мои трекеры', 'nav.task':'Задание',
@@ -1519,15 +1541,53 @@ const I18N = {
     'profile.notif.title':'Уведомления', 'profile.notif.sub':'Звук, частота',
     'profile.security.title':'Безопасность', 'profile.security.sub':'Пароль',
     'profile.lang.title':'Язык',
+    'catdesc.health':'Сон, вода, витамины — привычки для здоровья тела.',
+    'catdesc.edu':'Английский, книги, подкасты — развитие навыков.',
+    'catdesc.sport':'Тренировки, движение, физическая форма.',
+    'catdesc.finance':'Доход, расход, бюджет, инвестиции, цель — всё в одном месте.',
+    'catdesc.goal':'Большие/малые цели и месячные/недельные/дневные планы.',
+    'catdesc.gratitude':'Ежедневные вопросы благодарности — внутренний покой.',
+    'catdesc.other':'Впиши свою привычку вручную — каждый день отмечай выполнено/нет.',
+
+    'common.add':'Добавить', 'common.save':'Сохранить', 'common.cancel':'Отмена', 'common.close':'Закрыть',
+    'recur.stat1':'Общая месячная нагрузка', 'recur.stat2':'Просрочено',
+    'recur.addTitle':'Добавить обязательный платёж',
+    'recur.whatLabel':'Что оплачиваешь? (выбор не обязателен — если выберешь из списка, название и тип заполнятся сами)',
+    'recur.searchPh':'Поиск: оператор, банк, коммуналка, подписка...',
+    'recur.nameLabel':'Название', 'recur.namePh':'Напр.: Аренда, Садака, Yandex Plus',
+    'recur.kindLabel':'Тип',
+    'recur.kind.monthly':'Ежемесячный платёж', 'recur.kind.daily':'Ежедневная обязанность (напр. садака)',
+    'recur.kind.subscription':'Подписка (Yandex, Apple и т.д.)', 'recur.kind.installment':'Рассрочка',
+    'recur.amountLabel':'Сумма (₸)', 'recur.dueDayLabel':'Число месяца', 'recur.dueDayPh':'1-31',
+    'recur.noDueDay':'Не указывать дату', 'recur.empty':'Пока нет обязательных платежей',
+    'fg.addTitle':'Новая финансовая цель', 'fg.nameLabel':'Название цели', 'fg.namePh':'Напр.: iPhone 17, Поездка в Дубай',
+    'fg.targetLabel':'Нужная сумма (₸)', 'fg.deadlineLabel':'Срок',
+    'fg.descLabel':'Описание (по желанию)', 'fg.descPh':'Дополнительная заметка', 'fg.startBtn':'Начать цель',
+
+    'tpl.sugar.name':'30 дней без сахара', 'tpl.sugar.desc':'Меньше сладкого — больше энергии и контроль питания.',
+    'tpl.water.name':'Питьё воды (8 стаканов)', 'tpl.water.desc':'Держи дневную норму воды — нажми на ячейку +1 стакан.',
+    'tpl.nosmoke.name':'Не курить', 'tpl.nosmoke.desc':'30 дней без сигарет — шаг к свободному дыханию.',
+    'tpl.sleep.name':'Трекер сна', 'tpl.sleep.desc':'Записывай время сна/подъёма и настроение — получишь анализ.',
+    'tpl.weight.name':'Контроль веса', 'tpl.weight.desc':'Записывай вес каждый день и следи за динамикой.',
+    'tpl.vitamins.name':'Приём витаминов', 'tpl.vitamins.desc':'До 7 витаминов: название, срок, ежедневная отметка (3 месяца).',
+    'tpl.english.name':'Английский язык', 'tpl.english.desc':'Записывай новые слова — все они собираются в разделе «мои изученные».',
+    'tpl.podcast.name':'Слушать подкасты', 'tpl.podcast.desc':'Записывай название подкаста и главный инсайт.',
+    'tpl.reading.name':'Чтение 20 мин', 'tpl.reading.desc':'Ежедневное чтение без давления — только стабильность.',
+    'tpl.coding.name':'Писать код', 'tpl.coding.desc':'Практика каждый день, пусть даже понемногу — навык растёт.',
+    'tpl.pushups.name':'Отжимания', 'tpl.pushups.desc':'Отмечай день, записывай сколько раз сделал.',
+    'tpl.steps.name':'10 000 шагов', 'tpl.steps.desc':'Отмечай день, записывай количество шагов.',
+    'tpl.gym.name':'Тренажёрный зал', 'tpl.gym.desc':'Отмечай дни, когда ходил, в календаре месяца.',
   },
 };
 function t(key){ return (I18N[LANG] && I18N[LANG][key]) || (I18N.kk[key]) || key; }
 function catName(c){ return c ? t('cat.'+c.id) : ''; }
+function catDesc(c){ return c ? t('catdesc.'+c.id) : ''; }
 // Статикалық HTML-дағы data-i18n/data-i18n-title элементтерін ағымдағы тілге сай жаңарту
 function applyI18n(){
   document.documentElement.setAttribute('lang', LANG);
   document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent = t(el.getAttribute('data-i18n')); });
   document.querySelectorAll('[data-i18n-title]').forEach(el=>{ el.title = t(el.getAttribute('data-i18n-title')); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{ el.placeholder = t(el.getAttribute('data-i18n-ph')); });
   const langSel = document.getElementById('langSelect');
   if(langSel) langSel.value = LANG;
   const langRowSub = document.getElementById('langRowSub');
@@ -1630,7 +1690,7 @@ function authSwitch(mode){
   document.getElementById('tabRegister').classList.toggle('active', mode==='register');
   document.querySelectorAll('.auth-err').forEach(e=>e.textContent='');
 }
-function authErr(msg){ document.querySelectorAll('.auth-err').forEach(e=>e.textContent=msg); }
+function authErr(msg){ const m=tr(msg); document.querySelectorAll('.auth-err').forEach(e=>e.textContent=m); }
 async function doRegister(){
   const name=document.getElementById('regName').value.trim();
   const email=document.getElementById('regEmail').value.trim().toLowerCase();
@@ -1758,20 +1818,22 @@ const CATEGORIES = [
 
 // Әдет шаблондары (карточкалар)
 const TEMPLATES = [
-  {cat:'health', emo:'cookie',      name:'30 күн қантсыз',   desc:'Аз тәтті — көп энергия және тамақтануды бақылау.'},
-  {cat:'health', emo:'droplet',     name:'Су ішу (8 стакан)', desc:'Күнде су нормаңды ұста — ұяшықты бассаң +1 стакан.', type:'count', goal:8, unit:'стакан'},
-  {cat:'health', emo:'noSmoking',   name:'Темекі шекпеу',    desc:'30 күн темекісіз — еркін тыныс алуға қадам.'},
-  {cat:'health', emo:'bed',         name:'Ұйқы трекері',     desc:'Жату/тұру уақыты мен көңіл-күйіңді жаз — талдау шығады.', kind:'sleep'},
-  {cat:'health', emo:'scale',       name:'Салмақ бақылау',   desc:'Күнделікті салмағыңды жазып, динамиканы бақыла.', type:'value', unit:'кг'},
-  {cat:'health', emo:'pill',        name:'Витамин қабылдау', desc:'7 витаминге дейін: атауы, мерзімі, күнделікті белгі (3 ай).', kind:'vitamins'},
-  {cat:'edu',    emo:'languages',   name:'Ағылшын тілі',     desc:'Жаңа сөздерді жаз — бәрі «менің үйренгендерім» бөліміне жиналады.', kind:'english'},
-  {cat:'edu',    emo:'headphones',  name:'Подкаст тыңдау',   desc:'Тыңдаған подкастың аты мен алған инсайтыңды жаз.', kind:'podcast'},
-  {cat:'edu',    emo:'book2',       name:'Кітап оқу 20 мин', desc:'Қысымсыз күнделікті оқу — тек тұрақтылық.'},
-  {cat:'edu',    emo:'laptop',      name:'Код жазу',         desc:'Күнде аз да болса практика — дағды өседі.'},
-  {cat:'sport',  emo:'dumbbell',    name:'Отжимания',        desc:'Күнді белгіле, қанша рет жасағаныңды жаз.', type:'value', unit:'рет'},
-  {cat:'sport',  emo:'footprints',  name:'10 000 қадам',     desc:'Күнді белгіле, қадам санын жаз.', type:'count', goal:10000, unit:'қадам'},
-  {cat:'sport',  emo:'dumbbell',    name:'Тренажер залы',    desc:'Ай күнтізбесінен барған күндеріңді белгіле.', kind:'gym'},
+  {key:'sugar',    cat:'health', emo:'cookie',      name:'30 күн қантсыз',   desc:'Аз тәтті — көп энергия және тамақтануды бақылау.'},
+  {key:'water',    cat:'health', emo:'droplet',     name:'Су ішу (8 стакан)', desc:'Күнде су нормаңды ұста — ұяшықты бассаң +1 стакан.', type:'count', goal:8, unit:'стакан'},
+  {key:'nosmoke',  cat:'health', emo:'noSmoking',   name:'Темекі шекпеу',    desc:'30 күн темекісіз — еркін тыныс алуға қадам.'},
+  {key:'sleep',    cat:'health', emo:'bed',         name:'Ұйқы трекері',     desc:'Жату/тұру уақыты мен көңіл-күйіңді жаз — талдау шығады.', kind:'sleep'},
+  {key:'weight',   cat:'health', emo:'scale',       name:'Салмақ бақылау',   desc:'Күнделікті салмағыңды жазып, динамиканы бақыла.', type:'value', unit:'кг'},
+  {key:'vitamins', cat:'health', emo:'pill',        name:'Витамин қабылдау', desc:'7 витаминге дейін: атауы, мерзімі, күнделікті белгі (3 ай).', kind:'vitamins'},
+  {key:'english',  cat:'edu',    emo:'languages',   name:'Ағылшын тілі',     desc:'Жаңа сөздерді жаз — бәрі «менің үйренгендерім» бөліміне жиналады.', kind:'english'},
+  {key:'podcast',  cat:'edu',    emo:'headphones',  name:'Подкаст тыңдау',   desc:'Тыңдаған подкастың аты мен алған инсайтыңды жаз.', kind:'podcast'},
+  {key:'reading',  cat:'edu',    emo:'book2',       name:'Кітап оқу 20 мин', desc:'Қысымсыз күнделікті оқу — тек тұрақтылық.'},
+  {key:'coding',   cat:'edu',    emo:'laptop',      name:'Код жазу',         desc:'Күнде аз да болса практика — дағды өседі.'},
+  {key:'pushups',  cat:'sport',  emo:'dumbbell',    name:'Отжимания',        desc:'Күнді белгіле, қанша рет жасағаныңды жаз.', type:'value', unit:'рет'},
+  {key:'steps',    cat:'sport',  emo:'footprints',  name:'10 000 қадам',     desc:'Күнді белгіле, қадам санын жаз.', type:'count', goal:10000, unit:'қадам'},
+  {key:'gym',      cat:'sport',  emo:'dumbbell',    name:'Тренажер залы',    desc:'Ай күнтізбесінен барған күндеріңді белгіле.', kind:'gym'},
 ];
+function tplName(tp){ return (tp.key && LANG==='ru' && I18N.ru['tpl.'+tp.key+'.name']) || tp.name; }
+function tplDesc(tp){ return (tp.key && LANG==='ru' && I18N.ru['tpl.'+tp.key+'.desc']) || tp.desc; }
 
 const EMOJIS = ['target','flame','dumbbell','book','sprout','footprints','droplet','apple','bed','wallet','palette','music','brain','clock','noSmoking','sprout'];
 
@@ -1780,6 +1842,11 @@ const FIN_CATS = {
   in:  ['Жалақы','Стипендия','Қосымша табыс','Сыйлық','Басқа табыс'],
   out: ['Тамақ','Көлік','Тұрғын үй','Ойын-сауық','Киім','Оқу','Денсаулық','Басқа шығын']
 };
+const FIN_CATS_RU = {
+  in:  ['Зарплата','Стипендия','Доп. доход','Подарок','Другой доход'],
+  out: ['Еда','Транспорт','Жильё','Развлечения','Одежда','Учёба','Здоровье','Другой расход']
+};
+function finCats(kind){ return LANG==='ru' ? FIN_CATS_RU[kind] : FIN_CATS[kind]; }
 
 /* ============================================================
    STATE
@@ -1867,6 +1934,24 @@ const RANDOM_TASKS = [
   ['wallet','Бүгінгі шығындарыңды жазып шық.'],
   ['bed','Бүгін экрансыз ұйықтауға дайындал.']
 ];
+const RANDOM_TASKS_RU = [
+  'Проведи сегодня 1 час без телефона.',
+  'Прямо сейчас выпей стакан воды.',
+  'Прогуляйся 10 минут на свежем воздухе.',
+  'Прочитай 5 страниц из книги.',
+  'Убери один угол своей комнаты.',
+  'Скажи спасибо 3 людям.',
+  'Сделай 20 отжиманий.',
+  'Подыши глубоко 5 минут.',
+  'Запиши лучший момент сегодняшнего дня.',
+  'Выучи 3 новых английских слова.',
+  'Завтра встань на 30 минут раньше.',
+  'Съешь сегодня один фрукт.',
+  'Позвони близкому человеку.',
+  'Запиши все свои сегодняшние расходы.',
+  'Подготовься сегодня уснуть без экрана.'
+];
+function randomTaskText(i){ return LANG==='ru' ? RANDOM_TASKS_RU[i] : RANDOM_TASKS[i][1]; }
 let activeCat = 'health';
 let selectedEmoji = EMOJIS[0];
 
@@ -1954,6 +2039,8 @@ function bestStreak(t){
 
 /* ---- Жетістік белгілері ---- */
 const BADGES=[{n:7,emo:'flame',label:'7 күн'},{n:21,emo:'trophy',label:'21 күн'},{n:30,emo:'gem',label:'30 күн'}];
+function ruDaysWord(n){ const n1=n%10, n2=n%100; if(n1===1&&n2!==11) return n+' день'; if([2,3,4].includes(n1)&&![12,13,14].includes(n2)) return n+' дня'; return n+' дней'; }
+function badgeLabel(b){ return LANG==='ru' ? ruDaysWord(b.n) : b.label; }
 function topBadge(t){ const b=bestStreak(t); let r=null; for(const x of BADGES){ if(b>=x.n) r=x; } return r; }
 function earnedBadges(t){ const b=bestStreak(t); return BADGES.map(x=>({...x,got:b>=x.n})); }
 
@@ -1997,28 +2084,28 @@ async function renderAdmin(){
     body.innerHTML = r.users.map(u=>`
       <tr>
         <td>${u.name}</td>
-        <td>${u.email}${u.is_admin?' <span class="status-pill on">админ</span>':''}</td>
-        <td><span class="status-pill ${u.active?'on':'off'}">${u.active?'белсенді':'күтуде'}</span></td>
-        <td>${new Date(u.created_at).toLocaleDateString('kk-KZ')}</td>
+        <td>${u.email}${u.is_admin?` <span class="status-pill on">${LANG==='ru'?'админ':'админ'}</span>`:''}</td>
+        <td><span class="status-pill ${u.active?'on':'off'}">${u.active?(LANG==='ru'?'активен':'белсенді'):(LANG==='ru'?'ожидает':'күтуде')}</span></td>
+        <td>${new Date(u.created_at).toLocaleDateString(LANG==='ru'?'ru-RU':'kk-KZ')}</td>
         <td><div class="admin-acts">
-          <button class="btn ghost sm" onclick="toggleAccess('${u.id}',${!u.active})">${u.active?'Доступ алу':'Доступ беру'}</button>
-          <button class="btn ghost sm" onclick="resetPassPrompt('${u.id}','${u.email}')">Пароль ысыру</button>
+          <button class="btn ghost sm" onclick="toggleAccess('${u.id}',${!u.active})">${u.active?(LANG==='ru'?'Забрать доступ':'Доступ алу'):(LANG==='ru'?'Дать доступ':'Доступ беру')}</button>
+          <button class="btn ghost sm" onclick="resetPassPrompt('${u.id}','${u.email}')">${LANG==='ru'?'Сбросить пароль':'Пароль ысыру'}</button>
         </div></td>
-      </tr>`).join('') || '<tr><td colspan="5">Пайдаланушы жоқ</td></tr>';
+      </tr>`).join('') || `<tr><td colspan="5">${LANG==='ru'?'Нет пользователей':'Пайдаланушы жоқ'}</td></tr>`;
   }catch(e){
-    body.innerHTML = `<tr><td colspan="5">Қате: ${e.message}</td></tr>`;
+    body.innerHTML = `<tr><td colspan="5">${LANG==='ru'?'Ошибка':'Қате'}: ${e.message}</td></tr>`;
   }
 }
 async function toggleAccess(userId, active){
   try{ await apiCall('/admin/grant', 'POST', {userId, active}); toast(active?'Доступ берілді':'Доступ алынды'); renderAdmin(); }
-  catch(e){ toast('Қате: '+e.message); }
+  catch(e){ toast((LANG==='ru'?'Ошибка':'Қате')+': '+e.message); }
 }
 async function resetPassPrompt(userId, email){
-  const p = prompt(`${email} үшін жаңа пароль (кемінде 4 таңба):`);
+  const p = prompt(LANG==='ru' ? `Новый пароль для ${email} (минимум 4 символа):` : `${email} үшін жаңа пароль (кемінде 4 таңба):`);
   if(!p) return;
   if(p.length<4){ toast('Пароль кемінде 4 таңба болу керек'); return; }
   try{ await apiCall('/admin/reset-password', 'POST', {userId, newPass:p}); toast('Пароль ауыстырылды'); }
-  catch(e){ toast('Қате: '+e.message); }
+  catch(e){ toast((LANG==='ru'?'Ошибка':'Қате')+': '+e.message); }
 }
 
 /* ============================================================
@@ -2037,7 +2124,12 @@ function renderCatTiles(){
   applyTimeGreeting();
   renderHomeAchRow();
   renderFinancePromo();
-  const pills = [
+  const pills = LANG==='ru' ? [
+    {label:'Задание', sub:'Случайное', icon:'dice', color:'var(--s4)', onclick:"randomTask()"},
+    {label:'Мои трекеры', sub:trackers.length+' активных', icon:'target', color:'var(--s7)', onclick:"showView('mine')"},
+    {label:'Финансы', sub:'Доход/расход', icon:'wallet', color:'var(--s6)', onclick:"showView('finance')"},
+    {label:'Анализ', sub:'Статистика', icon:'barChart', color:'var(--s1)', onclick:"showView('analytics')"},
+  ] : [
     {label:'Тапсырма', sub:'Кездейсоқ', icon:'dice', color:'var(--s4)', onclick:"randomTask()"},
     {label:'Трекерлерім', sub:trackers.length+' белсенді', icon:'target', color:'var(--s7)', onclick:"showView('mine')"},
     {label:'Қаржы', sub:'Кіріс/шығын', icon:'wallet', color:'var(--s6)', onclick:"showView('finance')"},
@@ -2055,7 +2147,7 @@ function renderCatTiles(){
       <div class="glow" style="background:${c.color}"></div>
       <div class="big-icon" style="background:color-mix(in srgb, ${c.color} 13%, transparent);color:${c.color}">${ic(c.emo)}</div>
       <h2>${catName(c)}</h2>
-      <p>${c.desc}</p>
+      <p>${catDesc(c)}</p>
       <div class="go"><span>Ашу ${ic('arrowRight')}</span><span class="count">${count}</span></div>
     </div>`;
   }).join('');
@@ -2184,7 +2276,7 @@ function openCategory(id){
   const cat = CATEGORIES.find(c=>c.id===id);
   document.getElementById('catHead').innerHTML = `
     <div class="big-icon" style="background:color-mix(in srgb, ${cat.color} 13%, transparent);color:${cat.color}">${ic(cat.emo)}</div>
-    <div><h1>${catName(cat)}</h1><p>${cat.desc}</p></div>`;
+    <div><h1>${catName(cat)}</h1><p>${catDesc(cat)}</p></div>`;
   const special = (id==='goal'||id==='gratitude');
   document.getElementById('catAddOwn').style.display = special?'none':'flex';
   if(id==='goal'){ document.getElementById('cardGrid').innerHTML=''; renderGoalsPage(); }
@@ -2234,25 +2326,31 @@ function renderCards(){
   const grid = document.getElementById('cardGrid');
   if(!list.length){
     const msg = activeCat==='other'
-      ? 'Өз әдетіңді қолмен жаз — күн сайын орындалды/орындалмады<br>деп белгілеп отырасың. Төмендегі батырмамен қос.'
-      : 'Бұл салада дайын шаблон жоқ.<br>Төмендегі батырмамен өзіңдікін жаса.';
+      ? (LANG==='ru'
+          ? 'Впиши свою привычку вручную — каждый день<br>отмечай выполнено/нет. Добавь кнопкой снизу.'
+          : 'Өз әдетіңді қолмен жаз — күн сайын орындалды/орындалмады<br>деп белгілеп отырасың. Төмендегі батырмамен қос.')
+      : (LANG==='ru'
+          ? 'В этой категории пока нет готовых шаблонов.<br>Создай свой кнопкой снизу.'
+          : 'Бұл салада дайын шаблон жоқ.<br>Төмендегі батырмамен өзіңдікін жаса.');
     grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><span class="em">${ic('edit')}</span>${msg}</div>`;
     return;
   }
   grid.innerHTML = list.map(t=>{
+    const dName = tplName(t), dDesc = tplDesc(t);
     const xBtn = t.isUser
-      ? `<button class="card-x" title="Жою" onclick="delUserTpl('${t.id}')">${ic('x')}</button>`
-      : `<button class="card-x" title="Жасыру" onclick="hideTemplate('${t.cat}','${t.name.replace(/'/g,"&#39;")}')">${ic('x')}</button>`;
+      ? `<button class="card-x" title="${LANG==='ru'?'Удалить':'Жою'}" onclick="delUserTpl('${t.id}')">${ic('x')}</button>`
+      : `<button class="card-x" title="${LANG==='ru'?'Скрыть':'Жасыру'}" onclick="hideTemplate('${t.cat}','${t.name.replace(/'/g,"&#39;")}')">${ic('x')}</button>`;
     const existing = activeTrackerForTpl(t);
+    const dispT = Object.assign({},t,{name:dName,desc:dDesc});
     const startBtn = existing
-      ? `<button class="btn" onclick="openTracker('${existing.id}')">${ic('checkCircle')} Ашу · басталған</button>`
-      : `<button class="btn" onclick='startTracker(${JSON.stringify(t).replace(/'/g,"&#39;")})'>Бастау</button>`;
+      ? `<button class="btn" onclick="openTracker('${existing.id}')">${ic('checkCircle')} ${LANG==='ru'?'Открыть · начат':'Ашу · басталған'}</button>`
+      : `<button class="btn" onclick='startTracker(${JSON.stringify(dispT).replace(/'/g,"&#39;")})'>${LANG==='ru'?'Начать':'Бастау'}</button>`;
     return `<div class="card">
       ${xBtn}
       <div class="icon" style="background:color-mix(in srgb, ${cat.color} 13%, transparent);color:${cat.color}">${ic(t.emo)}</div>
-      <h3>${t.name}</h3>
-      <div class="tag">${ic(cat.emo)} ${catName(cat)}${t.isUser?' · менікі':''}</div>
-      <p>${t.desc}</p>
+      <h3>${dName}</h3>
+      <div class="tag">${ic(cat.emo)} ${catName(cat)}${t.isUser?' · '+(LANG==='ru'?'моё':'менікі'):''}</div>
+      <p>${dDesc}</p>
       ${startBtn}
     </div>`;
   }).join('');
@@ -2278,6 +2376,7 @@ function restoreTemplates(cat){
    ============================================================ */
 // Осы шаблоннан бұрын басталған (архивтелмеген) трекер бар ма — қайталап қосылмасын
 function activeTrackerForTpl(t){
+  if(t.key) return trackers.find(x=>x.cat===t.cat && x.tplKey===t.key);
   return trackers.find(x=>x.cat===t.cat && x.name===t.name);
 }
 function startTracker(t){
@@ -2285,7 +2384,7 @@ function startTracker(t){
   if(already){ openTracker(already.id); return; }
   const type = t.type||'check';
   const nt = {
-    id:uid(), name:t.name, cat:t.cat, emo:t.emo, desc:t.desc||'',
+    id:uid(), name:t.name, cat:t.cat, emo:t.emo, desc:t.desc||'', tplKey:t.key||null,
     kind:t.kind||null,
     type, goal:t.goal, unit:t.unit, goalMin:t.goalMin, goalMax:t.goalMax,
     start:todayStr(), days:new Array(30).fill(type==='check'?false:null)
@@ -2453,7 +2552,7 @@ function renderDetail(t){
             : `Орындаған күніңді бас (бүгін — ${passed}-күн).`;
 
   const badgesHtml = `<div class="badges">${earnedBadges(t).map(x=>
-    `<span class="badge ${x.got?'got':''}">${ic(x.emo)} ${x.label}</span>`).join('')}</div>`;
+    `<span class="badge ${x.got?'got':''}">${ic(x.emo)} ${badgeLabel(x)}</span>`).join('')}</div>`;
 
   const chartHtml = ty==='check' ? '' :
     `<div class="days-hint" style="margin-top:24px">${ic('trend')} Динамика (${t.unit||''})</div>
@@ -2500,7 +2599,7 @@ function handleDay(id,i){
     let v=+t.days[i]||0; v = (v>=(t.goal||1)) ? 0 : v+1; t.days[i]=v;
   } else if(ty==='value'){
     const cur = (t.days[i]!=null)? t.days[i] : '';
-    const inp = prompt(`${i+1}-күн мәні (${t.unit||''}):`, cur);
+    const inp = prompt(LANG==='ru' ? `Значение ${i+1}-го дня (${t.unit||''}):` : `${i+1}-күн мәні (${t.unit||''}):`, cur);
     if(inp===null) return;
     t.days[i] = inp.trim()===''? null : +inp;
   } else {
@@ -2518,7 +2617,7 @@ function editTracker(id){
   if(name && name.trim()){ t.name=name.trim(); save(); renderMine(); if(document.getElementById('detail').classList.contains('active')) renderDetail(t); }
 }
 function delTracker(id, backToList){
-  if(!confirm('Бұл трекерді архивке жібереміз бе? (кейін қалпына келтіруге болады)')) return;
+  if(!confirm(tr('Бұл трекерді архивке жібереміз бе? (кейін қалпына келтіруге болады)'))) return;
   const t = trackers.find(x=>x.id===id);
   if(t){ t.archivedAt = todayStr(); archived.push(t); saveArchived(); }
   trackers = trackers.filter(x=>x.id!==id);
@@ -2533,12 +2632,12 @@ function restoreTracker(id){
   toast(`${ic('refresh')} Қалпына келтірілді`); renderArchive();
 }
 function purgeTracker(id){
-  if(!confirm('Біржола жоямыз ба? Бұны қайтару мүмкін емес.')) return;
+  if(!confirm(tr('Біржола жоямыз ба? Бұны қайтару мүмкін емес.'))) return;
   archived = archived.filter(x=>x.id!==id); saveArchived(); renderArchive();
 }
 function clearArchive(){
   if(!archived.length) return;
-  if(!confirm('Архивтегі барлық трекерді біржола жоямыз ба?')) return;
+  if(!confirm(tr('Архивтегі барлық трекерді біржола жоямыз ба?'))) return;
   archived=[]; saveArchived(); renderArchive();
 }
 function renderArchive(){
@@ -2896,7 +2995,7 @@ function toggleVit(id,vi,idx){
   v.days=v.days||new Array(90).fill(false); v.days[idx]=!v.days[idx]; save(); renderVitamins(t);
 }
 function delVit(id,vi){
-  if(!confirm('Витаминді жоямыз ба?')) return;
+  if(!confirm(tr('Витаминді жоямыз ба?'))) return;
   const t=trackers.find(x=>x.id===id); t.vits.splice(vi,1); save(); renderVitamins(t);
 }
 
@@ -3402,8 +3501,8 @@ function delGrat(gid){ gratitude=gratitude.filter(x=>x.id!==gid); saveGrat(); re
    Кездейсоқ тапсырма
    ============================================================ */
 function renderTask(i){
-  const [key,text]=RANDOM_TASKS[i];
-  document.getElementById('rtText').innerHTML=`<div style="font-size:36px;color:var(--s4)">${ic(key)}</div><div style="margin-top:10px">${text}</div>`;
+  const [key]=RANDOM_TASKS[i];
+  document.getElementById('rtText').innerHTML=`<div style="font-size:36px;color:var(--s4)">${ic(key)}</div><div style="margin-top:10px">${randomTaskText(i)}</div>`;
 }
 function randomTask(){
   closeNav();
@@ -3447,7 +3546,8 @@ function renderFinance(){
 /* ---------- Уақыт/сома көмекшілері (бірнеше tab бөліседі) ---------- */
 function monthKey(dateStr){ return (dateStr||'').slice(0,7); }
 const MONTH_NAMES = ['Қаң','Ақп','Нау','Сәу','Мам','Мау','Шіл','Там','Қыр','Қаз','Қар','Жел'];
-function monthLabel(key){ const [y,m]=key.split('-'); return MONTH_NAMES[(+m)-1]+' '+y.slice(2); }
+const MONTH_NAMES_RU = ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
+function monthLabel(key){ const [y,m]=key.split('-'); return (LANG==='ru'?MONTH_NAMES_RU:MONTH_NAMES)[(+m)-1]+' '+y.slice(2); }
 function fmtISO(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 function sumTx(type, from, to){
   return txs.filter(t=>t.type===type && (!from||t.date>=from) && (!to||t.date<=to)).reduce((s,t)=>s+t.amount,0);
@@ -3493,8 +3593,8 @@ function updateFinBadges(){
 function renderFinIncomeExpense(){
   if(!document.getElementById('incDate').value) document.getElementById('incDate').value = todayStr();
   if(!document.getElementById('expDate').value) document.getElementById('expDate').value = todayStr();
-  document.getElementById('incNames').innerHTML = [...new Set([...FIN_CATS.in, ...txs.filter(t=>t.type==='in').map(t=>t.cat)])].map(c=>`<option value="${c}">`).join('');
-  document.getElementById('expNames').innerHTML = [...new Set([...FIN_CATS.out, ...txs.filter(t=>t.type==='out').map(t=>t.cat)])].map(c=>`<option value="${c}">`).join('');
+  document.getElementById('incNames').innerHTML = [...new Set([...finCats('in'), ...txs.filter(t=>t.type==='in').map(t=>t.cat)])].map(c=>`<option value="${c}">`).join('');
+  document.getElementById('expNames').innerHTML = [...new Set([...finCats('out'), ...txs.filter(t=>t.type==='out').map(t=>t.cat)])].map(c=>`<option value="${c}">`).join('');
   renderTxLists();
 }
 function addIncome(){
@@ -3652,6 +3752,10 @@ const RECUR_KINDS = {
   subscription: {label:'Подписка',       icon:'refresh'},
   installment:  {label:'Рассрочка',      icon:'wallet'},
 };
+const RECUR_KINDS_RU = {
+  monthly:'Ежемесячный платёж', daily:'Ежедневная обязанность', subscription:'Подписка', installment:'Рассрочка',
+};
+function recurKindLabel(k){ return LANG==='ru' ? RECUR_KINDS_RU[k] : RECUR_KINDS[k].label; }
 // Нақты логотип жоқ (сыртқы сурет/эмодзи саясатына сай) — әр провайдерге түсті
 // монограмма-белгі (letter) немесе бар SVG иконка (icon), moi-finansy сайтындағы
 // "Платежи" тізіміне сай, бірақ ешбір кірістіру/сыртқы сурет жоқ.
@@ -3701,18 +3805,27 @@ const BRANDS = {
 // Пресет тізімі топтармен — "Не төлейсің?" іздеу+таңдау виджетінде көрсетіледі.
 // Әр топтың default kind-і бар (таңдағанда recurKind автоматты орнатылады).
 const PAYMENT_PRESET_GROUPS = [
-  {group:'Мобильді байланыс',       kind:'monthly',      keys:['tele2','kcell','beeline','activ','altel']},
-  {group:'Интернет және ТВ',        kind:'monthly',      keys:['megaline','kazakhtelecom','idtv','almatv']},
-  {group:'Коммуналка және жалдау',  kind:'monthly',      keys:['electricity','water','gas','heating','trash','ksk','rent']},
-  {group:'Несиелер мен рассрочка',  kind:'installment',  keys:['kaspi_credit','halyk_credit','freedom_credit','jusan_credit','bereke_credit']},
-  {group:'Подписка және қызметтер', kind:'subscription', keys:['netflix','spotify','youtube','icloud','yandex','apple','kaspi','gym','wolt','chocofood']},
-  {group:'Сақтандыру',              kind:'monthly',      keys:['osago','life_insurance']},
+  {group:'Мобильді байланыс',       groupRu:'Мобильная связь',      kind:'monthly',      keys:['tele2','kcell','beeline','activ','altel']},
+  {group:'Интернет және ТВ',        groupRu:'Интернет и ТВ',        kind:'monthly',      keys:['megaline','kazakhtelecom','idtv','almatv']},
+  {group:'Коммуналка және жалдау',  groupRu:'Коммуналка и аренда',  kind:'monthly',      keys:['electricity','water','gas','heating','trash','ksk','rent']},
+  {group:'Несиелер мен рассрочка',  groupRu:'Кредиты и рассрочка',  kind:'installment',  keys:['kaspi_credit','halyk_credit','freedom_credit','jusan_credit','bereke_credit']},
+  {group:'Подписка және қызметтер', groupRu:'Подписки и услуги',    kind:'subscription', keys:['netflix','spotify','youtube','icloud','yandex','apple','kaspi','gym','wolt','chocofood']},
+  {group:'Сақтандыру',              groupRu:'Страхование',          kind:'monthly',      keys:['osago','life_insurance']},
 ];
+const BRANDS_RU = {
+  other:'Другое', electricity:'Электроэнергия', water:'Вода', gas:'Газ', heating:'Отопление',
+  trash:'Вывоз мусора', ksk:'КСК / ОСИ', rent:'Аренда квартиры',
+  kaspi_credit:'Kaspi Кредит', halyk_credit:'Halyk кредит', freedom_credit:'Freedom Bank кредит',
+  jusan_credit:'Jusan Bank кредит', bereke_credit:'Bereke Bank кредит',
+  gym:'Абонемент в спортзал', osago:'ОСАГО', life_insurance:'Страхование жизни',
+  kazakhtelecom:'Казахтелеком',
+};
+function brandLabel(key){ return (LANG==='ru' && BRANDS_RU[key]) || (BRANDS[key]||BRANDS.other).label; }
 function brandBadge(key,size){
   const b = BRANDS[key] || BRANDS.other;
   const s = size||22;
   const inner = b.icon ? ic(b.icon) : (b.letter||'?');
-  return `<span title="${b.label}" style="display:inline-flex;align-items:center;justify-content:center;width:${s}px;height:${s}px;border-radius:50%;background:${b.color};color:#111;font-size:${Math.round(s*0.55)}px;font-weight:800;flex-shrink:0">${inner}</span>`;
+  return `<span title="${brandLabel(key)}" style="display:inline-flex;align-items:center;justify-content:center;width:${s}px;height:${s}px;border-radius:50%;background:${b.color};color:#111;font-size:${Math.round(s*0.55)}px;font-weight:800;flex-shrink:0">${inner}</span>`;
 }
 // Таңдалған пресеттің кілті — addRecurring() осыны "brand" ретінде сақтайды
 // (қазір кез келген kind-те бренд болуы мүмкін, тек subscription емес)
@@ -3722,21 +3835,22 @@ function renderPresetList(){
   const q=(document.getElementById('recurPresetSearch').value||'').trim().toLowerCase();
   let html='';
   PAYMENT_PRESET_GROUPS.forEach(g=>{
-    const keys = g.keys.filter(k=>!q || BRANDS[k].label.toLowerCase().includes(q) || g.group.toLowerCase().includes(q));
+    const gLabel = LANG==='ru' ? g.groupRu : g.group;
+    const keys = g.keys.filter(k=>!q || brandLabel(k).toLowerCase().includes(q) || gLabel.toLowerCase().includes(q));
     if(!keys.length) return;
-    html += `<div style="font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.04em;margin:10px 0 6px">${g.group}</div>`;
+    html += `<div style="font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.04em;margin:10px 0 6px">${gLabel}</div>`;
     html += `<div style="display:flex;flex-wrap:wrap;gap:8px">`;
     keys.forEach(k=>{
       const active = selectedPresetKey===k ? 'border-color:var(--s7);background:var(--panel-2)' : '';
-      html += `<button type="button" class="btn ghost sm" style="width:auto;display:inline-flex;align-items:center;gap:8px;${active}" onclick="pickPreset('${k}','${g.kind}')">${brandBadge(k,22)} ${BRANDS[k].label}</button>`;
+      html += `<button type="button" class="btn ghost sm" style="width:auto;display:inline-flex;align-items:center;gap:8px;${active}" onclick="pickPreset('${k}','${g.kind}')">${brandBadge(k,22)} ${brandLabel(k)}</button>`;
     });
     html += `</div>`;
   });
-  box.innerHTML = html || `<div style="color:var(--faint);font-size:13px;padding:8px 0">Табылмады — «Атауы» өрісіне қолмен жаз</div>`;
+  box.innerHTML = html || `<div style="color:var(--faint);font-size:13px;padding:8px 0">${LANG==='ru'?'Не найдено — впиши в поле «Название» вручную':'Табылмады — «Атауы» өрісіне қолмен жаз'}</div>`;
 }
 function pickPreset(key, kind){
   selectedPresetKey = key;
-  document.getElementById('recurName').value = BRANDS[key].label;
+  document.getElementById('recurName').value = brandLabel(key);
   document.getElementById('recurKind').value = kind;
   onRecurKindChange();
   renderPresetList();
@@ -3770,6 +3884,11 @@ function recurIsOverdue(r){
   return new Date().getDate() > r.dueDay;
 }
 function nextDueLabel(r){
+  if(LANG==='ru'){
+    if(r.kind==='daily') return recurIsPaidNow(r) ? 'Отмечено сегодня' : 'Сегодня не отмечено';
+    if(!r.dueDay) return recurIsPaidNow(r) ? 'Оплачено в этом месяце' : 'Срок не указан';
+    return recurIsPaidNow(r) ? `Оплачено в этом месяце (${r.dueDay}-е число)` : `Срок: ${r.dueDay}-е число месяца`;
+  }
   if(r.kind==='daily') return recurIsPaidNow(r) ? 'Бүгін белгіленген' : 'Бүгінге белгіленбеген';
   if(!r.dueDay) return recurIsPaidNow(r) ? 'Осы ай төленді' : 'Мерзімі белгіленбеген';
   return recurIsPaidNow(r) ? `Осы ай төленді (айдың ${r.dueDay}-і)` : `Мерзімі: айдың ${r.dueDay}-і`;
@@ -3800,7 +3919,7 @@ function markRecurPaid(id){
   saveRecurring(); renderFinRecurring();
 }
 function delRecurring(id){
-  if(!confirm('Төлемді өшіреміз бе?')) return;
+  if(!confirm(tr('Төлемді өшіреміз бе?'))) return;
   recurring = recurring.filter(x=>x.id!==id);
   saveRecurring(); renderFinRecurring();
 }
@@ -3813,21 +3932,20 @@ function recurRowIcon(r){
 // Транзакция тізімімен бірдей ықшам қатар (row) стилі — карточка торы емес,
 // баптаулар/транзакциялар секілді бір-бірінің астында, .tx классы арқылы
 function recurRow(r){
-  const kindInfo = RECUR_KINDS[r.kind] || {label:r.kind, icon:'calendar'};
   const overdue = recurIsOverdue(r);
   const paidNow = recurIsPaidNow(r);
   const statusColor = overdue ? 'var(--crit)' : (paidNow ? 'var(--good)' : 'var(--faint)');
-  const statusText = overdue ? `${ic('alertTriangle')} Мерзімі өтіп кетті` : `${paidNow?ic('checkCircle'):ic('clock')} ${nextDueLabel(r)}`;
+  const statusText = overdue ? `${ic('alertTriangle')} ${LANG==='ru'?'Просрочено':'Мерзімі өтіп кетті'}` : `${paidNow?ic('checkCircle'):ic('clock')} ${nextDueLabel(r)}`;
   return `<div class="tx">
     ${recurRowIcon(r)}
     <div style="flex:1;min-width:0">
       <div style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.name}</div>
-      <div style="font-size:12px;color:var(--muted)">${kindInfo.label}</div>
+      <div style="font-size:12px;color:var(--muted)">${recurKindLabel(r.kind)}</div>
       <div style="font-size:12.5px;color:${statusColor};margin-top:2px">${statusText}</div>
     </div>
     <span class="amt" style="white-space:nowrap">${fmt(r.amount)}</span>
-    <button class="icon-btn" title="Төледім" ${paidNow?'disabled':''} onclick="markRecurPaid('${r.id}')" style="color:${paidNow?'var(--good)':'var(--faint)'}">${ic('checkCircle')}</button>
-    <button class="icon-btn del" title="Өшіру" onclick="delRecurring('${r.id}')">${ic('trash')}</button>
+    <button class="icon-btn" title="${LANG==='ru'?'Оплачено':'Төледім'}" ${paidNow?'disabled':''} onclick="markRecurPaid('${r.id}')" style="color:${paidNow?'var(--good)':'var(--faint)'}">${ic('checkCircle')}</button>
+    <button class="icon-btn del" title="${LANG==='ru'?'Удалить':'Өшіру'}" onclick="delRecurring('${r.id}')">${ic('trash')}</button>
   </div>`;
 }
 function renderFinRecurring(){
@@ -3839,7 +3957,7 @@ function renderFinRecurring(){
   const sorted = [...recurring].sort((a,b)=>(recurIsOverdue(b)?1:0)-(recurIsOverdue(a)?1:0));
   document.getElementById('recurList').innerHTML = sorted.length
     ? sorted.map(recurRow).join('')
-    : `<div class="empty"><span class="em">${ic('calendar')}</span>Әзірге міндетті төлем жоқ</div>`;
+    : `<div class="empty"><span class="em">${ic('calendar')}</span>${t('recur.empty')}</div>`;
   renderPushSection();
 }
 
@@ -3944,16 +4062,16 @@ async function changePassword(){
   const p2 = document.getElementById('newPass2').value;
   const errEl = document.getElementById('passErr');
   errEl.textContent = '';
-  if(!cur || !p1 || !p2){ errEl.textContent = 'Барлық өрісті толтыр'; return; }
-  if(p1.length<4){ errEl.textContent = 'Жаңа пароль кемінде 4 таңба'; return; }
-  if(p1!==p2){ errEl.textContent = 'Жаңа парольдер сәйкес емес'; return; }
+  if(!cur || !p1 || !p2){ errEl.textContent = tr('Барлық өрісті толтыр'); return; }
+  if(p1.length<4){ errEl.textContent = tr('Жаңа пароль кемінде 4 таңба'); return; }
+  if(p1!==p2){ errEl.textContent = tr('Жаңа парольдер сәйкес емес'); return; }
   try{
     await apiCall('/me', 'PUT', {action:'changePassword', currentPass:cur, newPass:p1});
     document.getElementById('curPass').value='';
     document.getElementById('newPass1').value='';
     document.getElementById('newPass2').value='';
     toast('Пароль өзгертілді');
-  }catch(e){ errEl.textContent = e.message; }
+  }catch(e){ errEl.textContent = tr(e.message); }
 }
 function onNotifPrefsChange(){
   const raw = parseInt(document.getElementById('notifInterval').value, 10);
@@ -4013,7 +4131,7 @@ function collectFinPiece(goalId,pieceId){
   p.done=true; saveFinGoals(); renderFinGoals();
 }
 function delFinGoal(id){
-  if(!confirm('Мақсатты өшіреміз бе?')) return;
+  if(!confirm(tr('Мақсатты өшіреміз бе?'))) return;
   finGoals=finGoals.filter(x=>x.id!==id); saveFinGoals(); renderFinGoals();
 }
 function finGoalDeadlineBadge(g){
@@ -4106,7 +4224,7 @@ function payDebt(id){
   const d = debts.find(x=>x.id===id);
   if(!d || d.closedAt) return;
   const rem = debtRemaining(d);
-  const raw = prompt(`${d.person} — қанша төледі(ң)? (қалды: ${fmt(rem)})`, rem);
+  const raw = prompt(LANG==='ru' ? `${d.person} — сколько заплатил(а)? (осталось: ${fmt(rem)})` : `${d.person} — қанша төледі(ң)? (қалды: ${fmt(rem)})`, rem);
   if(raw===null) return;
   const amt = +raw;
   if(!amt || amt<=0){ toast('Соманы дұрыс енгіз'); return; }
@@ -4115,7 +4233,7 @@ function payDebt(id){
   saveDebts(); renderDebts();
 }
 function delDebt(id){
-  if(!confirm('Қарызды өшіреміз бе?')) return;
+  if(!confirm(tr('Қарызды өшіреміз бе?'))) return;
   debts = debts.filter(x=>x.id!==id);
   saveDebts(); renderDebts();
 }
@@ -4600,10 +4718,12 @@ function renderHealthPanel(){
         <div class="gtext"><div class="gv" id="hgv">${hs.index}</div><div class="gl">/ 100</div></div>
       </div>
       <div class="hp-info">
-        <h3>${ic('heart')} Денсаулық индексі</h3>
-        <div style="color:var(--muted);font-size:14px;margin-bottom:8px">${hs.count} денсаулық трекерінің орташа орындалуы.</div>
+        <h3>${ic('heart')} ${LANG==='ru'?'Индекс здоровья':'Денсаулық индексі'}</h3>
+        <div style="color:var(--muted);font-size:14px;margin-bottom:8px">${LANG==='ru'?`Среднее выполнение ${hs.count} трекеров здоровья.`:`${hs.count} денсаулық трекерінің орташа орындалуы.`}</div>
         <div class="delta" style="color:${hs.delta>0?'var(--good)':hs.delta<0?'#f0a5a5':'var(--muted)'}">
-          ${hs.delta>0?'▲ ':hs.delta<0?'▼ ':'■ '}Соңғы аптада денсаулығың ${Math.abs(hs.delta)}%-ға ${hs.delta>0?'жақсарды':hs.delta<0?'төмендеді':'тұрақты'}
+          ${hs.delta>0?'▲ ':hs.delta<0?'▼ ':'■ '}${LANG==='ru'
+            ? `За последнюю неделю здоровье ${hs.delta>0?'улучшилось':hs.delta<0?'ухудшилось':'стабильно'} на ${Math.abs(hs.delta)}%`
+            : `Соңғы аптада денсаулығың ${Math.abs(hs.delta)}%-ға ${hs.delta>0?'жақсарды':hs.delta<0?'төмендеді':'тұрақты'}`}
         </div>
       </div>
     </div>`;
@@ -4670,15 +4790,20 @@ function analyticsInsightsList(){
     if(!ts.length) return null;
     return {name:catName(c), avg:Math.round(ts.reduce((s,t)=>s+completion(t),0)/ts.length)};
   }).filter(Boolean);
+  const ru = LANG==='ru';
   if(cats.length){
     const best=cats.reduce((a,b)=>b.avg>a.avg?b:a);
     const worst=cats.reduce((a,b)=>b.avg<a.avg?b:a);
-    insights.push(`Ең мықты саланың — «${best.name}» (${best.avg}%).`);
-    if(worst.name!==best.name && worst.avg<60) insights.push(`«${worst.name}» саласына көбірек көңіл бөлген жөн — орташа ${worst.avg}% қана.`);
+    insights.push(ru ? `Самая сильная сфера — «${best.name}» (${best.avg}%).` : `Ең мықты саланың — «${best.name}» (${best.avg}%).`);
+    if(worst.name!==best.name && worst.avg<60) insights.push(ru
+      ? `Стоит уделить больше внимания сфере «${worst.name}» — в среднем всего ${worst.avg}%.`
+      : `«${worst.name}» саласына көбірек көңіл бөлген жөн — орташа ${worst.avg}% қана.`);
   }
   const topStreakTracker = [...trackers].sort((a,b)=>bestStreak(b)-bestStreak(a))[0];
   if(topStreakTracker && bestStreak(topStreakTracker)>0){
-    insights.push(`«${topStreakTracker.name}» трекерің ең ұзын серияны ұстап тұр — ${bestStreak(topStreakTracker)} күн.`);
+    insights.push(ru
+      ? `Трекер «${topStreakTracker.name}» держит самую длинную серию — ${bestStreak(topStreakTracker)} дней.`
+      : `«${topStreakTracker.name}» трекерің ең ұзын серияны ұстап тұр — ${bestStreak(topStreakTracker)} күн.`);
   }
   const heat=analyticsHeatmapData(2);
   const thisWeek=heat.slice(7).filter(d=>d.ratio!=null);
@@ -4687,9 +4812,11 @@ function analyticsInsightsList(){
     const twAvg=Math.round(thisWeek.reduce((s,d)=>s+d.ratio,0)/thisWeek.length*100);
     const lwAvg=Math.round(lastWeek.reduce((s,d)=>s+d.ratio,0)/lastWeek.length*100);
     const delta=twAvg-lwAvg;
-    if(Math.abs(delta)>=5) insights.push(`Осы апта өткен аптамен салыстырғанда ${delta>0?'+':''}${delta}% ${delta>0?'жақсарды':'төмендеді'}.`);
+    if(Math.abs(delta)>=5) insights.push(ru
+      ? `Эта неделя по сравнению с прошлой ${delta>0?'+':''}${delta}% ${delta>0?'лучше':'хуже'}.`
+      : `Осы апта өткен аптамен салыстырғанда ${delta>0?'+':''}${delta}% ${delta>0?'жақсарды':'төмендеді'}.`);
   }
-  if(!insights.length) insights.push('Деректер жинақталған сайын талдау тереңдей береді — жалғастыра бер!');
+  if(!insights.length) insights.push(ru ? 'По мере накопления данных анализ становится глубже — продолжай!' : 'Деректер жинақталған сайын талдау тереңдей береді — жалғастыра бер!');
   return insights;
 }
 function renderAnalyticsInsights(){
@@ -4697,9 +4824,9 @@ function renderAnalyticsInsights(){
   if(!trackers.length){ el.innerHTML=''; return; }
   const list=analyticsInsightsList();
   el.innerHTML=`<div class="chart-box" style="margin-bottom:20px">
-    <h3>${ic('sparkles')} Талдау қорытындысы</h3>
-    <div class="cd">Деректеріңе негізделген жедел байқаулар</div>
-    ${list.map(t=>`<div class="split-item"><span class="k">${ic('lightbulb')} ${t}</span></div>`).join('')}
+    <h3>${ic('sparkles')} ${LANG==='ru'?'Итоги анализа':'Талдау қорытындысы'}</h3>
+    <div class="cd">${LANG==='ru'?'Быстрые наблюдения на основе твоих данных':'Деректеріңе негізделген жедел байқаулар'}</div>
+    ${list.map(s=>`<div class="split-item"><span class="k">${ic('lightbulb')} ${s}</span></div>`).join('')}
   </div>`;
 }
 /* ---------- Талдау: ағымдағы streak көшбасшылары ---------- */
@@ -4708,8 +4835,8 @@ function renderStreakLeaderboard(){
   const top=[...trackers].filter(t=>currentStreak(t)>0).sort((a,b)=>currentStreak(b)-currentStreak(a)).slice(0,5);
   if(!top.length){ el.innerHTML=''; return; }
   el.innerHTML=`<div class="chart-box">
-    <h3>${ic('trophy')} Ағымдағы streak көшбасшылары</h3>
-    <div class="cd">Қазір ең ұзын қатарды кім ұстап тұр</div>
+    <h3>${ic('trophy')} ${LANG==='ru'?'Лидеры текущих серий':'Ағымдағы streak көшбасшылары'}</h3>
+    <div class="cd">${LANG==='ru'?'Кто сейчас держит самую длинную серию':'Қазір ең ұзын қатарды кім ұстап тұр'}</div>
     ${top.map((t,i)=>{
       const cat=CATEGORIES.find(c=>c.id===t.cat);
       const rankClass = i===0?'r1':i===1?'r2':i===2?'r3':'';
@@ -4717,7 +4844,7 @@ function renderStreakLeaderboard(){
         <span class="lb-rank ${rankClass}" style="${!rankClass?'background:var(--panel-2);color:var(--muted)':''}">${i+1}</span>
         <span class="lb-icon" style="background:color-mix(in srgb, ${cat?cat.color:'var(--s7)'} 13%, transparent);color:${cat?cat.color:'var(--s7)'}">${ic(t.emo||(cat?cat.emo:'target'))}</span>
         <span class="lb-name">${t.name}</span>
-        <span class="lb-streak">${ic('flame')} ${currentStreak(t)} күн</span>
+        <span class="lb-streak">${ic('flame')} ${LANG==='ru'?ruDaysWord(currentStreak(t)):currentStreak(t)+' күн'}</span>
       </div>`;
     }).join('')}
   </div>`;
@@ -4756,7 +4883,7 @@ function ovDayStrip(t){
 }
 function ovDetailHtml(list){
   const t = list.find(x=>x.id===ovSelectedId) || list[0];
-  if(!t) return `<div class="empty" style="padding:14px 0"><span class="em">${ic('target')}</span>Бұл сүзгіде трекер жоқ</div>`;
+  if(!t) return `<div class="empty" style="padding:14px 0"><span class="em">${ic('target')}</span>${LANG==='ru'?'В этом фильтре нет трекеров':'Бұл сүзгіде трекер жоқ'}</div>`;
   ovSelectedId = t.id;
   const cat=CATEGORIES.find(c=>c.id===t.cat);
   return `<div>
@@ -4765,23 +4892,26 @@ function ovDetailHtml(list){
       <div><h3 style="margin:0">${t.name}</h3><div style="font-size:12.5px;color:var(--muted)">${cat?catName(cat):''}</div></div>
     </div>
     <div class="kpis" style="margin-bottom:6px">
-      <div class="kpi"><div class="big">${completion(t)}%</div><div class="lbl">Тұрақтылық</div></div>
-      <div class="kpi"><div class="big">${ic('flame')} ${currentStreak(t)}</div><div class="lbl">Ағымдағы streak</div></div>
+      <div class="kpi"><div class="big">${completion(t)}%</div><div class="lbl">${LANG==='ru'?'Стабильность':'Тұрақтылық'}</div></div>
+      <div class="kpi"><div class="big">${ic('flame')} ${currentStreak(t)}</div><div class="lbl">${LANG==='ru'?'Текущая серия':'Ағымдағы streak'}</div></div>
     </div>
-    <div style="font-size:12.5px;color:var(--muted);margin-top:10px">Соңғы 14 күн</div>
+    <div style="font-size:12.5px;color:var(--muted);margin-top:10px">${LANG==='ru'?'Последние 14 дней':'Соңғы 14 күн'}</div>
     ${ovDayStrip(t)}
-    <button class="btn ghost sm" style="width:auto" onclick="openTracker('${t.id}')">Толық ашу ${ic('arrowRight')}</button>
+    <button class="btn ghost sm" style="width:auto" onclick="openTracker('${t.id}')">${LANG==='ru'?'Открыть полностью':'Толық ашу'} ${ic('arrowRight')}</button>
   </div>`;
 }
 function renderOverview(){
   const box=document.getElementById('trackerOverviewBox'); if(!box) return;
   if(!trackers.filter(isDayBased).length){ box.style.display='none'; return; }
   box.style.display='';
-  document.getElementById('ovTabs').innerHTML = [['all','Барлығы'],['good','Қалыптасқан (≥80%)'],['bad','Назар аудар (<50%)']]
+  const ovTabsList = LANG==='ru'
+    ? [['all','Все'],['good','Стабильные (≥80%)'],['bad','Требуют внимания (<50%)']]
+    : [['all','Барлығы'],['good','Қалыптасқан (≥80%)'],['bad','Назар аудар (<50%)']];
+  document.getElementById('ovTabs').innerHTML = ovTabsList
     .map(([k,label])=>`<button class="tab ${k===ovFilter?'active':''}" onclick="switchOvTab('${k}')">${label}</button>`).join('');
   const list=ovFilteredTrackers();
   document.getElementById('ovList').innerHTML = list.length ? list.map(ovListRow).join('')
-    : `<div class="empty" style="padding:14px 0"><span class="em">${ic('inbox')}</span>Бұл сүзгіде трекер жоқ</div>`;
+    : `<div class="empty" style="padding:14px 0"><span class="em">${ic('inbox')}</span>${LANG==='ru'?'В этом фильтре нет трекеров':'Бұл сүзгіде трекер жоқ'}</div>`;
   document.getElementById('ovDetail').innerHTML = ovDetailHtml(list);
 }
 function renderAchievements(){
@@ -4791,7 +4921,7 @@ function renderAchievements(){
   trackers.forEach(t=>{ const b=bestStreak(t); BADGES.forEach(x=>{ if(b>=x.n) counts[x.n]++; }); });
   el.innerHTML=`<div class="ach-row">
     ${BADGES.map(x=>`<div class="ach"><span class="ae">${ic(x.emo)}</span>
-      <div><div class="an">${counts[x.n]}</div><div class="al">${x.label} қатар алды</div></div></div>`).join('')}
+      <div><div class="an">${counts[x.n]}</div><div class="al">${badgeLabel(x)} ${LANG==='ru'?'подряд набрано':'қатар алды'}</div></div></div>`).join('')}
   </div>`;
 }
 function renderAnalytics(){
@@ -4801,7 +4931,7 @@ function renderAnalytics(){
   if(!trackers.length){
     kpi.innerHTML='';
     document.getElementById('derived').innerHTML=
-      `<div class="empty"><span class="em">${ic('barChart')}</span>Талдау үшін алдымен трекер қос.</div>`;
+      `<div class="empty"><span class="em">${ic('barChart')}</span>${LANG==='ru'?'Сначала добавь трекер для анализа.':'Талдау үшін алдымен трекер қос.'}</div>`;
     // бос диаграммалар
     drawBar(); drawLine(); drawHeatmap();
     return;
@@ -4811,7 +4941,12 @@ function renderAnalytics(){
   const best = Math.max(...trackers.map(bestStreak));
   const totalDone = trackers.reduce((s,t)=>s+successDays(t),0);
 
-  kpi.innerHTML=`
+  kpi.innerHTML= LANG==='ru' ? `
+    <div class="kpi"><div class="big">${trackers.length}</div><div class="lbl">Активных трекеров</div></div>
+    <div class="kpi"><div class="big" style="color:var(--s3)">${formed}</div><div class="lbl">Сформировавшихся привычек</div></div>
+    <div class="kpi"><div class="big">${avgAll}%</div><div class="lbl">Средняя стабильность</div></div>
+    <div class="kpi"><div class="big">${ic('flame')} ${best} <span style="font-size:15px;font-weight:600;color:var(--muted)">дней</span></div><div class="lbl">Самая длинная серия (дней подряд)</div></div>
+    <div class="kpi"><div class="big">${totalDone}</div><div class="lbl">Всего выполненных дней</div></div>` : `
     <div class="kpi"><div class="big">${trackers.length}</div><div class="lbl">Белсенді трекер</div></div>
     <div class="kpi"><div class="big" style="color:var(--s3)">${formed}</div><div class="lbl">Қалыптасқан әдет</div></div>
     <div class="kpi"><div class="big">${avgAll}%</div><div class="lbl">Орташа тұрақтылық</div></div>
@@ -4830,13 +4965,13 @@ function renderAnalytics(){
 
   document.getElementById('derived').innerHTML = `
     <div class="chart-box">
-      <h3>Қорытынды тұжырым</h3>
-      <div class="cd">Әр саладағы прогресіңе негізделген</div>
+      <h3>${LANG==='ru'?'Итоговый вывод':'Қорытынды тұжырым'}</h3>
+      <div class="cd">${LANG==='ru'?'На основе прогресса в каждой сфере':'Әр саладағы прогресіңе негізделген'}</div>
       ${rows.map(r=>`
         <div class="split-item">
-          <span class="k">${ic(r.emo)} ${r.name} <small style="color:var(--faint)">(${r.count} трекер)</small></span>
+          <span class="k">${ic(r.emo)} ${r.name} <small style="color:var(--faint)">(${r.count} ${LANG==='ru'?'трекер(ов)':'трекер'})</small></span>
           <span class="v" style="color:${r.avg>=70?'var(--good)':r.avg>=40?'var(--warn)':'#f0a5a5'}">
-            ${r.name} бойынша ${r.avg}%-ға дамыдың</span>
+            ${LANG==='ru' ? `Прогресс по «${r.name}»: ${r.avg}%` : `${r.name} бойынша ${r.avg}%-ға дамыдың`}</span>
         </div>`).join('')}
     </div>`;
 }
@@ -4845,9 +4980,93 @@ function renderAnalytics(){
    TOAST
    ============================================================ */
 let toastTimer;
+// toast()/confirm()/қате хабарлары үшін — 60+ жеке колл-сайтты key-ге көшірудің орнына,
+// дисплей алдында бір үлкен сөздікпен (ішінара сәйкестік бойынша) автоматты аударамыз.
+// Иконка HTML-і (ic('x')) әр тілде бірдей, сол себепті проблема жоқ — тек мәтін бөлігі ауысады.
+const RU_PHRASES = {
+  'Push ескертулер қосылды':'Push-уведомления включены',
+  'Push ескертулер әлі орнатылмаған':'Push-уведомления ещё не настроены',
+  'Push ескертулер өшірілді':'Push-уведомления отключены',
+  'Айдың нешесі екенін жаз, немесе «Күнін белгілемеймін» қой':'Укажи число месяца или отметь «Не указывать дату»',
+  'Алдымен «Су ішу» трекерін қос':'Сначала добавь трекер «Пить воду»',
+  'Атауын енгіз':'Введи название',
+  'Атауын жаз':'Напиши название',
+  'Атын және инсайтты жаз':'Напиши название и инсайт',
+  'Атын жаз':'Напиши имя',
+  'Атыңды енгіз':'Введи своё имя',
+  'Барлық сұраққа жауап бер':'Ответь на все вопросы',
+  'Бұл браузер push ескертулерді қолдамайды':'Этот браузер не поддерживает push-уведомления',
+  'Витамин атауын жаз':'Напиши название витамина',
+  'Екі бағанды да толтыр':'Заполни оба поля',
+  'Ең көбі 7':'Максимум 7',
+  'Жоспарды жаз':'Напиши план',
+  'Жоспар жаз':'Напиши план',
+  'Кемінде бір жауап жаз':'Напиши хотя бы один ответ',
+  'Мақсат атауын жаз':'Напиши название цели',
+  'Мәтін жаз':'Напиши текст',
+  'Пароль ауыстырылды':'Пароль изменён',
+  'Доступ берілді':'Доступ выдан',
+  'Доступ алынды':'Доступ забран',
+  'Пароль кемінде 4 таңба болу керек':'Пароль должен быть не менее 4 символов',
+  'Пароль өзгертілді':'Пароль изменён',
+  'Рұқсат берілмеді':'Доступ не разрешён',
+  'Сақталды':'Сохранено',
+  'Соманы дұрыс енгіз':'Введи сумму верно',
+  'Табыс қосылды':'Доход добавлен',
+  'Чек файлы тым үлкен (300KB-тан аз болу керек) — суретсіз сақталды':'Файл чека слишком большой (должен быть меньше 300 КБ) — сохранено без фото',
+  'Шығын қосылды':'Расход добавлен',
+  'Эмоция таңда немесе жаз':'Выбери или напиши эмоцию',
+  'Қосылды':'Добавлено',
+  'Архивке жіберілді':'Отправлено в архив',
+  'Бүгінгі бәрі бекітілген!':'Всё на сегодня отмечено!',
+  'Карточка қосылды!':'Карточка добавлена!',
+  'Су трекерінің мақсаты ':'Цель трекера воды теперь ',
+  ' стакан болды':' стаканов',
+  'Трекер қосылды!':'Трекер добавлен!',
+  'Нәтиже көшірілді':'Результат скопирован',
+  'Барлық бизнес-сөзді үйрендің!':'Ты выучил все бизнес-слова!',
+  'Тағы 1 ай қосылды':'Добавлен ещё 1 месяц',
+  'Қайтарылды':'Восстановлено',
+  'Қалпына келтірілді':'Восстановлено',
+  'Карточка жасырылды':'Карточка скрыта',
+  'Карточка жойылды':'Карточка удалена',
+  ' трекер бүгінге бекітілді!':' трекеров отмечено на сегодня!',
+  'Жаңа белгі: ':'Новый значок: ',
+  ' қатар!':'!',
+  'Нәтиже: ':'Результат: ',
+  // Растау (confirm) хабарлары
+  'Бұл трекерді архивке жібереміз бе? (кейін қалпына келтіруге болады)':'Отправить трекер в архив? (можно будет восстановить позже)',
+  'Біржола жоямыз ба? Бұны қайтару мүмкін емес.':'Удалить навсегда? Это нельзя отменить.',
+  'Архивтегі барлық трекерді біржола жоямыз ба?':'Удалить все трекеры в архиве навсегда?',
+  'Витаминді жоямыз ба?':'Удалить витамин?',
+  'Төлемді өшіреміз бе?':'Удалить платёж?',
+  'Мақсатты өшіреміз бе?':'Удалить цель?',
+  'Қарызды өшіреміз бе?':'Удалить долг?',
+  // Профиль/қауіпсіздік қатесі
+  'Барлық өрісті толтыр':'Заполни все поля',
+  'Жаңа пароль кемінде 4 таңба':'Новый пароль минимум 4 символа',
+  'Пароль кемінде 4 таңба':'Пароль минимум 4 символа',
+  'Жаңа парольдер сәйкес емес':'Новые пароли не совпадают',
+  'Ағымдағы пароль қате':'Текущий пароль неверный',
+  'Email дұрыс емес':'Неверный email',
+  'Бұл email тіркелген — кіріп көр':'Этот email уже зарегистрирован — попробуй войти',
+  'Мұндай email табылмады':'Такой email не найден',
+  'Пароль қате':'Неверный пароль',
+  'Сервер қатесі, кейінірек көр':'Ошибка сервера, попробуй позже',
+};
+// Ұзын кілттерді бірінші тексереміз — қысқа сәйкестік (мыс. "Пароль кемінде 4 таңба")
+// ұзынырақ фразаның (мыс. "Жаңа пароль кемінде 4 таңба") ІШІНДЕГІ бөлігін алдын ала
+// бүлдіріп алмас үшін.
+const RU_PHRASE_KEYS = Object.keys(RU_PHRASES).sort((a,b)=>b.length-a.length);
+function tr(str){
+  if(LANG!=='ru' || !str) return str;
+  let out = str;
+  RU_PHRASE_KEYS.forEach(kk=>{ if(out.includes(kk)) out = out.split(kk).join(RU_PHRASES[kk]); });
+  return out;
+}
 function toast(msg){
   const el=document.getElementById('toast');
-  el.innerHTML=msg; el.classList.add('show');
+  el.innerHTML=tr(msg); el.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer=setTimeout(()=>el.classList.remove('show'),2200);
 }
