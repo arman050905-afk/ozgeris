@@ -1406,13 +1406,13 @@
 <!-- ============ GAD-7 MODAL ============ -->
 <div class="modal-bg" id="gadModal">
   <div class="modal" style="max-width:560px">
-    <h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='6' y='4' width='12' height='18' rx='2'/><rect x='9' y='2' width='6' height='4' rx='1'/><line x1='9' y1='11' x2='15' y2='11'/><line x1='9' y1='15' x2='15' y2='15'/></svg> GAD-7 — Мазасыздық тесті</h3>
-    <div style="color:var(--muted);font-size:13px;margin-bottom:16px">Соңғы 2 аптада мына жайттар сізді қаншалықты мазалады?</div>
+    <h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='6' y='4' width='12' height='18' rx='2'/><rect x='9' y='2' width='6' height='4' rx='1'/><line x1='9' y1='11' x2='15' y2='11'/><line x1='9' y1='15' x2='15' y2='15'/></svg> <span data-i18n="gad.title">GAD-7 — Мазасыздық тесті</span></h3>
+    <div style="color:var(--muted);font-size:13px;margin-bottom:16px" data-i18n="gad.sub">Соңғы 2 аптада мына жайттар сізді қаншалықты мазалады?</div>
     <div id="gadBody" style="max-height:52vh;overflow-y:auto"></div>
     <div id="gadScore" style="text-align:center;color:var(--muted);font-size:13px;margin:10px 0"></div>
     <div class="modal-actions">
-      <button class="btn ghost" onclick="document.getElementById('gadModal').classList.remove('open')">Болдырмау</button>
-      <button class="btn" onclick="saveGAD()">Нәтижені көру</button>
+      <button class="btn ghost" onclick="document.getElementById('gadModal').classList.remove('open')" data-i18n="common.cancel">Болдырмау</button>
+      <button class="btn" onclick="saveGAD()" data-i18n="gad.seeResult">Нәтижені көру</button>
     </div>
   </div>
 </div>
@@ -1537,6 +1537,8 @@ const I18N = {
     'debt.new':'Жаңа қарыз', 'debt.closed':'Жабылған қарыздар',
     'debt.personLabel':'Кім (аты)', 'debt.personPh':'Мысалы: Асхат', 'debt.amountLabel':'Сома (₸)',
     'debt.dateLabel':'Алынған күні', 'debt.dueLabel':'Қайтару мерзімі',
+    'gad.title':'GAD-7 — Мазасыздық тесті', 'gad.sub':'Соңғы 2 аптада мына жайттар сізді қаншалықты мазалады?',
+    'gad.seeResult':'Нәтижені көру',
   },
   ru: {
     'nav.create':'Создать трекер', 'nav.mine':'Мои трекеры', 'nav.task':'Задание',
@@ -1611,6 +1613,8 @@ const I18N = {
     'debt.new':'Новый долг', 'debt.closed':'Закрытые долги',
     'debt.personLabel':'Кто (имя)', 'debt.personPh':'Например: Асхат', 'debt.amountLabel':'Сумма (₸)',
     'debt.dateLabel':'Дата получения', 'debt.dueLabel':'Срок возврата',
+    'gad.title':'GAD-7 — Тест на тревожность', 'gad.sub':'Насколько часто за последние 2 недели вас беспокоило следующее?',
+    'gad.seeResult':'Посмотреть результат',
 
     'tpl.sugar.name':'30 дней без сахара', 'tpl.sugar.desc':'Меньше сладкого — больше энергии и контроль питания.',
     'tpl.water.name':'Питьё воды (8 стаканов)', 'tpl.water.desc':'Держи дневную норму воды — нажми на ячейку +1 стакан.',
@@ -2762,14 +2766,15 @@ function detailHeader(t, statsHtml){
   const cat = CATEGORIES.find(c=>c.id===t.cat)||CATEGORIES[6];
   return `<div class="detail-head">
       <div class="icon" style="background:color-mix(in srgb, ${cat.color} 13%, transparent);color:${cat.color}">${ic(t.emo)}</div>
-      <div><h1>${t.name}</h1><div class="tag">${ic(cat.emo)} ${catName(cat)} · басталды ${fmtDate(t.start)}</div></div>
+      <div><h1>${t.name}</h1><div class="tag">${ic(cat.emo)} ${catName(cat)} · ${LANG==='ru'?'начат':'басталды'} ${fmtDate(t.start)}</div></div>
       ${statsHtml||''}
     </div>`;
 }
 function detailFooter(t){
+  const ru = LANG==='ru';
   return `<div style="margin-top:22px;display:flex;gap:12px;flex-wrap:wrap">
-      <button class="btn ghost sm" onclick="editTracker('${t.id}')">${ic('edit')} Атын өзгерту</button>
-      <button class="btn danger sm" onclick="delTracker('${t.id}',true)">${ic('trash')} Жою</button>
+      <button class="btn ghost sm" onclick="editTracker('${t.id}')">${ic('edit')} ${ru?'Изменить название':'Атын өзгерту'}</button>
+      <button class="btn danger sm" onclick="delTracker('${t.id}',true)">${ic('trash')} ${ru?'Удалить':'Жою'}</button>
     </div>`;
 }
 
@@ -2783,10 +2788,11 @@ function sleepHours(d){
 }
 function sleepAssess(h){
   if(h==null) return {t:'',c:'var(--muted)'};
-  if(h<5) return {t:`Тым аз ұйықтадың — денең демалмайды ${ic('bed')}`,c:'#f0a5a5'};
-  if(h<7) return {t:'Сәл жетіспейді — 7+ сағат мақсат ет',c:'var(--warn)'};
-  if(h<=9) return {t:`Ұйқың өте жақсы! ${ic('checkCircle')}`,c:'var(--good)'};
-  return {t:'Тым көп ұйықтадың — ұйқыны қысқарту қажет',c:'var(--warn)'};
+  const ru = LANG==='ru';
+  if(h<5) return {t: ru ? `Слишком мало сна — тело не отдыхает ${ic('bed')}` : `Тым аз ұйықтадың — денең демалмайды ${ic('bed')}`,c:'#f0a5a5'};
+  if(h<7) return {t: ru ? 'Немного не хватает — стремись к 7+ часам' : 'Сәл жетіспейді — 7+ сағат мақсат ет',c:'var(--warn)'};
+  if(h<=9) return {t: ru ? `Отличный сон! ${ic('checkCircle')}` : `Ұйқың өте жақсы! ${ic('checkCircle')}`,c:'var(--good)'};
+  return {t: ru ? 'Слишком много сна — стоит сократить' : 'Тым көп ұйықтадың — ұйқыны қысқарту қажет',c:'var(--warn)'};
 }
 function isSleepOk(d){ const h=sleepHours(d); return h!=null && h>=7 && h<=9; }
 function renderSleep(t){
@@ -2806,21 +2812,22 @@ function renderSleep(t){
   });
   const days=monthGrid(cells);
   const months=Math.ceil(t.days.length/30);
+  const ru = LANG==='ru';
   document.getElementById('detailBody').innerHTML=`
     <div class="detail-card">
       ${detailHeader(t,`<div class="detail-stats">
-        <div class="stat"><div class="num">${avg||'—'}</div><div class="lbl">Орташа сағат</div></div>
-        <div class="stat"><div class="num">${pct}%</div><div class="lbl">Сапалы ұйқы</div></div>
-        <div class="stat"><div class="num">${ic('flame')} ${okDays}</div><div class="lbl">Жақсы күн</div></div>
+        <div class="stat"><div class="num">${avg||'—'}</div><div class="lbl">${ru?'Средние часы':'Орташа сағат'}</div></div>
+        <div class="stat"><div class="num">${pct}%</div><div class="lbl">${ru?'Качественный сон':'Сапалы ұйқы'}</div></div>
+        <div class="stat"><div class="num">${ic('flame')} ${okDays}</div><div class="lbl">${ru?'Хороших дней':'Жақсы күн'}</div></div>
       </div>`)}
       <div class="progressbar"><span style="width:${pct}%"></span></div>
-      <div class="days-hint">Ұяшықты бас — жату/тұру уақыты мен көңіл-күйіңді жаз. Талдау автоматты шығады.</div>
+      <div class="days-hint">${ru?'Нажми на ячейку — впиши время сна/подъёма и настроение. Анализ появится автоматически.':'Ұяшықты бас — жату/тұру уақыты мен көңіл-күйіңді жаз. Талдау автоматты шығады.'}</div>
       ${days}
       <div style="margin-top:14px">
-        <button class="btn ghost sm" onclick="extendTracker('${t.id}')">${ic('plus')} Тағы 1 ай қосу</button>
-        <span style="color:var(--muted);font-size:13px;margin-left:8px">Қазір: ${months} ай (${t.days.length} күн)</span>
+        <button class="btn ghost sm" onclick="extendTracker('${t.id}')">${ic('plus')} ${ru?'Добавить ещё 1 месяц':'Тағы 1 ай қосу'}</button>
+        <span style="color:var(--muted);font-size:13px;margin-left:8px">${ru?`Сейчас: ${months} мес. (${t.days.length} дней)`:`Қазір: ${months} ай (${t.days.length} күн)`}</span>
       </div>
-      <div class="days-hint" style="margin-top:24px">${ic('trend')} Ұйқы динамикасы (сағат)</div>
+      <div class="days-hint" style="margin-top:24px">${ic('trend')} ${ru?'Динамика сна (часы)':'Ұйқы динамикасы (сағат)'}</div>
       <canvas id="sleepChart" height="200" style="margin-top:6px"></canvas>
       ${detailFooter(t)}
     </div>`;
@@ -2832,7 +2839,7 @@ function drawSleepChart(t){
   const vals=t.days.map(sleepHours);
   const nums=vals.filter(v=>v!=null);
   const pad={l:30,r:12,t:12,b:26}, cw=w-pad.l-pad.r, ch=h-pad.t-pad.b;
-  if(!nums.length){ ctx.fillStyle='#64748b';ctx.font='14px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('Дерек жоқ',w/2,h/2);return; }
+  if(!nums.length){ ctx.fillStyle='#64748b';ctx.font='14px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(LANG==='ru'?'Нет данных':'Дерек жоқ',w/2,h/2);return; }
   const maxV=Math.max(12,...nums);
   const xAt=i=>pad.l+(i/29)*cw, yAt=v=>pad.t+ch-(v/maxV*ch);
   ctx.font='11px system-ui';ctx.textAlign='right';ctx.textBaseline='middle';
@@ -2892,23 +2899,24 @@ const BIZ_WORDS=[
 ];
 function renderEnglish(t){
   const words=t.words||[];
+  const ru = LANG==='ru';
   document.getElementById('detailBody').innerHTML=`
     <div class="detail-card">
-      ${detailHeader(t,`<div class="detail-stats"><div class="stat"><div class="num">${words.length}</div><div class="lbl">Үйренген сөз</div></div></div>`)}
+      ${detailHeader(t,`<div class="detail-stats"><div class="stat"><div class="num">${words.length}</div><div class="lbl">${ru?'Выучено слов':'Үйренген сөз'}</div></div></div>`)}
       <div class="box" style="background:var(--panel-2);margin-bottom:16px">
-        <div class="box-head"><h3>${ic('gift')} Бүгінгі сөздер</h3></div>
-        <div style="color:var(--muted);font-size:14px;margin-bottom:12px">Бизнеске қатысты 2 жаңа сөз ал (қайталанбайды) — бірден тізімге сақталады.</div>
-        <button class="btn" onclick="giveWords('${t.id}')">${ic('mail')} Бүгінгі 2 сөз алу</button>
+        <div class="box-head"><h3>${ic('gift')} ${ru?'Слова на сегодня':'Бүгінгі сөздер'}</h3></div>
+        <div style="color:var(--muted);font-size:14px;margin-bottom:12px">${ru?'Получи 2 новых бизнес-слова (без повторов) — сразу сохранятся в список.':'Бизнеске қатысты 2 жаңа сөз ал (қайталанбайды) — бірден тізімге сақталады.'}</div>
+        <button class="btn" onclick="giveWords('${t.id}')">${ic('mail')} ${ru?'Получить 2 слова на сегодня':'Бүгінгі 2 сөз алу'}</button>
       </div>
-      <div class="days-hint">Немесе өз сөзіңді жаз:</div>
+      <div class="days-hint">${ru?'Или впиши своё слово:':'Немесе өз сөзіңді жаз:'}</div>
       <div class="row">
         <div><label>English</label><input id="enWord" placeholder="apple" onkeydown="if(event.key==='Enter')addWord('${t.id}')"></div>
-        <div><label>Қазақша</label><input id="kkWord" placeholder="алма" onkeydown="if(event.key==='Enter')addWord('${t.id}')"></div>
+        <div><label>${ru?'Русский':'Қазақша'}</label><input id="kkWord" placeholder="${ru?'яблоко':'алма'}" onkeydown="if(event.key==='Enter')addWord('${t.id}')"></div>
       </div>
-      <button class="btn" onclick="addWord('${t.id}')">${ic('plus')} Сөз қосу</button>
-      <h3 style="margin-top:24px">${ic('book')} Менің үйренгендерім (${words.length})</h3>
+      <button class="btn" onclick="addWord('${t.id}')">${ic('plus')} ${ru?'Добавить слово':'Сөз қосу'}</button>
+      <h3 style="margin-top:24px">${ic('book')} ${ru?'Мои изученные':'Менің үйренгендерім'} (${words.length})</h3>
       <div id="wordList">${words.length? words.slice().reverse().map(wRow).join('') :
-        `<div style="color:var(--faint);padding:14px 0">Әзірге сөз жоқ</div>`}</div>
+        `<div style="color:var(--faint);padding:14px 0">${ru?'Пока нет слов':'Әзірге сөз жоқ'}</div>`}</div>
       ${detailFooter(t)}
     </div>`;
 }
@@ -2921,7 +2929,7 @@ function giveWords(id){
   const t=trackers.find(x=>x.id===id); t.words=t.words||[];
   const known=new Set(t.words.map(w=>w.en.toLowerCase()));
   const pool=BIZ_WORDS.filter(([en])=>!known.has(en.toLowerCase()));
-  if(!pool.length){ toast(`${ic('party')} Барлық бизнес-сөзді үйрендің!`); return; }
+  if(!pool.length){ toast(`${ic('party')} ${LANG==='ru'?'Ты выучил все бизнес-слова!':'Барлық бизнес-сөзді үйрендің!'}`); return; }
   // кездейсоқ 2 (қайталанбайтын)
   const pick=[];
   for(let i=0;i<2 && pool.length;i++){
@@ -2930,12 +2938,12 @@ function giveWords(id){
   }
   pick.forEach(([en,kk])=> t.words.push({id:uid(),en,kk,date:todayStr(),given:true}));
   save(); renderEnglish(t);
-  toast(ic('gift')+' '+pick.map(p=>p[0]).join(', ')+' қосылды');
+  toast(ic('gift')+' '+pick.map(p=>p[0]).join(', ')+(LANG==='ru'?' добавлено':' қосылды'));
 }
 function addWord(id){
   const t=trackers.find(x=>x.id===id);
   const en=document.getElementById('enWord').value.trim(), kk=document.getElementById('kkWord').value.trim();
-  if(!en||!kk){ toast('Екі бағанды да толтыр'); return; }
+  if(!en||!kk){ toast(LANG==='ru'?'Заполни оба поля':'Екі бағанды да толтыр'); return; }
   t.words=t.words||[]; t.words.push({id:uid(),en,kk,date:todayStr()}); save(); renderEnglish(t);
 }
 function delWord(wid){
@@ -2948,18 +2956,19 @@ function delWord(wid){
    ============================================================ */
 function renderPodcast(t){
   const items=t.items||[];
+  const ru = LANG==='ru';
   document.getElementById('detailBody').innerHTML=`
     <div class="detail-card">
-      ${detailHeader(t,`<div class="detail-stats"><div class="stat"><div class="num">${items.length}</div><div class="lbl">Инсайт</div></div></div>`)}
-      <div class="days-hint">Тыңдаған подкастыңды және одан алған инсайтыңды жаз.</div>
-      <label>Подкаст аты</label>
-      <input id="pcName" placeholder="Мысалы: Lex Fridman #123">
-      <label>Алған инсайтың</label>
-      <input id="pcInsight" placeholder="Не үйрендің?">
-      <button class="btn" onclick="addPodcast('${t.id}')">${ic('plus')} Қосу</button>
-      <h3 style="margin-top:24px">${ic('lightbulb')} Инсайттар (${items.length})</h3>
+      ${detailHeader(t,`<div class="detail-stats"><div class="stat"><div class="num">${items.length}</div><div class="lbl">${ru?'Инсайтов':'Инсайт'}</div></div></div>`)}
+      <div class="days-hint">${ru?'Впиши прослушанный подкаст и полученный инсайт.':'Тыңдаған подкастыңды және одан алған инсайтыңды жаз.'}</div>
+      <label>${ru?'Название подкаста':'Подкаст аты'}</label>
+      <input id="pcName" placeholder="${ru?'Например: Lex Fridman #123':'Мысалы: Lex Fridman #123'}">
+      <label>${ru?'Полученный инсайт':'Алған инсайтың'}</label>
+      <input id="pcInsight" placeholder="${ru?'Что узнал?':'Не үйрендің?'}">
+      <button class="btn" onclick="addPodcast('${t.id}')">${ic('plus')} ${ru?'Добавить':'Қосу'}</button>
+      <h3 style="margin-top:24px">${ic('lightbulb')} ${ru?'Инсайты':'Инсайттар'} (${items.length})</h3>
       <div class="ins-grid">${items.length? items.slice().reverse().map(pcCard).join('') :
-        `<div style="color:var(--faint);padding:14px 0">Әзірге инсайт жоқ</div>`}</div>
+        `<div style="color:var(--faint);padding:14px 0">${ru?'Пока нет инсайтов':'Әзірге инсайт жоқ'}</div>`}</div>
       ${detailFooter(t)}
     </div>`;
 }
@@ -2974,7 +2983,7 @@ function pcCard(it){
 function addPodcast(id){
   const t=trackers.find(x=>x.id===id);
   const name=document.getElementById('pcName').value.trim(), insight=document.getElementById('pcInsight').value.trim();
-  if(!name||!insight){ toast('Атын және инсайтты жаз'); return; }
+  if(!name||!insight){ toast(LANG==='ru'?'Впиши название и инсайт':'Атын және инсайтты жаз'); return; }
   t.items=t.items||[]; t.items.push({id:uid(),name,insight,date:todayStr()}); save(); renderPodcast(t);
 }
 function delPodcast(iid){
@@ -2987,7 +2996,65 @@ function delPodcast(iid){
    ============================================================ */
 function renderVitamins(t){
   const vits=t.vits||[];
-  document.getElementById('detailBody').innerHTML=`
+  const ru = LANG==='ru';
+  document.getElementById('detailBody').innerHTML = ru ? `
+    <div class="detail-card">
+      ${detailHeader(t,'')}
+      <div class="vit-desc">
+        <b>ТРЕКЕР ПРИЁМА ВИТАМИНОВ</b><br>
+        Используй трекер, чтобы сформировать привычку приёма витаминов. Впиши название витамина,
+        когда начал принимать и сколько дней нужно принимать (срок), и отмечай ежедневный приём.
+        Можно вести не только свои витамины, но и витамины членов семьи —
+        в этом трекере можно заполнить <b>до 7 витаминов</b>.
+      </div>
+      ${vits.length? vits.map((v,vi)=>vitBlock(t,v,vi)).join('') : `<div style="color:var(--faint);padding:14px 0">Пока нет витаминов</div>`}
+      ${vits.length<7 ? `
+      <div class="box" style="margin-top:16px;background:var(--panel-2)">
+        <div class="row">
+          <div><label>Какой витамин</label><input id="vName" placeholder="Vitamin D"></div>
+          <div><label>Дата начала</label><input id="vStart" type="date" value="${todayStr()}"></div>
+        </div>
+        <label>Срок приёма (дней)</label><input id="vDur" type="number" placeholder="90">
+        <button class="btn" onclick="addVit('${t.id}')">${ic('plus')} Добавить витамин</button>
+      </div>`:'<div style="color:var(--warn);margin-top:12px">Максимум 7 витаминов.</div>'}
+      <div class="box" style="margin-top:16px">
+        <div class="box-head"><h3>${ic('book2')} Знания о витаминах</h3></div>
+        <div style="font-size:14px;line-height:1.7">
+          <p style="margin:0 0 12px;font-weight:700;letter-spacing:.02em">ВАЖНОСТЬ ВИТАМИНОВ</p>
+          <p style="color:var(--muted);margin:0 0 14px">В "развитом" мире, полном плохой экологии, стресса, загрязнений и бедной питательными веществами еды, витамины играют крайне важную роль в поддержании нашего здоровья и благополучия. Витамины — неотъемлемая часть нашей жизни, они сильно влияют на нормальную работу тела и организма.</p>
+          <p style="color:var(--muted);margin:0 0 10px">Если ты постоянно чувствуешь усталость, слабость, бессонницу или нежелание что-либо делать — часто это происходит из-за дефицита витаминов в организме. Что дают тебе витамины?</p>
+          <ul style="list-style:none;padding:0;margin:0 0 18px;display:grid;gap:7px">
+            <li style="color:var(--good)">${ic('checkCircle')} <span style="color:var(--text)">Укрепляют иммунитет</span></li>
+            <li style="color:var(--good)">${ic('checkCircle')} <span style="color:var(--text)">Защищают от вирусов и бактерий</span></li>
+            <li style="color:var(--good)">${ic('checkCircle')} <span style="color:var(--text)">Дают энергию и силу</span></li>
+            <li style="color:var(--good)">${ic('checkCircle')} <span style="color:var(--text)">Кожа, волосы, ногти становятся здоровыми</span></li>
+            <li style="color:var(--good)">${ic('checkCircle')} <span style="color:var(--text)">Предотвращают сердечно-сосудистые заболевания</span></li>
+            <li style="color:var(--good)">${ic('checkCircle')} <span style="color:var(--text)">Кости и зубы становятся здоровыми</span></li>
+            <li style="color:var(--good)">${ic('checkCircle')} <span style="color:var(--text)">Улучшается настроение</span></li>
+            <li style="color:var(--good)">${ic('checkCircle')} <span style="color:var(--text)">Укрепляется память</span></li>
+            <li style="color:var(--good)">${ic('checkCircle')} <span style="color:var(--text)">Улучшается сон</span></li>
+          </ul>
+          <p style="margin:0 0 10px;font-weight:700">Список самых используемых витаминов</p>
+          <ul style="list-style:none;padding:0;margin:0 0 18px;display:grid;gap:10px;color:var(--muted)">
+            <li><b style="color:var(--text)">${ic('pill')} Витамин D3</b> — отвечает за здоровье костей и зубов, помогает усвоению кальция, повышает иммунитет.</li>
+            <li><b style="color:var(--text)">${ic('pill')} Витамин C</b> — укрепляет иммунную систему, улучшает кожу, снижает усталость.</li>
+            <li><b style="color:var(--text)">${ic('pill')} Витамин B12</b> — необходим для выработки энергии и нормальной работы нервной системы.</li>
+            <li><b style="color:var(--text)">${ic('pill')} Магний</b> — регулирует работу мышц, сердца и нервной системы, улучшает качество сна.</li>
+            <li><b style="color:var(--text)">${ic('pill')} Цинк</b> — поддерживает здоровье кожи и волос, укрепляет иммунную систему.</li>
+            <li><b style="color:var(--text)">${ic('pill')} Йод</b> — улучшает работу щитовидной железы, регулирует энергию и метаболизм.</li>
+            <li><b style="color:var(--text)">${ic('pill')} Омега-3</b> — защищает мозг и сердечно-сосудистую систему, стабилизирует настроение.</li>
+            <li><b style="color:var(--text)">${ic('pill')} Железо</b> — участвует в кроветворении и доставке кислорода в организм, предотвращает слабость и головокружение.</li>
+            <li><b style="color:var(--text)">${ic('pill')} Коллаген</b> — сохраняет упругость кожи, укрепляет суставы и кости.</li>
+          </ul>
+          <div style="background:var(--panel-2);border-radius:12px;padding:16px">
+            <b style="color:var(--warn)">${ic('alertTriangle')} Важное замечание</b>
+            <p style="color:var(--muted);margin:10px 0 0">Перед приёмом витаминов обязательно проконсультируйся с врачом. У каждого организм разный, поэтому желательно сдать анализы, чтобы узнать каких витаминов не хватает именно тебе.</p>
+            <p style="color:var(--muted);margin:10px 0 0">Только после этого составь свой личный план и отмечай ежедневный приём в трекере выше. Это поможет тебе сохранить дисциплину и системность — а результат почувствуется уже в первый месяц.</p>
+          </div>
+        </div>
+      </div>
+      ${detailFooter(t)}
+    </div>` : `
     <div class="detail-card">
       ${detailHeader(t,'')}
       <div class="vit-desc">
@@ -3047,6 +3114,7 @@ function renderVitamins(t){
     </div>`;
 }
 function vitBlock(t,v,vi){
+  const ru = LANG==='ru';
   const months=[0,1,2];
   const monthsHtml=months.map(m=>{
     const cells=Array.from({length:30},(_,k)=>{
@@ -3054,12 +3122,12 @@ function vitBlock(t,v,vi){
       const within = idx < (v.dur||90);
       return `<div class="vday ${on?'on':''} ${within?'':'off'}" onclick="toggleVit('${t.id}',${vi},${idx})">${k+1}</div>`;
     }).join('');
-    return `<div class="vmonth"><div class="vmonth-t">${m+1} ай</div><div class="vgrid">${cells}</div></div>`;
+    return `<div class="vmonth"><div class="vmonth-t">${m+1} ${ru?'мес.':'ай'}</div><div class="vgrid">${cells}</div></div>`;
   }).join('');
   const done=(v.days||[]).filter(Boolean).length;
   return `<div class="vit">
     <div class="vit-head">
-      <div><b>${ic('pill')} ${v.name}</b><div class="tag">Басталды: ${fmtDate(v.start)} · мерзім ${v.dur} күн · белгіленген ${done}</div></div>
+      <div><b>${ic('pill')} ${v.name}</b><div class="tag">${ru?`Начато: ${fmtDate(v.start)} · срок ${v.dur} дн. · отмечено ${done}`:`Басталды: ${fmtDate(v.start)} · мерзім ${v.dur} күн · белгіленген ${done}`}</div></div>
       <span class="del" onclick="delVit('${t.id}',${vi})">${ic('x')}</span>
     </div>
     ${monthsHtml}
@@ -3070,8 +3138,8 @@ function addVit(id){
   const name=document.getElementById('vName').value.trim();
   const start=document.getElementById('vStart').value||todayStr();
   const dur=+document.getElementById('vDur').value||90;
-  if(!name){ toast('Витамин атауын жаз'); return; }
-  t.vits=t.vits||[]; if(t.vits.length>=7){ toast('Ең көбі 7'); return; }
+  if(!name){ toast(LANG==='ru'?'Впиши название витамина':'Витамин атауын жаз'); return; }
+  t.vits=t.vits||[]; if(t.vits.length>=7){ toast(LANG==='ru'?'Максимум 7':'Ең көбі 7'); return; }
   t.vits.push({name,start,dur,days:new Array(90).fill(false)}); save(); renderVitamins(t);
 }
 function toggleVit(id,vi,idx){
@@ -3102,19 +3170,20 @@ function renderMood(t){
   });
   const days=monthGrid(cells);
   const months=Math.ceil(t.days.length/30);
+  const ru = LANG==='ru';
   document.getElementById('detailBody').innerHTML=`
     <div class="detail-card">
       ${detailHeader(t,`<div class="detail-stats">
-        <div class="stat"><div class="num">${avg?ic(MOODS[Math.round(avg)]):'—'}</div><div class="lbl">Орташа (${avg||'—'})</div></div>
-        <div class="stat"><div class="num">${goodDays}</div><div class="lbl">Жақсы күн</div></div>
+        <div class="stat"><div class="num">${avg?ic(MOODS[Math.round(avg)]):'—'}</div><div class="lbl">${ru?'Среднее':'Орташа'} (${avg||'—'})</div></div>
+        <div class="stat"><div class="num">${goodDays}</div><div class="lbl">${ru?'Хороших дней':'Жақсы күн'}</div></div>
       </div>`)}
-      <div class="days-hint">Ұяшықты бас — көңіл-күйіңді таңда (${ic('mood1')} ${ic('mood2')} ${ic('mood3')} ${ic('mood4')} ${ic('mood5')}). Түс те өзгереді.</div>
+      <div class="days-hint">${ru?`Нажми на ячейку — выбери настроение (${ic('mood1')} ${ic('mood2')} ${ic('mood3')} ${ic('mood4')} ${ic('mood5')}). Цвет тоже изменится.`:`Ұяшықты бас — көңіл-күйіңді таңда (${ic('mood1')} ${ic('mood2')} ${ic('mood3')} ${ic('mood4')} ${ic('mood5')}). Түс те өзгереді.`}</div>
       ${days}
       <div style="margin-top:14px">
-        <button class="btn ghost sm" onclick="extendTracker('${t.id}')">${ic('plus')} Тағы 1 ай қосу</button>
-        <span style="color:var(--muted);font-size:13px;margin-left:8px">Қазір: ${months} ай</span>
+        <button class="btn ghost sm" onclick="extendTracker('${t.id}')">${ic('plus')} ${ru?'Добавить ещё 1 месяц':'Тағы 1 ай қосу'}</button>
+        <span style="color:var(--muted);font-size:13px;margin-left:8px">${ru?`Сейчас: ${months} мес.`:`Қазір: ${months} ай`}</span>
       </div>
-      <div class="days-hint" style="margin-top:24px">${ic('trend')} Көңіл-күй динамикасы</div>
+      <div class="days-hint" style="margin-top:24px">${ic('trend')} ${ru?'Динамика настроения':'Көңіл-күй динамикасы'}</div>
       <canvas id="moodChart" height="200" style="margin-top:6px"></canvas>
       ${detailFooter(t)}
     </div>`;
@@ -3130,7 +3199,7 @@ function drawMoodChart(t){
   const cv=document.getElementById('moodChart'); if(!cv) return;
   const {ctx,w,h}=setupCanvas(cv); ctx.clearRect(0,0,w,h);
   const vals=t.days.map(v=>v==null?null:v);
-  if(!vals.some(v=>v!=null)){ ctx.fillStyle='#64748b';ctx.font='14px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('Дерек жоқ',w/2,h/2);return; }
+  if(!vals.some(v=>v!=null)){ ctx.fillStyle='#64748b';ctx.font='14px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(LANG==='ru'?'Нет данных':'Дерек жоқ',w/2,h/2);return; }
   const pad={l:30,r:12,t:12,b:26}, cw=w-pad.l-pad.r, ch=h-pad.t-pad.b, n=vals.length;
   const xAt=i=>pad.l+(i/Math.max(1,n-1))*cw, yAt=v=>pad.t+ch-((v-1)/4*ch);
   ctx.font='11px system-ui';ctx.textAlign='right';ctx.textBaseline='middle';
@@ -3145,7 +3214,9 @@ function drawMoodChart(t){
    ============================================================ */
 let gymViewMonth = null; // {y,m} — ай күнтізбесінің көрініс күйі (модуль деңгейінде, sleep/mood секілді)
 const GYM_MONTHS = ['Қаңтар','Ақпан','Наурыз','Сәуір','Мамыр','Маусым','Шілде','Тамыз','Қыркүйек','Қазан','Қараша','Желтоқсан'];
+const GYM_MONTHS_RU = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 const GYM_WEEKDAYS = ['Дс','Сс','Ср','Бс','Жм','Сб','Жс'];
+const GYM_WEEKDAYS_RU = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
 function renderGym(t){
   t.gymDates = t.gymDates || {};
   if(!gymViewMonth){ const now=new Date(); gymViewMonth={y:now.getFullYear(), m:now.getMonth()}; }
@@ -3165,22 +3236,23 @@ function renderGym(t){
     cells.push(`<div class="${cls}" onclick="toggleGymDate('${t.id}','${ds}')">${d}</div>`);
   }
   const totalVisits = Object.values(t.gymDates).filter(Boolean).length;
+  const ru = LANG==='ru';
   document.getElementById('detailBody').innerHTML = `
     <div class="detail-card">
       ${detailHeader(t,`<div class="detail-stats">
-        <div class="stat"><div class="num">${visitCount}</div><div class="lbl">Осы айда барды</div></div>
-        <div class="stat"><div class="num">${totalVisits}</div><div class="lbl">Барлығы</div></div>
+        <div class="stat"><div class="num">${visitCount}</div><div class="lbl">${ru?'Посещений в этом месяце':'Осы айда барды'}</div></div>
+        <div class="stat"><div class="num">${totalVisits}</div><div class="lbl">${ru?'Всего':'Барлығы'}</div></div>
       </div>`)}
       <div style="display:flex;align-items:center;justify-content:space-between;margin:18px 0 10px">
-        <button class="btn ghost sm" onclick="gymNavMonth(-1,'${t.id}')" aria-label="Алдыңғы ай">${ic('arrowLeft')}</button>
-        <div style="font-weight:800;font-size:15px">${GYM_MONTHS[m]} ${y}</div>
-        <button class="btn ghost sm" onclick="gymNavMonth(1,'${t.id}')" aria-label="Келесі ай">${ic('arrowRight')}</button>
+        <button class="btn ghost sm" onclick="gymNavMonth(-1,'${t.id}')" aria-label="${ru?'Прошлый месяц':'Алдыңғы ай'}">${ic('arrowLeft')}</button>
+        <div style="font-weight:800;font-size:15px">${(ru?GYM_MONTHS_RU:GYM_MONTHS)[m]} ${y}</div>
+        <button class="btn ghost sm" onclick="gymNavMonth(1,'${t.id}')" aria-label="${ru?'Следующий месяц':'Келесі ай'}">${ic('arrowRight')}</button>
       </div>
       <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:8px">
-        ${GYM_WEEKDAYS.map(w=>`<div style="text-align:center;font-size:12px;color:var(--muted);font-weight:700">${w}</div>`).join('')}
+        ${(ru?GYM_WEEKDAYS_RU:GYM_WEEKDAYS).map(w=>`<div style="text-align:center;font-size:12px;color:var(--muted);font-weight:700">${w}</div>`).join('')}
       </div>
       <div class="days" style="grid-template-columns:repeat(7,1fr)">${cells.join('')}</div>
-      <div class="days-hint" style="margin-top:14px">Ұяшықты бас — сол күні залда болғаныңды белгіле.</div>
+      <div class="days-hint" style="margin-top:14px">${ru?'Нажми на ячейку — отметь, что в этот день был в зале.':'Ұяшықты бас — сол күні залда болғаныңды белгіле.'}</div>
       ${detailFooter(t)}
     </div>`;
 }
@@ -3214,8 +3286,24 @@ const GAD_Q=[
   'Тез ашуланшақ немесе тітіркенгіш болу',
   'Бірдеңе жаман болатындай қорқыныш сезіну'
 ];
+const GAD_Q_RU=[
+  'Ощущение нервозности, тревоги или напряжения',
+  'Невозможность остановить или контролировать беспокойство',
+  'Слишком сильное беспокойство о разных вещах',
+  'Трудно расслабиться',
+  'Настолько беспокойно, что трудно сидеть на месте',
+  'Легкая раздражительность или вспыльчивость',
+  'Чувство страха, будто случится что-то плохое'
+];
 const GAD_OPT=['Мүлдем емес','Бірнеше күн','Күндердің жартысынан көбі','Күн сайын дерлік'];
+const GAD_OPT_RU=['Совсем нет','Несколько дней','Больше половины дней','Почти каждый день'];
 function gadBand(s){
+  if(LANG==='ru'){
+    if(s<=4) return {t:'Минимальная тревожность',c:'var(--good)',a:'Хорошо! Твоё текущее состояние стабильно. Сохраняй этот настрой.'};
+    if(s<=9) return {t:'Лёгкая тревожность',c:'var(--s4)',a:'Обрати внимание на отдых, дыхательные упражнения и сон. Продолжай наблюдать за состоянием.'};
+    if(s<=14) return {t:'Умеренная тревожность',c:'var(--warn)',a:'Стоит подумать о разговоре со специалистом (психологом). Снижай источники стресса.'};
+    return {t:'Тяжёлая тревожность',c:'var(--crit)',a:'Лучше обратиться к специалисту (психологу/врачу). Не оставайся один, поделись с близким.'};
+  }
   if(s<=4) return {t:'Минималды мазасыздық',c:'var(--good)',a:'Жақсы! Ағымдағы жағдайың тұрақты. Осы қалпыңды сақта.'};
   if(s<=9) return {t:'Жеңіл мазасыздық',c:'var(--s4)',a:'Демалу, дем алу жаттығулары мен ұйқыға көңіл бөл. Жағдайды бақылап отыр.'};
   if(s<=14) return {t:'Орташа мазасыздық',c:'var(--warn)',a:'Маманмен (психолог) сөйлесуді ойластырған жөн. Стресс көздерін азайт.'};
@@ -3224,21 +3312,22 @@ function gadBand(s){
 function renderAnxiety(t){
   const tests=t.tests||[];
   const last=tests[tests.length-1];
+  const ru = LANG==='ru';
   document.getElementById('detailBody').innerHTML=`
     <div class="detail-card">
-      ${detailHeader(t, last?`<div class="detail-stats"><div class="stat"><div class="num" style="color:${gadBand(last.score).c}">${last.score}</div><div class="lbl">Соңғы балл /21</div></div></div>`:'')}
+      ${detailHeader(t, last?`<div class="detail-stats"><div class="stat"><div class="num" style="color:${gadBand(last.score).c}">${last.score}</div><div class="lbl">${ru?'Последний балл /21':'Соңғы балл /21'}</div></div></div>`:'')}
       <div class="vit-desc">
-        <b>GAD-7 — мазасыздықты өлшеу</b><br>
-        Соңғы 2 аптада мына жайттар сізді қаншалықты мазалады? 7 сұраққа жауап беріп, мазасыздық деңгейіңізді біліңіз.
-        <br><small style="color:var(--warn)">${ic('alertTriangle')} Бұл — скрининг құралы, медициналық диагноз емес. Балл жоғары болса, маманға жүгініңіз.</small>
+        <b>${ru?'GAD-7 — измерение тревожности':'GAD-7 — мазасыздықты өлшеу'}</b><br>
+        ${ru?'Насколько часто за последние 2 недели вас беспокоило следующее? Ответьте на 7 вопросов, чтобы узнать уровень своей тревожности.':'Соңғы 2 аптада мына жайттар сізді қаншалықты мазалады? 7 сұраққа жауап беріп, мазасыздық деңгейіңізді біліңіз.'}
+        <br><small style="color:var(--warn)">${ic('alertTriangle')} ${ru?'Это скрининговый инструмент, а не медицинский диагноз. Если балл высокий, обратитесь к специалисту.':'Бұл — скрининг құралы, медициналық диагноз емес. Балл жоғары болса, маманға жүгініңіз.'}</small>
       </div>
-      <button class="btn" onclick="openGAD('${t.id}')">${ic('clipboard')} Тест тапсыру</button>
+      <button class="btn" onclick="openGAD('${t.id}')">${ic('clipboard')} ${ru?'Пройти тест':'Тест тапсыру'}</button>
       ${last?`<div class="gad-result" style="border-color:${gadBand(last.score).c};margin-top:16px">
-        <div class="gr-top"><b>Соңғы нәтиже: ${last.score}/21</b> <span style="color:${gadBand(last.score).c};font-weight:700">${gadBand(last.score).t}</span></div>
+        <div class="gr-top"><b>${ru?'Последний результат':'Соңғы нәтиже'}: ${last.score}/21</b> <span style="color:${gadBand(last.score).c};font-weight:700">${gadBand(last.score).t}</span></div>
         <div style="color:var(--muted);font-size:14px;margin-top:6px">${gadBand(last.score).a}</div>
       </div>`:''}
-      ${tests.length>1?`<div class="days-hint" style="margin-top:24px">${ic('trend')} Балл динамикасы (0–21)</div><canvas id="gadChart" height="200" style="margin-top:6px"></canvas>`:''}
-      ${tests.length?`<h3 style="margin-top:24px">Тарих (${tests.length})</h3>
+      ${tests.length>1?`<div class="days-hint" style="margin-top:24px">${ic('trend')} ${ru?'Динамика баллов (0–21)':'Балл динамикасы (0–21)'}</div><canvas id="gadChart" height="200" style="margin-top:6px"></canvas>`:''}
+      ${tests.length?`<h3 style="margin-top:24px">${ru?'История':'Тарих'} (${tests.length})</h3>
         <div>${tests.slice().reverse().map(gadRow).join('')}</div>`:''}
       ${detailFooter(t)}
     </div>`;
@@ -3252,10 +3341,12 @@ function gadRow(r){
 let gadCtx=null;
 function openGAD(id){
   gadCtx={id, answers:new Array(7).fill(null)};
-  document.getElementById('gadBody').innerHTML=GAD_Q.map((q,i)=>`
+  const ru = LANG==='ru';
+  const Q = ru ? GAD_Q_RU : GAD_Q, OPT = ru ? GAD_OPT_RU : GAD_OPT;
+  document.getElementById('gadBody').innerHTML=Q.map((q,i)=>`
     <div class="gad-q" id="gadq${i}">
       <div class="gad-qt">${i+1}. ${q}</div>
-      <div class="gad-opts">${GAD_OPT.map((o,v)=>`<button class="gad-opt" onclick="pickGad(${i},${v},this)">${v} — ${o}</button>`).join('')}</div>
+      <div class="gad-opts">${OPT.map((o,v)=>`<button class="gad-opt" onclick="pickGad(${i},${v},this)">${v} — ${o}</button>`).join('')}</div>
     </div>`).join('');
   document.getElementById('gadScore').textContent='';
   document.getElementById('gadModal').classList.add('open');
@@ -3266,15 +3357,15 @@ function pickGad(qi,val,el){
   wrap.querySelectorAll('.gad-opt').forEach(b=>b.classList.remove('sel'));
   el.classList.add('sel');
   const done=gadCtx.answers.filter(a=>a!=null).length;
-  document.getElementById('gadScore').textContent=`Жауап берілді: ${done}/7`;
+  document.getElementById('gadScore').textContent= LANG==='ru' ? `Отвечено: ${done}/7` : `Жауап берілді: ${done}/7`;
 }
 function saveGAD(){
-  if(gadCtx.answers.some(a=>a==null)){ toast('Барлық сұраққа жауап бер'); return; }
+  if(gadCtx.answers.some(a=>a==null)){ toast(LANG==='ru'?'Ответь на все вопросы':'Барлық сұраққа жауап бер'); return; }
   const score=gadCtx.answers.reduce((s,a)=>s+a,0);
   const t=trackers.find(x=>x.id===gadCtx.id);
   t.tests=t.tests||[]; t.tests.push({id:uid(),date:todayStr(),score,answers:gadCtx.answers});
   save(); document.getElementById('gadModal').classList.remove('open');
-  const b=gadBand(score); toast(`Нәтиже: ${score}/21 — ${b.t}`); renderAnxiety(t);
+  const b=gadBand(score); toast(LANG==='ru' ? `Результат: ${score}/21 — ${b.t}` : `Нәтиже: ${score}/21 — ${b.t}`); renderAnxiety(t);
 }
 function delGad(rid){
   const t=trackers.find(x=>x.kind==='anxiety' && (x.tests||[]).some(r=>r.id===rid));
@@ -3296,24 +3387,27 @@ function drawGadChart(t){
    SPECIAL: Эмоция күнделігі
    ============================================================ */
 const EMOTIONS=['Қуаныш','Тыныштық','Ризашылық','Сенімділік','Мұң','Ашу','Қорқыныш','Мазасыздық','Шаршау','Жалғыздық','Шабыт','Бейтараптық'];
+const EMOTIONS_RU=['Радость','Спокойствие','Благодарность','Уверенность','Печаль','Гнев','Страх','Тревога','Усталость','Одиночество','Вдохновение','Нейтральность'];
 function renderEmotion(t){
   const entries=t.entries||[];
   const chosen=t._draft||[];
+  const ru = LANG==='ru';
+  const emoList = ru ? EMOTIONS_RU : EMOTIONS;
   // жиілік
   const freq={};
   entries.forEach(e=>(e.emotions||[]).forEach(em=>freq[em]=(freq[em]||0)+1));
   const top=Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,3);
   document.getElementById('detailBody').innerHTML=`
     <div class="detail-card">
-      ${detailHeader(t,`<div class="detail-stats"><div class="stat"><div class="num">${entries.length}</div><div class="lbl">Жазба</div></div></div>`)}
-      <div class="days-hint">Бүгінгі эмоцияларыңды таңда, не болғанын жаз.</div>
-      <div class="emo-pick" id="emoPick">${EMOTIONS.map(e=>`<span class="emo-tag ${chosen.includes(e)?'sel':''}" onclick="toggleEmo('${t.id}','${e}')">${e}</span>`).join('')}</div>
-      <label style="margin-top:12px">Не болды? Неге осылай сезіндің?</label>
+      ${detailHeader(t,`<div class="detail-stats"><div class="stat"><div class="num">${entries.length}</div><div class="lbl">${ru?'Записей':'Жазба'}</div></div></div>`)}
+      <div class="days-hint">${ru?'Выбери сегодняшние эмоции, напиши что случилось.':'Бүгінгі эмоцияларыңды таңда, не болғанын жаз.'}</div>
+      <div class="emo-pick" id="emoPick">${emoList.map(e=>`<span class="emo-tag ${chosen.includes(e)?'sel':''}" onclick="toggleEmo('${t.id}','${e}')">${e}</span>`).join('')}</div>
+      <label style="margin-top:12px">${ru?'Что случилось? Почему ты так себя чувствовал?':'Не болды? Неге осылай сезіндің?'}</label>
       <textarea id="emoText" rows="3" style="width:100%;background:var(--bg);border:1px solid var(--line);color:var(--text);border-radius:9px;padding:10px 12px;font-family:inherit;font-size:15px"></textarea>
-      <button class="btn" style="margin-top:12px" onclick="addEmotion('${t.id}')">${ic('plus')} Күнделікке қосу</button>
-      ${top.length?`<div style="margin-top:16px;color:var(--muted);font-size:14px">Жиі кездесетін: ${top.map(([e,n])=>`${e} (${n})`).join(', ')}</div>`:''}
-      <h3 style="margin-top:24px">${ic('notebook')} Жазбалар (${entries.length})</h3>
-      <div>${entries.length? entries.slice().reverse().map(emoCard).join('') : `<div style="color:var(--faint);padding:12px 0">Әзірге жазба жоқ</div>`}</div>
+      <button class="btn" style="margin-top:12px" onclick="addEmotion('${t.id}')">${ic('plus')} ${ru?'Добавить в дневник':'Күнделікке қосу'}</button>
+      ${top.length?`<div style="margin-top:16px;color:var(--muted);font-size:14px">${ru?'Часто встречается':'Жиі кездесетін'}: ${top.map(([e,n])=>`${e} (${n})`).join(', ')}</div>`:''}
+      <h3 style="margin-top:24px">${ic('notebook')} ${ru?'Записи':'Жазбалар'} (${entries.length})</h3>
+      <div>${entries.length? entries.slice().reverse().map(emoCard).join('') : `<div style="color:var(--faint);padding:12px 0">${ru?'Пока нет записей':'Әзірге жазба жоқ'}</div>`}</div>
       ${detailFooter(t)}
     </div>`;
 }
@@ -3336,7 +3430,7 @@ function toggleEmo(id,em){
 function addEmotion(id){
   const t=trackers.find(x=>x.id===id);
   const emotions=t._draft||[]; const text=document.getElementById('emoText').value.trim();
-  if(!emotions.length && !text){ toast('Эмоция таңда немесе жаз'); return; }
+  if(!emotions.length && !text){ toast(LANG==='ru'?'Выбери эмоцию или напиши текст':'Эмоция таңда немесе жаз'); return; }
   t.entries=t.entries||[]; t.entries.push({id:uid(),date:todayStr(),emotions:[...emotions],text});
   t._draft=[]; save(); renderEmotion(t);
 }
@@ -3358,35 +3452,36 @@ function renderPlan(t){
   const pct=total? Math.round(done/total*100):0;
   // тарих: күндер (бүгінгіден басқа да)
   const dates=[...new Set(all.map(p=>p.date))].sort().reverse();
+  const ru = LANG==='ru';
   document.getElementById('detailBody').innerHTML=`
     <div class="detail-card">
       ${detailHeader(t,`<div class="detail-stats">
-        <div class="stat"><div class="num" style="color:var(--good)">${done}</div><div class="lbl">Орындалды</div></div>
-        <div class="stat"><div class="num" style="color:#f0a5a5">${notDone}</div><div class="lbl">Орындалмады</div></div>
+        <div class="stat"><div class="num" style="color:var(--good)">${done}</div><div class="lbl">${ru?'Выполнено':'Орындалды'}</div></div>
+        <div class="stat"><div class="num" style="color:#f0a5a5">${notDone}</div><div class="lbl">${ru?'Не выполнено':'Орындалмады'}</div></div>
       </div>`)}
-      <label>Қай күнге жоспарлайсың?</label>
+      <label>${ru?'На какой день планируешь?':'Қай күнге жоспарлайсың?'}</label>
       <input type="date" id="planDate" value="${planDate}" onchange="setPlanDate(this.value)" style="max-width:220px">
       <div class="row" style="margin-top:10px;align-items:flex-end">
-        <div style="max-width:130px;flex:0 0 130px"><label>Уақыт</label><input type="time" id="planTime" value="09:00"></div>
-        <div style="flex:1"><label>Жоспар</label><input type="text" id="planText" placeholder="Мысалы: Ағылшын сабағы"></div>
-        <button class="btn" style="max-width:120px" onclick="addPlan('${t.id}')">${ic('plus')} Қосу</button>
+        <div style="max-width:130px;flex:0 0 130px"><label>${ru?'Время':'Уақыт'}</label><input type="time" id="planTime" value="09:00"></div>
+        <div style="flex:1"><label>${ru?'План':'Жоспар'}</label><input type="text" id="planText" placeholder="${ru?'Например: Урок английского':'Мысалы: Ағылшын сабағы'}"></div>
+        <button class="btn" style="max-width:120px" onclick="addPlan('${t.id}')">${ic('plus')} ${ru?'Добавить':'Қосу'}</button>
       </div>
 
-      <h3 style="margin-top:22px">${ic('clipboard')} ${fmtDate(planDate)} жоспары</h3>
-      <div>${day.length? day.map(p=>planRow(t.id,p)).join('') : `<div style="color:var(--faint);padding:12px 0">Бұл күнге жоспар жоқ</div>`}</div>
+      <h3 style="margin-top:22px">${ic('clipboard')} ${ru?`План на ${fmtDate(planDate)}`:`${fmtDate(planDate)} жоспары`}</h3>
+      <div>${day.length? day.map(p=>planRow(t.id,p)).join('') : `<div style="color:var(--faint);padding:12px 0">${ru?'На этот день нет плана':'Бұл күнге жоспар жоқ'}</div>`}</div>
 
       ${total?`<div class="box" style="margin-top:16px;background:var(--panel-2)">
-        <div class="box-head"><h3>${ic('barChart')} Талдау</h3></div>
+        <div class="box-head"><h3>${ic('barChart')} ${ru?'Анализ':'Талдау'}</h3></div>
         <div class="progressbar"><span style="width:${pct}%"></span></div>
         <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:14px">
-          <span style="color:var(--good)">${ic('checkCircle')} Орындалды: <b>${done}</b></span>
-          <span style="color:#f0a5a5">${ic('square')} Орындалмады: <b>${notDone}</b></span>
+          <span style="color:var(--good)">${ic('checkCircle')} ${ru?'Выполнено':'Орындалды'}: <b>${done}</b></span>
+          <span style="color:#f0a5a5">${ic('square')} ${ru?'Не выполнено':'Орындалмады'}: <b>${notDone}</b></span>
           <span><b>${pct}%</b></span>
         </div>
       </div>`:''}
 
-      <h3 style="margin-top:24px">${ic('archive')} Жоспарлар (тарих)</h3>
-      <div>${dates.length? dates.map(d=>planHistCard(t,d)).join('') : `<div style="color:var(--faint);padding:12px 0">Әзірге сақталған жоспар жоқ</div>`}</div>
+      <h3 style="margin-top:24px">${ic('archive')} ${ru?'Планы (история)':'Жоспарлар (тарих)'}</h3>
+      <div>${dates.length? dates.map(d=>planHistCard(t,d)).join('') : `<div style="color:var(--faint);padding:12px 0">${ru?'Пока нет сохранённых планов':'Әзірге сақталған жоспар жоқ'}</div>`}</div>
       ${detailFooter(t)}
     </div>`;
 }
@@ -3402,7 +3497,7 @@ function planHistCard(t,d){
   const items=t.plans.filter(p=>p.date===d).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
   const done=items.filter(p=>p.done).length;
   return `<div class="grat-card">
-    <div class="grat-date">${ic('calendar')} ${fmtDate(d)} <span style="color:var(--muted);font-weight:600">${done}/${items.length} орындалды</span></div>
+    <div class="grat-date">${ic('calendar')} ${fmtDate(d)} <span style="color:var(--muted);font-weight:600">${done}/${items.length} ${LANG==='ru'?'выполнено':'орындалды'}</span></div>
     ${items.map(p=>`<div style="font-size:14px;padding:3px 0;color:${p.done?'var(--good)':'var(--muted)'}">
       ${p.done?ic('checkSquare'):ic('square')} <b style="color:var(--faint)">${p.time||''}</b> ${p.text}</div>`).join('')}
   </div>`;
@@ -3412,7 +3507,7 @@ function addPlan(id){
   const t=trackers.find(x=>x.id===id);
   const time=document.getElementById('planTime').value;
   const text=document.getElementById('planText').value.trim();
-  if(!text){ toast('Жоспарды жаз'); return; }
+  if(!text){ toast(LANG==='ru'?'Впиши план':'Жоспарды жаз'); return; }
   t.plans=t.plans||[]; t.plans.push({id:uid(),date:planDate,time,text,done:false});
   save(); renderPlan(t);
 }
@@ -4561,7 +4656,7 @@ function drawFinPie(canvasId, legendId, outTx, size){
   const legend=document.getElementById(legendId);
   if(!outTx.length){
     ctx.fillStyle=cssVar('--faint'); ctx.font='14px system-ui'; ctx.textAlign='center';
-    ctx.fillText('Шығын деректері жоқ',size/2,size/2);
+    ctx.fillText(LANG==='ru'?'Нет данных о расходах':'Шығын деректері жоқ',size/2,size/2);
     if(legend) legend.innerHTML=''; return;
   }
   const byCat={};
@@ -4586,7 +4681,7 @@ function drawFinPie(canvasId, legendId, outTx, size){
   ctx.beginPath(); ctx.arc(cx,cy,ir,0,Math.PI*2); ctx.fillStyle=cssVar('--panel'); ctx.fill();
   ctx.fillStyle=cssVar('--text'); ctx.font='700 '+Math.round(size*0.083)+'px system-ui'; ctx.textAlign='center';
   ctx.fillText(fmt(total).replace(' ₸',''),cx,cy-2);
-  ctx.fillStyle=cssVar('--muted'); ctx.font=Math.round(size*0.05)+'px system-ui'; ctx.fillText('₸ шығын',cx,cy+size*0.067);
+  ctx.fillStyle=cssVar('--muted'); ctx.font=Math.round(size*0.05)+'px system-ui'; ctx.fillText(LANG==='ru'?'₸ расход':'₸ шығын',cx,cy+size*0.067);
 
   if(legend) legend.innerHTML=entries.map(([cat,val],i)=>`
     <span><i style="background:${PALETTE[i%PALETTE.length]}"></i>
@@ -4662,7 +4757,7 @@ function drawBar(){
     ctx.fillStyle='#94a1b8'; ctx.font='11px system-ui'; ctx.textBaseline='top';
     wrapLabel(ctx,d.name,x+bwid/2,pad.t+ch+8,bw);
     ctx.fillStyle='#64748b'; ctx.font='10px system-ui';
-    ctx.fillText(d.count+' трекер',x+bwid/2,pad.t+ch+24);
+    ctx.fillText(d.count+(LANG==='ru'?' трек.':' трекер'),x+bwid/2,pad.t+ch+24);
   });
 }
 
@@ -4688,7 +4783,7 @@ function drawLine(){
   const activeDays = 30;
   if(!trackers.length){
     ctx.fillStyle='#64748b'; ctx.font='14px system-ui'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText('Деректер жиналуда...',w/2,h/2); return;
+    ctx.fillText(LANG==='ru'?'Данные накапливаются...':'Деректер жиналуда...',w/2,h/2); return;
   }
   const xAt=i=>pad.l+(i/29)*cw;
   const yAt=v=>pad.t+ch-(v/maxDay*ch);
@@ -4711,7 +4806,7 @@ function drawLine(){
   }
   // x labels
   ctx.fillStyle=cssVar('--faint'); ctx.font='11px system-ui'; ctx.textAlign='center'; ctx.textBaseline='top';
-  [1,10,20,30].forEach(d=> ctx.fillText(d+'-күн',xAt(d-1),pad.t+ch+8));
+  [1,10,20,30].forEach(d=> ctx.fillText(LANG==='ru'?`д.${d}`:d+'-күн',xAt(d-1),pad.t+ch+8));
 }
 
 function drawDetailChart(t){
@@ -4726,7 +4821,7 @@ function drawDetailChart(t){
   const cw=w-pad.l-pad.r, ch=h-pad.t-pad.b;
   if(!nums.length){
     ctx.fillStyle='#64748b';ctx.font='14px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillText('Дерек жоқ — ұяшықты басып мән қос',w/2,h/2);return;
+    ctx.fillText(LANG==='ru'?'Нет данных — нажми на ячейку и впиши значение':'Дерек жоқ — ұяшықты басып мән қос',w/2,h/2);return;
   }
   let maxV=Math.max(...nums, t.goal||0, t.goalMax||0);
   maxV=Math.ceil(maxV*1.15)||1;
@@ -4745,7 +4840,7 @@ function drawDetailChart(t){
     const y=yAt(goalLine);
     ctx.strokeStyle='#0ca30c';ctx.lineWidth=1.5;ctx.setLineDash([5,4]);
     ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();ctx.setLineDash([]);
-    ctx.fillStyle='#0ca30c';ctx.textAlign='left';ctx.fillText('мақсат',pad.l+4,y-8);
+    ctx.fillStyle='#0ca30c';ctx.textAlign='left';ctx.fillText(LANG==='ru'?'цель':'мақсат',pad.l+4,y-8);
   }
   if(ty==='count'){
     // bars
