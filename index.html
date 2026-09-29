@@ -1364,8 +1364,8 @@
 <div class="modal-bg welcome-bg" id="welcomeModal">
   <div class="welcome-card">
     <div class="welcome-emblem"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><polyline points='3,17 9,11 13,15 21,5'/><polyline points='15,5 21,5 21,11'/></svg> ÖZGERIS</div>
-    <h2 class="welcome-title">ӨМІРІҢНІҢ ЖАҢА БЕТІ</h2>
-    <div class="welcome-body">
+    <h2 class="welcome-title" data-i18n="welcome.title">ӨМІРІҢНІҢ ЖАҢА БЕТІ</h2>
+    <div class="welcome-body" id="welcomeBody">
       <p>Сәлем! Егер сен осы жобаға тіркелген болсаң — бұл жай қызығушылық емес, бұл ішкі дауыстың «өзімді өзгерткім келеді» деген белгісі. Өз өмірін өзгертуді армандайтын адам өте көп, бірақ алғашқы қадамды шын мәнінде жасайтындар өте аз. Сен сол аздың бірі болдың.</p>
       <p>Бұл күнделік саған өз өміріңді ретке келтірудің жолын көрсетеді. Ол сені шектемейді, керісінше бағыт береді. Күн сайын небәрі бірнеше минут өз ойыңмен жұмыс істеу арқылы сен өміріңнің бағытын өзгертесің, өйткені адам сыртқы жағдайды емес, ең алдымен ішкі жүйесін басқаруды үйренуі керек. Ал ішкі жүйе — ой, ниет, әдет және тұрақтылықтан тұрады.</p>
       <h3>Жобаның басты мақсаты не?</h3>
@@ -1375,19 +1375,19 @@
       <p><b>ÖZGERIS — сенің жолкөрсеткішің.</b> Ол саған мақсатыңды айқындауға, өміріңді жоспарлауға және ең бастысы — өзіңді қайта табуға көмектеседі. Мұндағы әр әдіс бір-бірімен байланысты: бір трекер ойыңды тазартады, екіншісі фокус береді, үшіншісі нақты әрекетке итермелейді. Ал олардың барлығының түпкі нәтижесі — ішкі тыныштық, жүйелілік пен береке.</p>
       <p><b>ÖZGERIS</b> сенен мінсіз болуды талап етпейді. Ол тек бір нәрсені сұрайды — <b>тоқтама</b>. Кейде сенің ең үлкен жетістігің бүгін тағы бір парақ ашқаныңда жатыр. Аз жазсаң да, жазғаныңның өзі — жеңіс. Себебі дамудың сыры көлемде емес, тұрақтылықта.</p>
     </div>
-    <button class="btn welcome-btn" onclick="closeWelcome()">Бастаймын <svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M12,2 L13.5,9.5 L21,11 L13.5,12.5 L12,20 L10.5,12.5 L3,11 L10.5,9.5 Z'/><circle cx='19' cy='5' r='1' fill='currentColor' stroke='none'/></svg></button>
+    <button class="btn welcome-btn" onclick="closeWelcome()"><span data-i18n="welcome.start">Бастаймын</span> <svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M12,2 L13.5,9.5 L21,11 L13.5,12.5 L12,20 L10.5,12.5 L3,11 L10.5,9.5 Z'/><circle cx='19' cy='5' r='1' fill='currentColor' stroke='none'/></svg></button>
   </div>
 </div>
 
 <!-- ============ SLEEP MODAL ============ -->
 <div class="modal-bg" id="sleepModal">
   <div class="modal">
-    <h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M3,18 V8 a2,2 0 0 1 2,-2 h5 a2,2 0 0 1 2,2 v4'/><path d='M12,12 h7 a2,2 0 0 1 2,2 v4'/><line x1='3' y1='15' x2='21' y2='15'/><line x1='3' y1='18' x2='3' y2='21'/><line x1='21' y1='18' x2='21' y2='21'/></svg> Ұйқы — <span id="slDay"></span></h3>
+    <h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M3,18 V8 a2,2 0 0 1 2,-2 h5 a2,2 0 0 1 2,2 v4'/><path d='M12,12 h7 a2,2 0 0 1 2,2 v4'/><line x1='3' y1='15' x2='21' y2='15'/><line x1='3' y1='18' x2='3' y2='21'/><line x1='21' y1='18' x2='21' y2='21'/></svg> <span data-i18n="sleep.title">Ұйқы —</span> <span id="slDay"></span></h3>
     <div class="row">
-      <div><label>Нешеде жаттың?</label><input type="time" id="slBed" value="23:00" oninput="updateSleepPreview()"></div>
-      <div><label>Нешеде тұрдың?</label><input type="time" id="slWake" value="07:00" oninput="updateSleepPreview()"></div>
+      <div><label data-i18n="sleep.bedLabel">Нешеде жаттың?</label><input type="time" id="slBed" value="23:00" oninput="updateSleepPreview()"></div>
+      <div><label data-i18n="sleep.wakeLabel">Нешеде тұрдың?</label><input type="time" id="slWake" value="07:00" oninput="updateSleepPreview()"></div>
     </div>
-    <label>Көңіл-күйің қандай болды?</label>
+    <label data-i18n="sleep.moodLabel">Көңіл-күйің қандай болды?</label>
     <div class="stars" id="slMood">
       <span class="star" onclick="setMood(1)"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M12,2 L15,9 L22,10 L17,15 L18.5,22 L12,18.5 L5.5,22 L7,15 L2,10 L9,9 Z'/></svg></span>
       <span class="star" onclick="setMood(2)"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M12,2 L15,9 L22,10 L17,15 L18.5,22 L12,18.5 L5.5,22 L7,15 L2,10 L9,9 Z'/></svg></span>
@@ -1397,8 +1397,8 @@
     </div>
     <div class="sl-preview" id="slPreview"></div>
     <div class="modal-actions">
-      <button class="btn ghost" onclick="document.getElementById('sleepModal').classList.remove('open')">Болдырмау</button>
-      <button class="btn" onclick="saveSleepDay()">Сақтау</button>
+      <button class="btn ghost" onclick="document.getElementById('sleepModal').classList.remove('open')" data-i18n="common.cancel">Болдырмау</button>
+      <button class="btn" onclick="saveSleepDay()" data-i18n="common.save">Сақтау</button>
     </div>
   </div>
 </div>
@@ -1420,11 +1420,11 @@
 <!-- ============ RANDOM TASK MODAL ============ -->
 <div class="modal-bg" id="rtModal">
   <div class="modal" style="text-align:center">
-    <h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='4' y='4' width='16' height='16' rx='3'/><circle cx='8' cy='8' r='1.2' fill='currentColor' stroke='none'/><circle cx='16' cy='8' r='1.2' fill='currentColor' stroke='none'/><circle cx='12' cy='12' r='1.2' fill='currentColor' stroke='none'/><circle cx='8' cy='16' r='1.2' fill='currentColor' stroke='none'/><circle cx='16' cy='16' r='1.2' fill='currentColor' stroke='none'/></svg> Бүгінгі мини-тапсырма</h3>
+    <h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='4' y='4' width='16' height='16' rx='3'/><circle cx='8' cy='8' r='1.2' fill='currentColor' stroke='none'/><circle cx='16' cy='8' r='1.2' fill='currentColor' stroke='none'/><circle cx='12' cy='12' r='1.2' fill='currentColor' stroke='none'/><circle cx='8' cy='16' r='1.2' fill='currentColor' stroke='none'/><circle cx='16' cy='16' r='1.2' fill='currentColor' stroke='none'/></svg> <span data-i18n="rt.title">Бүгінгі мини-тапсырма</span></h3>
     <div class="rt-text" id="rtText"></div>
     <div class="modal-actions">
-      <button class="btn ghost" onclick="anotherTask()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M21,12 a9,9 0 1 1 -3,-6.7'/><polyline points='21,3 21,9 15,9'/></svg> Басқа</button>
-      <button class="btn" onclick="document.getElementById('rtModal').classList.remove('open')">Жақсы!</button>
+      <button class="btn ghost" onclick="anotherTask()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M21,12 a9,9 0 1 1 -3,-6.7'/><polyline points='21,3 21,9 15,9'/></svg> <span data-i18n="rt.another">Басқа</span></button>
+      <button class="btn" onclick="document.getElementById('rtModal').classList.remove('open')" data-i18n="rt.good">Жақсы!</button>
     </div>
   </div>
 </div>
@@ -1548,6 +1548,10 @@ const I18N = {
     'create.unitLabel':'Бірлік', 'create.unitPh':'стакан / сағат / кг', 'create.dailyGoalLabel':'Күндік мақсат',
     'create.minLabel':'Ең аз (қаласаң)', 'create.maxLabel':'Ең көп (қаласаң)',
     'create.descLabel':'Сипаттама', 'create.descPh':'Қысқаша мақсат', 'create.iconLabel':'Иконка',
+    'welcome.title':'ӨМІРІҢНІҢ ЖАҢА БЕТІ', 'welcome.start':'Бастаймын',
+    'sleep.title':'Ұйқы —', 'sleep.bedLabel':'Нешеде жаттың?', 'sleep.wakeLabel':'Нешеде тұрдың?',
+    'sleep.moodLabel':'Көңіл-күйің қандай болды?',
+    'rt.title':'Бүгінгі мини-тапсырма', 'rt.another':'Басқа', 'rt.good':'Жақсы!',
   },
   ru: {
     'nav.create':'Создать трекер', 'nav.mine':'Мои трекеры', 'nav.task':'Задание',
@@ -1633,6 +1637,10 @@ const I18N = {
     'create.unitLabel':'Единица', 'create.unitPh':'стакан / час / кг', 'create.dailyGoalLabel':'Дневная цель',
     'create.minLabel':'Минимум (по желанию)', 'create.maxLabel':'Максимум (по желанию)',
     'create.descLabel':'Описание', 'create.descPh':'Краткая цель', 'create.iconLabel':'Иконка',
+    'welcome.title':'НОВАЯ СТРАНИЦА ТВОЕЙ ЖИЗНИ', 'welcome.start':'Начать',
+    'sleep.title':'Сон —', 'sleep.bedLabel':'Во сколько лёг?', 'sleep.wakeLabel':'Во сколько встал?',
+    'sleep.moodLabel':'Каким было настроение?',
+    'rt.title':'Мини-задание на сегодня', 'rt.another':'Другое', 'rt.good':'Хорошо!',
 
     'tpl.sugar.name':'30 дней без сахара', 'tpl.sugar.desc':'Меньше сладкого — больше энергии и контроль питания.',
     'tpl.water.name':'Питьё воды (8 стаканов)', 'tpl.water.desc':'Держи дневную норму воды — нажми на ячейку +1 стакан.',
@@ -1662,6 +1670,7 @@ function applyI18n(){
   if(langSel) langSel.value = LANG;
   const langRowSub = document.getElementById('langRowSub');
   if(langRowSub) langRowSub.textContent = LANG==='ru' ? 'Русский' : 'Қазақша';
+  if(typeof applyWelcomeBody==='function') applyWelcomeBody();
   // Ағымдағы көрініп тұрған беттерді қайта рендерлеу — theme toggle секілді
   // толық CSS емес, мазмұн ішінде де аударылатын мәтін бар болғандықтан.
   if(typeof renderCatTiles==='function' && document.getElementById('catGrid')) renderCatTiles();
@@ -1821,7 +1830,23 @@ async function loginAs(email){
   showView('home');
   if(!Store.get('seenWelcome', false)) showWelcome();  // алғаш кіргенде манифест
 }
-function showWelcome(){ document.getElementById('welcomeModal').classList.add('open'); }
+const WELCOME_BODY_RU = `
+      <p>Привет! Если ты зарегистрировался в этом проекте — это не просто любопытство, это знак внутреннего голоса «я хочу измениться». Очень много людей мечтают изменить свою жизнь, но по-настоящему делают первый шаг очень немногие. Ты стал одним из этих немногих.</p>
+      <p>Этот дневник покажет тебе путь к тому, чтобы привести свою жизнь в порядок. Он не ограничивает тебя, а, наоборот, задаёт направление. Работая со своими мыслями всего несколько минут каждый день, ты меняешь направление своей жизни, потому что человеку нужно научиться управлять прежде всего своей внутренней системой, а не внешними обстоятельствами. А внутренняя система состоит из мыслей, намерений, привычек и стабильности.</p>
+      <h3>Какова главная цель проекта?</h3>
+      <p>Главная цель «ÖZGERIS» — не подарить тебе новую жизнь, а дать возможность осознанно управлять своей собственной жизнью. Потому что судьба человека складывается не из случайностей, а из ежедневных выборов и повторяющихся привычек. Многие люди ищут покой и благополучие, но пытаются найти их снаружи. А на самом деле всё начинается с внутренней дисциплины.</p>
+      <h3>Бедность и жизнь без благополучия</h3>
+      <p>— возникают не от нехватки денег, а от рассеянного внимания и разбросанной энергии. Точно так же депрессия и кризис появляются тогда, когда нет ясного направления и смысла. Если человек не знает, для чего он живёт и куда идёт, его дни снаружи выглядят наполненными, но внутри проходят пустыми.</p>
+      <p><b>ÖZGERIS — твой путеводитель.</b> Он поможет тебе определить свою цель, спланировать жизнь и, самое главное, — заново найти себя. Каждый метод здесь связан с другим: один трекер очищает мысли, второй даёт фокус, третий подталкивает к конкретному действию. А итоговый результат всех них — внутренний покой, системность и благополучие.</p>
+      <p><b>ÖZGERIS</b> не требует от тебя быть безупречным. Он просит только одного — <b>не останавливайся</b>. Иногда твоё самое большое достижение — в том, что сегодня ты открыл ещё одну страницу. Даже если написал немного, само это написанное — уже победа. Потому что секрет развития не в объёме, а в постоянстве.</p>`;
+let WELCOME_BODY_KK = null;
+function applyWelcomeBody(){
+  const el = document.getElementById('welcomeBody');
+  if(!el) return;
+  if(WELCOME_BODY_KK==null) WELCOME_BODY_KK = el.innerHTML;
+  el.innerHTML = LANG==='ru' ? WELCOME_BODY_RU : WELCOME_BODY_KK;
+}
+function showWelcome(){ applyWelcomeBody(); document.getElementById('welcomeModal').classList.add('open'); }
 function closeWelcome(){ document.getElementById('welcomeModal').classList.remove('open'); Store.set('seenWelcome', true); scheduleSync(); }
 function togglePw(id, btn){
   const el = document.getElementById(id);
@@ -2888,7 +2913,7 @@ function openSleepDay(id,i){
   if(i>=daysPassed(t)) return; // болашақ күнді белгілеуге болмайды
   const d=t.days[i]||{};
   sleepCtx={id,i};
-  document.getElementById('slDay').textContent=`${i+1}-күн`;
+  document.getElementById('slDay').textContent= LANG==='ru' ? `день ${i+1}` : `${i+1}-күн`;
   document.getElementById('slBed').value = d.bed!=null? minToTime(d.bed):'23:00';
   document.getElementById('slWake').value = d.wake!=null? minToTime(d.wake):'07:00';
   setMood(d.mood||0);
@@ -2903,7 +2928,9 @@ function updateSleepPreview(){
   const bed=timeToMin(document.getElementById('slBed').value);
   const wake=timeToMin(document.getElementById('slWake').value);
   const h=sleepHours({bed,wake}); const a=sleepAssess(h);
-  document.getElementById('slPreview').innerHTML=`<b>${h} сағат</b> ұйықтадың. <span style="color:${a.c}">${a.t}</span>`;
+  document.getElementById('slPreview').innerHTML= LANG==='ru'
+    ? `Ты спал <b>${h} час.</b> <span style="color:${a.c}">${a.t}</span>`
+    : `<b>${h} сағат</b> ұйықтадың. <span style="color:${a.c}">${a.t}</span>`;
 }
 function saveSleepDay(){
   const {id,i}=sleepCtx; const t=trackers.find(x=>x.id===id);
