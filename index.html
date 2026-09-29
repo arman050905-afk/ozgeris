@@ -912,8 +912,8 @@
 <!-- ============ MY TRACKERS ============ -->
 <section id="mine" class="view">
   <div class="container">
-    <h1 class="page-title">Менің трекерлерім</h1>
-    <p class="page-sub">Трекерді ашу үшін карточкасын бас.</p>
+    <h1 class="page-title" data-i18n="nav.mine">Менің трекерлерім</h1>
+    <p class="page-sub" data-i18n="mine.sub">Трекерді ашу үшін карточкасын бас.</p>
     <div class="tracker-grid" id="myList"></div>
   </div>
 </section>
@@ -924,10 +924,10 @@
     <button class="back-btn" onclick="showView('home')"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M19,12 H5 M12,5 L5,12 L12,19'/></svg> <span data-i18n="common.back">Артқа</span></button>
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
       <div>
-        <h1 class="page-title"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='3' y='4' width='18' height='4' rx='1'/><path d='M5,8 V18 a2,2 0 0 0 2,2 h10 a2,2 0 0 0 2,-2 V8'/><line x1='10' y1='13' x2='14' y2='13'/></svg> Архив (жойылғандар)</h1>
-        <p class="page-sub">Жойылған трекерлер осында. Қалпына келтіруге немесе біржола жоюға болады.</p>
+        <h1 class="page-title"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='3' y='4' width='18' height='4' rx='1'/><path d='M5,8 V18 a2,2 0 0 0 2,2 h10 a2,2 0 0 0 2,-2 V8'/><line x1='10' y1='13' x2='14' y2='13'/></svg> <span data-i18n="archive.title">Архив (жойылғандар)</span></h1>
+        <p class="page-sub" data-i18n="archive.sub">Жойылған трекерлер осында. Қалпына келтіруге немесе біржола жоюға болады.</p>
       </div>
-      <button class="btn danger sm" onclick="clearArchive()">Архивті тазалау</button>
+      <button class="btn danger sm" onclick="clearArchive()" data-i18n="archive.clearAll">Архивті тазалау</button>
     </div>
     <div class="tracker-grid" id="archiveList"></div>
   </div>
@@ -1310,29 +1310,29 @@
 <!-- ============ CREATE MODAL ============ -->
 <div class="modal-bg" id="modal">
   <div class="modal">
-    <h3>Өз трекеріңді жаса</h3>
-    <label>Атауы</label>
-    <input id="mName" placeholder="Мысалы: Күнделікті жаттығу">
-    <label>Категория</label>
+    <h3 data-i18n="create.title">Өз трекеріңді жаса</h3>
+    <label data-i18n="create.nameLabel">Атауы</label>
+    <input id="mName" data-i18n-ph="create.namePh" placeholder="Мысалы: Күнделікті жаттығу">
+    <label data-i18n="create.catLabel">Категория</label>
     <select id="mCat"></select>
-    <label>Өлшеу түрі</label>
+    <label data-i18n="create.typeLabel">Өлшеу түрі</label>
     <select id="mType" onchange="onTypeChange()">
-      <option value="check"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='9'/><polyline points='8,12 11,15 16,9'/></svg> Орындадым / жоқ</option>
-      <option value="count"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='9' y1='3' x2='7' y2='21'/><line x1='17' y1='3' x2='15' y2='21'/><line x1='4' y1='9' x2='20' y2='9'/><line x1='3' y1='15' x2='19' y2='15'/></svg> Сан санау (мыс. стакан)</option>
-      <option value="value"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='4' y='12' width='4' height='8' rx='1'/><rect x='10' y='6' width='4' height='14' rx='1'/><rect x='16' y='14' width='4' height='6' rx='1'/></svg> Мән жазу (мыс. сағат/кг)</option>
+      <option value="check" data-i18n="create.type.check"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='9'/><polyline points='8,12 11,15 16,9'/></svg> Орындадым / жоқ</option>
+      <option value="count" data-i18n="create.type.count"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='9' y1='3' x2='7' y2='21'/><line x1='17' y1='3' x2='15' y2='21'/><line x1='4' y1='9' x2='20' y2='9'/><line x1='3' y1='15' x2='19' y2='15'/></svg> Сан санау (мыс. стакан)</option>
+      <option value="value" data-i18n="create.type.value"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='4' y='12' width='4' height='8' rx='1'/><rect x='10' y='6' width='4' height='14' rx='1'/><rect x='16' y='14' width='4' height='6' rx='1'/></svg> Мән жазу (мыс. сағат/кг)</option>
     </select>
     <div id="mNumOpts" style="display:none">
-      <label>Бірлік</label>
-      <input id="mUnit" placeholder="стакан / сағат / кг">
-      <div id="mCountOpts"><label>Күндік мақсат</label><input id="mGoal" type="number" placeholder="8"></div>
+      <label data-i18n="create.unitLabel">Бірлік</label>
+      <input id="mUnit" data-i18n-ph="create.unitPh" placeholder="стакан / сағат / кг">
+      <div id="mCountOpts"><label data-i18n="create.dailyGoalLabel">Күндік мақсат</label><input id="mGoal" type="number" placeholder="8"></div>
       <div id="mRangeOpts" style="display:none"><div class="row">
-        <div><label>Ең аз (қаласаң)</label><input id="mMin" type="number" placeholder="7"></div>
-        <div><label>Ең көп (қаласаң)</label><input id="mMax" type="number" placeholder="9"></div>
+        <div><label data-i18n="create.minLabel">Ең аз (қаласаң)</label><input id="mMin" type="number" placeholder="7"></div>
+        <div><label data-i18n="create.maxLabel">Ең көп (қаласаң)</label><input id="mMax" type="number" placeholder="9"></div>
       </div></div>
     </div>
-    <label>Сипаттама</label>
-    <input id="mDesc" placeholder="Қысқаша мақсат">
-    <label>Иконка</label>
+    <label data-i18n="create.descLabel">Сипаттама</label>
+    <input id="mDesc" data-i18n-ph="create.descPh" placeholder="Қысқаша мақсат">
+    <label data-i18n="create.iconLabel">Иконка</label>
     <div class="emoji-pick" id="emojiPick"></div>
     <div class="modal-actions">
       <button class="btn ghost" onclick="closeCreate()"><span data-i18n="common.cancel">Болдырмау</span></button>
@@ -1499,7 +1499,7 @@ const I18N = {
     'catdesc.gratitude':'Күнделікті шүкіршілік сұрақтары — ішкі тыныштық.',
     'catdesc.other':'Өз әдетіңді қолмен жаз — күн сайын орындалды/орындалмады деп белгіле.',
 
-    'common.add':'Қосу', 'common.save':'Сақтау', 'common.cancel':'Бас тарту', 'common.close':'Жабу',
+    'common.close':'Жабу',
     'recur.stat1':'Айлық жалпы жүктеме', 'recur.stat2':'Мерзімі өткен',
     'recur.addTitle':'Жаңа міндетті төлем қосу',
     'recur.whatLabel':'Не төлейсің? (таңдау міндетті емес — тізімнен таңдасаң, атауы мен түрі өзі толады)',
@@ -1539,6 +1539,15 @@ const I18N = {
     'debt.dateLabel':'Алынған күні', 'debt.dueLabel':'Қайтару мерзімі',
     'gad.title':'GAD-7 — Мазасыздық тесті', 'gad.sub':'Соңғы 2 аптада мына жайттар сізді қаншалықты мазалады?',
     'gad.seeResult':'Нәтижені көру',
+    'mine.sub':'Трекерді ашу үшін карточкасын бас.',
+    'archive.title':'Архив (жойылғандар)', 'archive.sub':'Жойылған трекерлер осында. Қалпына келтіруге немесе біржола жоюға болады.',
+    'archive.clearAll':'Архивті тазалау',
+    'create.title':'Өз трекеріңді жаса', 'create.nameLabel':'Атауы', 'create.namePh':'Мысалы: Күнделікті жаттығу',
+    'create.catLabel':'Категория', 'create.typeLabel':'Өлшеу түрі',
+    'create.type.check':'Орындадым / жоқ', 'create.type.count':'Сан санау (мыс. стакан)', 'create.type.value':'Мән жазу (мыс. сағат/кг)',
+    'create.unitLabel':'Бірлік', 'create.unitPh':'стакан / сағат / кг', 'create.dailyGoalLabel':'Күндік мақсат',
+    'create.minLabel':'Ең аз (қаласаң)', 'create.maxLabel':'Ең көп (қаласаң)',
+    'create.descLabel':'Сипаттама', 'create.descPh':'Қысқаша мақсат', 'create.iconLabel':'Иконка',
   },
   ru: {
     'nav.create':'Создать трекер', 'nav.mine':'Мои трекеры', 'nav.task':'Задание',
@@ -1575,7 +1584,7 @@ const I18N = {
     'catdesc.gratitude':'Ежедневные вопросы благодарности — внутренний покой.',
     'catdesc.other':'Впиши свою привычку вручную — каждый день отмечай выполнено/нет.',
 
-    'common.add':'Добавить', 'common.save':'Сохранить', 'common.cancel':'Отмена', 'common.close':'Закрыть',
+    'common.close':'Закрыть',
     'recur.stat1':'Общая месячная нагрузка', 'recur.stat2':'Просрочено',
     'recur.addTitle':'Добавить обязательный платёж',
     'recur.whatLabel':'Что оплачиваешь? (выбор не обязателен — если выберешь из списка, название и тип заполнятся сами)',
@@ -1615,6 +1624,15 @@ const I18N = {
     'debt.dateLabel':'Дата получения', 'debt.dueLabel':'Срок возврата',
     'gad.title':'GAD-7 — Тест на тревожность', 'gad.sub':'Насколько часто за последние 2 недели вас беспокоило следующее?',
     'gad.seeResult':'Посмотреть результат',
+    'mine.sub':'Нажми на карточку, чтобы открыть трекер.',
+    'archive.title':'Архив (удалённые)', 'archive.sub':'Удалённые трекеры хранятся здесь. Можно восстановить или удалить навсегда.',
+    'archive.clearAll':'Очистить архив',
+    'create.title':'Создай свой трекер', 'create.nameLabel':'Название', 'create.namePh':'Например: Ежедневная тренировка',
+    'create.catLabel':'Категория', 'create.typeLabel':'Тип измерения',
+    'create.type.check':'Выполнил / нет', 'create.type.count':'Счёт числа (напр. стакан)', 'create.type.value':'Запись значения (напр. часы/кг)',
+    'create.unitLabel':'Единица', 'create.unitPh':'стакан / час / кг', 'create.dailyGoalLabel':'Дневная цель',
+    'create.minLabel':'Минимум (по желанию)', 'create.maxLabel':'Максимум (по желанию)',
+    'create.descLabel':'Описание', 'create.descPh':'Краткая цель', 'create.iconLabel':'Иконка',
 
     'tpl.sugar.name':'30 дней без сахара', 'tpl.sugar.desc':'Меньше сладкого — больше энергии и контроль питания.',
     'tpl.water.name':'Питьё воды (8 стаканов)', 'tpl.water.desc':'Держи дневную норму воды — нажми на ячейку +1 стакан.',
@@ -2546,9 +2564,10 @@ function fmtDate(s){
 }
 function renderMine(){
   const list = document.getElementById('myList');
+  const ru = LANG==='ru';
   if(!trackers.length){
     list.innerHTML = `<div class="empty" style="grid-column:1/-1"><span class="em">${ic('inbox')}</span>
-      Әзірге трекер жоқ.<br>«Трекер құру» бетінен біреуін таңда.</div>`;
+      ${ru?'Пока нет трекеров.<br>Выбери один со страницы «Создать трекер».':'Әзірге трекер жоқ.<br>«Трекер құру» бетінен біреуін таңда.'}</div>`;
     return;
   }
   list.innerHTML = trackers.map(t=>{
@@ -2557,16 +2576,26 @@ function renderMine(){
     if(isDayBased(t)){
       const pct = completion(t);
       body = `<div class="progressbar"><span style="width:${pct}%"></span></div>
-        <div class="tcard-meta"><span><b>${successDays(t)}</b> / ${totalDays(t)} күн</span><span><b>${pct}%</b></span></div>`;
+        <div class="tcard-meta"><span><b>${successDays(t)}</b> / ${totalDays(t)} ${ru?'дн.':'күн'}</span><span><b>${pct}%</b></span></div>`;
     } else {
       let n=0,lbl='';
-      if(t.kind==='english'){ n=(t.words||[]).length; lbl='сөз үйрендің'; }
-      else if(t.kind==='podcast'){ n=(t.items||[]).length; lbl='инсайт жаздың'; }
-      else if(t.kind==='vitamins'){ n=(t.vits||[]).length; lbl='витамин қосылды'; }
-      else if(t.kind==='anxiety'){ n=(t.tests||[]).length; lbl='тест тапсырдың'; }
-      else if(t.kind==='emotion'){ n=(t.entries||[]).length; lbl='жазба'; }
-      else if(t.kind==='plan'){ n=(t.plans||[]).length; lbl='жоспар'; }
-      else if(t.kind==='gym'){ n=Object.values(t.gymDates||{}).filter(Boolean).length; lbl='рет барды'; }
+      if(ru){
+        if(t.kind==='english'){ n=(t.words||[]).length; lbl='слов выучено'; }
+        else if(t.kind==='podcast'){ n=(t.items||[]).length; lbl='инсайтов записано'; }
+        else if(t.kind==='vitamins'){ n=(t.vits||[]).length; lbl='витаминов добавлено'; }
+        else if(t.kind==='anxiety'){ n=(t.tests||[]).length; lbl='тестов пройдено'; }
+        else if(t.kind==='emotion'){ n=(t.entries||[]).length; lbl='записей'; }
+        else if(t.kind==='plan'){ n=(t.plans||[]).length; lbl='планов'; }
+        else if(t.kind==='gym'){ n=Object.values(t.gymDates||{}).filter(Boolean).length; lbl='посещений'; }
+      } else {
+        if(t.kind==='english'){ n=(t.words||[]).length; lbl='сөз үйрендің'; }
+        else if(t.kind==='podcast'){ n=(t.items||[]).length; lbl='инсайт жаздың'; }
+        else if(t.kind==='vitamins'){ n=(t.vits||[]).length; lbl='витамин қосылды'; }
+        else if(t.kind==='anxiety'){ n=(t.tests||[]).length; lbl='тест тапсырдың'; }
+        else if(t.kind==='emotion'){ n=(t.entries||[]).length; lbl='жазба'; }
+        else if(t.kind==='plan'){ n=(t.plans||[]).length; lbl='жоспар'; }
+        else if(t.kind==='gym'){ n=Object.values(t.gymDates||{}).filter(Boolean).length; lbl='рет барды'; }
+      }
       body = `<div class="tcard-meta" style="margin-top:6px"><span><b>${n}</b> ${lbl}</span><span>${ic('arrowRight')}</span></div>`;
     }
     return `<div class="tcard" onclick="openTracker('${t.id}')">
@@ -2577,14 +2606,14 @@ function renderMine(){
           <div class="tag">${ic(cat.emo)} ${catName(cat)}</div>
         </div>
         <div class="tcard-acts">
-          <button class="icon-btn" title="Атын өзгерту" onclick="event.stopPropagation();editTracker('${t.id}')">${ic('edit')}</button>
-          <button class="icon-btn del" title="Жою" onclick="event.stopPropagation();delTracker('${t.id}')">${ic('trash')}</button>
+          <button class="icon-btn" title="${ru?'Изменить название':'Атын өзгерту'}" onclick="event.stopPropagation();editTracker('${t.id}')">${ic('edit')}</button>
+          <button class="icon-btn del" title="${ru?'Удалить':'Жою'}" onclick="event.stopPropagation();delTracker('${t.id}')">${ic('trash')}</button>
         </div>
       </div>
       ${body}
       <div class="tcard-foot">
         <span class="date">${ic('calendar')} ${fmtDate(t.start)}</span>
-        ${isDayBased(t)? `<span class="share" onclick="event.stopPropagation();shareTracker('${t.id}')">${ic('link')} Бөлісу</span>`:'<span></span>'}
+        ${isDayBased(t)? `<span class="share" onclick="event.stopPropagation();shareTracker('${t.id}')">${ic('link')} ${ru?'Поделиться':'Бөлісу'}</span>`:'<span></span>'}
       </div>
     </div>`;
   }).join('');
@@ -2730,8 +2759,9 @@ function clearArchive(){
 }
 function renderArchive(){
   const el=document.getElementById('archiveList');
+  const ru = LANG==='ru';
   if(!archived.length){
-    el.innerHTML=`<div class="empty"><span class="em">${ic('archive')}</span>Архив бос.<br>Жойылған трекерлер осында сақталады.</div>`;
+    el.innerHTML=`<div class="empty"><span class="em">${ic('archive')}</span>${ru?'Архив пуст.<br>Удалённые трекеры хранятся здесь.':'Архив бос.<br>Жойылған трекерлер осында сақталады.'}</div>`;
     return;
   }
   el.innerHTML = archived.slice().reverse().map(t=>{
@@ -2739,11 +2769,11 @@ function renderArchive(){
     return `<div class="tcard">
       <div class="tcard-top">
         <div class="icon" style="background:color-mix(in srgb, ${cat.color} 13%, transparent);color:${cat.color}">${ic(t.emo)}</div>
-        <div class="ttl"><h3>${t.name}</h3><div class="tag">${ic(cat.emo)} ${catName(cat)}${t.archivedAt?` · жойылды ${fmtDate(t.archivedAt)}`:''}</div></div>
+        <div class="ttl"><h3>${t.name}</h3><div class="tag">${ic(cat.emo)} ${catName(cat)}${t.archivedAt?` · ${ru?'удалён':'жойылды'} ${fmtDate(t.archivedAt)}`:''}</div></div>
       </div>
       <div style="display:flex;gap:10px;margin-top:14px">
-        <button class="btn sm" onclick="restoreTracker('${t.id}')">${ic('refresh')} Қалпына келтіру</button>
-        <button class="btn danger sm" onclick="purgeTracker('${t.id}')">${ic('trash')} Біржола жою</button>
+        <button class="btn sm" onclick="restoreTracker('${t.id}')">${ic('refresh')} ${ru?'Восстановить':'Қалпына келтіру'}</button>
+        <button class="btn danger sm" onclick="purgeTracker('${t.id}')">${ic('trash')} ${ru?'Удалить навсегда':'Біржола жою'}</button>
       </div>
     </div>`;
   }).join('');
@@ -2751,12 +2781,15 @@ function renderArchive(){
 function shareTracker(id){
   const t = trackers.find(x=>x.id===id);
   const doneCount = successDays(t);
-  const text = `📈 "${t.name}" трекері: ${totalDays(t)} күннің ${doneCount}-і орындалды (${completion(t)}%)! 🔥 Қатар: ${currentStreak(t)} күн.`;
+  const ru = LANG==='ru';
+  const text = ru
+    ? `📈 Трекер "${t.name}": выполнено ${doneCount} из ${totalDays(t)} дней (${completion(t)}%)! 🔥 Серия: ${currentStreak(t)} дн.`
+    : `📈 "${t.name}" трекері: ${totalDays(t)} күннің ${doneCount}-і орындалды (${completion(t)}%)! 🔥 Қатар: ${currentStreak(t)} күн.`;
   if(navigator.share){
     navigator.share({title:'ÖZGERIS', text}).catch(()=>{});
   } else if(navigator.clipboard){
-    navigator.clipboard.writeText(text).then(()=>toast(`${ic('clipboard')} Нәтиже көшірілді`)).catch(()=>toast(text));
-  } else { toast('Нәтиже: '+text); }
+    navigator.clipboard.writeText(text).then(()=>toast(`${ic('clipboard')} ${ru?'Результат скопирован':'Нәтиже көшірілді'}`)).catch(()=>toast(text));
+  } else { toast((ru?'Результат: ':'Нәтиже: ')+text); }
 }
 
 /* ============================================================
@@ -3525,7 +3558,8 @@ function delPlan(tid,pid){
    ============================================================ */
 let planTab='daily', planDaily=null, planMonth=null;
 const MONTHS_KK=['Қаңтар','Ақпан','Наурыз','Сәуір','Мамыр','Маусым','Шілде','Тамыз','Қыркүйек','Қазан','Қараша','Желтоқсан'];
-function monthName(ym){ if(!ym) return 'Ай белгіленбеген'; const [y,m]=ym.split('-').map(Number); return (MONTHS_KK[m-1]||'')+' '+y; }
+const MONTHS_KK_RU=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+function monthName(ym){ if(!ym) return LANG==='ru'?'Месяц не указан':'Ай белгіленбеген'; const [y,m]=ym.split('-').map(Number); return ((LANG==='ru'?MONTHS_KK_RU:MONTHS_KK)[m-1]||'')+' '+y; }
 function curMonth(){ return todayStr().slice(0,7); }
 function goalItemRow(kindArg,g){
   // kindArg: 'big' | 'small' | plan tab key
@@ -3536,33 +3570,36 @@ function goalItemRow(kindArg,g){
   </div>`;
 }
 function goalGroup(title,kindArg,arr,ph){
+  const ru = LANG==='ru';
   return `<div class="box" style="margin-bottom:16px">
     <div class="box-head"><h3>${title}</h3></div>
     <div class="row" style="margin-bottom:0">
       <input id="gInput_${kindArg}" placeholder="${ph}" onkeydown="if(event.key==='Enter')addGoalItem('${kindArg}')">
-      <button class="btn" style="max-width:120px" onclick="addGoalItem('${kindArg}')">Қосу</button>
+      <button class="btn" style="max-width:120px" onclick="addGoalItem('${kindArg}')">${ru?'Добавить':'Қосу'}</button>
     </div>
     <div style="margin-top:12px">${arr.length? arr.map(g=>goalItemRow(kindArg,g)).join('') :
-      `<div style="color:var(--faint);padding:10px 0">Әзірге жазба жоқ</div>`}</div>
+      `<div style="color:var(--faint);padding:10px 0">${ru?'Пока нет записей':'Әзірге жазба жоқ'}</div>`}</div>
   </div>`;
 }
 function analysisBox(items,label){
   if(!items.length) return '';
+  const ru = LANG==='ru';
   const done=items.filter(p=>p.done).length, pct=Math.round(done/items.length*100);
   return `<div class="box" style="margin-bottom:16px;background:var(--panel-2)">
-    <div class="box-head"><h3>${ic('barChart')} ${label||'Талдау'}</h3></div>
+    <div class="box-head"><h3>${ic('barChart')} ${label||(ru?'Анализ':'Талдау')}</h3></div>
     <div class="progressbar"><span style="width:${pct}%"></span></div>
     <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:14px">
-      <span style="color:var(--good)">${ic('checkCircle')} Орындалды: <b>${done}</b></span>
-      <span style="color:#f0a5a5">${ic('square')} Орындалмады: <b>${items.length-done}</b></span>
+      <span style="color:var(--good)">${ic('checkCircle')} ${ru?'Выполнено':'Орындалды'}: <b>${done}</b></span>
+      <span style="color:#f0a5a5">${ic('square')} ${ru?'Не выполнено':'Орындалмады'}: <b>${items.length-done}</b></span>
       <span><b>${pct}%</b></span>
     </div></div>`;
 }
 function plansSection(){
+  const ru = LANG==='ru';
   const period=planTab;
   const bucket=goals.plans[period]||[];
   if(period==='weekly'){
-    return goalGroup('Апталық жоспар','plan_weekly',bucket,'Апта жоспарын жаз...') + analysisBox(bucket);
+    return goalGroup(ru?'Недельный план':'Апталық жоспар','plan_weekly',bucket,ru?'Впиши план на неделю...':'Апта жоспарын жаз...') + analysisBox(bucket);
   }
   // daily / monthly — датамен топталады
   const isDaily = period==='daily';
@@ -3578,34 +3615,36 @@ function plansSection(){
   const history = keys.length? keys.map(k=>{
     const items=bucket.filter(p=>(p.key||'')===k);
     const dn=items.filter(p=>p.done).length;
-    const lbl = isDaily? (k?fmtDate(k):'Күні белгіленбеген') : monthName(k);
+    const lbl = isDaily? (k?fmtDate(k):(ru?'Дата не указана':'Күні белгіленбеген')) : monthName(k);
     return `<div class="grat-card">
-      <div class="grat-date">${ic('calendar')} ${lbl} <span style="color:var(--muted);font-weight:600">${dn}/${items.length} орындалды</span></div>
+      <div class="grat-date">${ic('calendar')} ${lbl} <span style="color:var(--muted);font-weight:600">${dn}/${items.length} ${ru?'выполнено':'орындалды'}</span></div>
       ${items.map(p=>goalItemRow('plan_'+period,p)).join('')}
     </div>`;
-  }).join('') : `<div style="color:var(--faint);padding:10px 0">Әзірге жоспар жоқ</div>`;
+  }).join('') : `<div style="color:var(--faint);padding:10px 0">${ru?'Пока нет планов':'Әзірге жоспар жоқ'}</div>`;
   return `
     <div class="box" style="margin-bottom:16px">
-      <div class="box-head"><h3>${isDaily?'Күндік':'Айлық'} жоспар</h3></div>
-      <label>${isDaily?'Қай күн':'Қай ай'}</label>${input}
+      <div class="box-head"><h3>${ru?(isDaily?'Дневной':'Месячный')+' план':(isDaily?'Күндік':'Айлық')+' жоспар'}</h3></div>
+      <label>${ru?(isDaily?'Какой день':'Какой месяц'):(isDaily?'Қай күн':'Қай ай')}</label>${input}
       <div class="row" style="margin-top:10px;margin-bottom:0">
-        <input id="datedPlanInput" placeholder="${selLabel} — жоспар жаз..." onkeydown="if(event.key==='Enter')addDatedPlan('${period}')">
-        <button class="btn" style="max-width:120px" onclick="addDatedPlan('${period}')">Қосу</button>
+        <input id="datedPlanInput" placeholder="${selLabel} — ${ru?'впиши план...':'жоспар жаз...'}" onkeydown="if(event.key==='Enter')addDatedPlan('${period}')">
+        <button class="btn" style="max-width:120px" onclick="addDatedPlan('${period}')">${ru?'Добавить':'Қосу'}</button>
       </div>
     </div>
-    ${analysisBox(selItems, selLabel+' — талдау')}
-    <h3 style="margin:18px 0 10px">${ic('archive')} ${isDaily?'Күндер':'Айлар'} бойынша</h3>
+    ${analysisBox(selItems, selLabel+(ru?' — анализ':' — талдау'))}
+    <h3 style="margin:18px 0 10px">${ic('archive')} ${ru?'По '+(isDaily?'дням':'месяцам'):(isDaily?'Күндер':'Айлар')+' бойынша'}</h3>
     ${history}`;
 }
 function renderGoalsPage(){
   const box=document.getElementById('catExtra');
-  const tabs=[['monthly','Айлық'],['weekly','Апталық'],['daily','Күндік']];
+  const ru = LANG==='ru';
+  const tabs = ru ? [['monthly','Месячные'],['weekly','Недельные'],['daily','Дневные']]
+                  : [['monthly','Айлық'],['weekly','Апталық'],['daily','Күндік']];
   box.innerHTML=`
-    <div class="section-t">${ic('target')} Мақсаттар</div>
-    ${goalGroup(ic('star')+' Үлкен мақсаттар','big',goals.big,'Үлкен мақсат жаз... (мыс. Умраға бару)')}
-    ${goalGroup(ic('star')+' Кіші мақсаттар','small',goals.small,'Кіші мақсат жаз... (мыс. Кітап оқу)')}
+    <div class="section-t">${ic('target')} ${ru?'Цели':'Мақсаттар'}</div>
+    ${goalGroup(ic('star')+' '+(ru?'Большие цели':'Үлкен мақсаттар'),'big',goals.big,ru?'Впиши большую цель... (напр. Поездка в Умру)':'Үлкен мақсат жаз... (мыс. Умраға бару)')}
+    ${goalGroup(ic('star')+' '+(ru?'Малые цели':'Кіші мақсаттар'),'small',goals.small,ru?'Впиши малую цель... (напр. Читать книги)':'Кіші мақсат жаз... (мыс. Кітап оқу)')}
 
-    <div class="section-t" style="margin-top:26px">${ic('calendar')} Жоспарлар</div>
+    <div class="section-t" style="margin-top:26px">${ic('calendar')} ${ru?'Планы':'Жоспарлар'}</div>
     <div class="tabs">${tabs.map(([k,n])=>`<button class="tab ${k===planTab?'active':''}" onclick="setPlanTab('${k}')">${n}</button>`).join('')}</div>
     ${plansSection()}`;
 }
@@ -3647,24 +3686,32 @@ const GRAT_Q=[
   'Бүгін мені қуантқан ең кішкентай нәрсе не болды?',
   'Бүгін мен өзіммен мақтанатындай не істедім?'
 ];
+const GRAT_Q_RU=[
+  'Какие возможности Всевышний дал мне сегодня?',
+  'Что было самой маленькой вещью, порадовавшей меня сегодня?',
+  'Что я сегодня сделал, чем могу собой гордиться?'
+];
 function renderGratitudePage(){
   const box=document.getElementById('catExtra');
+  const ru = LANG==='ru';
+  const Q = ru ? GRAT_Q_RU : GRAT_Q;
   box.innerHTML=`
     <div class="box" style="margin-bottom:16px">
-      <div class="box-head"><h3>${ic('hands')} Бүгінгі шүкіршілік</h3></div>
-      ${GRAT_Q.map((q,i)=>`<label>${q}</label><input id="grat${i}" placeholder="Жауабыңды жаз...">`).join('')}
-      <button class="btn" onclick="saveGratitude()">Сақтау</button>
+      <div class="box-head"><h3>${ic('hands')} ${ru?'Сегодняшняя благодарность':'Бүгінгі шүкіршілік'}</h3></div>
+      ${Q.map((q,i)=>`<label>${q}</label><input id="grat${i}" placeholder="${ru?'Впиши ответ...':'Жауабыңды жаз...'}">`).join('')}
+      <button class="btn" onclick="saveGratitude()">${ru?'Сохранить':'Сақтау'}</button>
     </div>
     <div class="box">
-      <div class="box-head"><h3>${ic('book2')} Шүкіршілік беті (${gratitude.length})</h3></div>
+      <div class="box-head"><h3>${ic('book2')} ${ru?'Страница благодарности':'Шүкіршілік беті'} (${gratitude.length})</h3></div>
       <div>${gratitude.length? gratitude.slice().reverse().map(gratCard).join('') :
-        `<div style="color:var(--faint);padding:10px 0">Әзірге жазба жоқ</div>`}</div>
+        `<div style="color:var(--faint);padding:10px 0">${ru?'Пока нет записей':'Әзірге жазба жоқ'}</div>`}</div>
     </div>`;
 }
 function gratCard(g){
+  const Q = LANG==='ru' ? GRAT_Q_RU : GRAT_Q;
   return `<div class="grat-card">
     <div class="grat-date">${ic('calendar')} ${fmtDate(g.date)} <span class="del" onclick="delGrat('${g.id}')">${ic('x')}</span></div>
-    ${[g.a1,g.a2,g.a3].map((a,i)=> a?`<div class="grat-q">${GRAT_Q[i]}</div><div class="grat-a">${a}</div>`:'').join('')}
+    ${[g.a1,g.a2,g.a3].map((a,i)=> a?`<div class="grat-q">${Q[i]}</div><div class="grat-a">${a}</div>`:'').join('')}
   </div>`;
 }
 function saveGratitude(){
