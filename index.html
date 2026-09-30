@@ -375,6 +375,10 @@
   input,select{
     width:100%;min-width:0;max-width:100%;background:var(--bg);border:1.5px solid var(--line);color:var(--text);
     padding:10px 12px;border-radius:11px;font-size:15px;font-family:inherit;margin-bottom:14px;transition:.15s;
+    box-sizing:border-box;
+  }
+  input[type="date"],input[type="time"],input[type="month"],input[type="datetime-local"]{
+    -webkit-appearance:none;appearance:none;
   }
   input:focus,select:focus{outline:none;border-color:var(--s7);box-shadow:0 0 0 3px rgba(167,139,250,.18)}
   .row{display:flex;gap:12px}
