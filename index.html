@@ -4038,7 +4038,11 @@ function renderFinDash(){
   const overdueRecur=recurringOverdueList();
   document.getElementById('dashWarnings').innerHTML = overdueRecur.length
     ? `<div class="box" style="margin-bottom:20px;border-color:var(--crit)">
-        ${overdueRecur.map(r=>`<div style="color:var(--crit);font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:6px">${ic('alertTriangle')} ${LANG==='ru'?`Срок платежа «${r.name}» истёк`:`«${r.name}» төлемінің мерзімі өтіп кетті`}</div>`).join('')}
+        ${overdueRecur.map(r=>{
+          const od=recurOverdueDate(r);
+          const odTxt = od ? ' — '+fmtDate(od) : '';
+          return `<div style="color:var(--crit);font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:6px">${ic('alertTriangle')} ${LANG==='ru'?`Срок платежа «${r.name}» истёк${odTxt}`:`«${r.name}» төлемінің мерзімі өтіп кетті${odTxt}`}</div>`;
+        }).join('')}
       </div>` : '';
 
   const outTxMonth = txs.filter(t=>t.type==='out'&&t.date>=from&&t.date<=to);
@@ -4239,6 +4243,14 @@ function recurIsOverdue(r){
   if(recurPeriodKey(r)===createdKey && createdDay > r.dueDay) return false; // бірінші ай — жеңілдік кезеңі
   return new Date().getDate() > r.dueDay;
 }
+function recurOverdueDate(r){
+  if(r.kind==='daily'){
+    const y = new Date(Date.now()-86400000);
+    return y.getFullYear()+'-'+String(y.getMonth()+1).padStart(2,'0')+'-'+String(y.getDate()).padStart(2,'0');
+  }
+  if(!r.dueDay) return null;
+  return todayStr().slice(0,7)+'-'+String(r.dueDay).padStart(2,'0');
+}
 function nextDueLabel(r){
   if(LANG==='ru'){
     if(r.kind==='daily') return recurIsPaidNow(r) ? 'Отмечено сегодня' : 'Сегодня не отмечено';
@@ -4292,7 +4304,9 @@ function recurRow(r){
   const overdue = recurIsOverdue(r);
   const paidNow = recurIsPaidNow(r);
   const statusColor = overdue ? 'var(--crit)' : (paidNow ? 'var(--good)' : 'var(--faint)');
-  const statusText = overdue ? `${ic('alertTriangle')} ${LANG==='ru'?'Просрочено':'Мерзімі өтіп кетті'}` : `${paidNow?ic('checkCircle'):ic('clock')} ${nextDueLabel(r)}`;
+  const overdueDate = overdue ? recurOverdueDate(r) : null;
+  const overdueDateTxt = overdueDate ? ' — '+fmtDate(overdueDate) : '';
+  const statusText = overdue ? `${ic('alertTriangle')} ${LANG==='ru'?'Просрочено':'Мерзімі өтіп кетті'}${overdueDateTxt}` : `${paidNow?ic('checkCircle'):ic('clock')} ${nextDueLabel(r)}`;
   return `<div class="tx">
     ${recurRowIcon(r)}
     <div style="flex:1;min-width:0">
