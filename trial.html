@@ -760,6 +760,25 @@
   .auth-err{color:#f0a5a5;font-size:13px;min-height:18px;margin:4px 0 8px;text-align:center}
   .auth-alt{text-align:center;color:var(--muted);font-size:13px;margin-top:14px}
   .auth-alt span{color:var(--s7);cursor:pointer;font-weight:700}
+
+  /* ---------- Сынама воронка (квиз) ---------- */
+  .quiz-card{max-width:440px}
+  .qtitle{font-size:19px;font-weight:800;text-align:center;margin-bottom:18px;line-height:1.35}
+  .qoptions{display:flex;flex-direction:column;gap:10px}
+  .qopt-btn{width:100%;text-align:left;background:var(--panel-2);border:1.5px solid var(--line);color:var(--text);
+    padding:14px 16px;border-radius:13px;font-size:15px;font-weight:600;cursor:pointer;transition:.15s;font-family:inherit}
+  .qopt-btn:hover{border-color:var(--s7);background:var(--panel-hover);transform:translateY(-1px)}
+  .qopt-btn.qdir{display:flex;align-items:center;gap:12px;font-size:16px;font-weight:800}
+  .qopt-btn.qdir .qe{font-size:22px}
+  .q-progress{width:100%;height:8px;background:var(--panel-2);border-radius:10px;overflow:hidden;margin:18px 0 20px}
+  .q-progress-bar{height:100%;width:0;background:var(--grad);border-radius:10px;transition:width .4s ease}
+  .q-loading-text{min-height:70px;text-align:center;color:var(--muted);font-size:14.5px;line-height:1.7}
+  .q-loading-text .qll{opacity:0;transform:translateY(6px);transition:.35s;margin-bottom:6px}
+  .q-loading-text .qll.show{opacity:1;transform:translateY(0)}
+  .qresult-text{font-size:15.5px;line-height:1.75;color:var(--text);margin-bottom:22px}
+  .qresult-text b{color:var(--s7)}
+  .q-hook-icon{font-size:48px;text-align:center;margin-bottom:12px}
+  .q-hook-desc{color:var(--muted);font-size:14.5px;line-height:1.6;text-align:center;margin-bottom:22px}
   .user-badge{color:var(--muted);font-size:14px;font-weight:600;display:flex;align-items:center;margin-left:8px}
   .logout-btn{background:none;border:1px solid var(--line);color:var(--muted);border-radius:9px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:600;margin-left:12px;transition:.15s}
   .logout-btn:hover{color:#f0a5a5;border-color:var(--crit)}
@@ -810,19 +829,64 @@
 
 <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()" aria-label="Күндізгі/түнгі режим"></button>
 
-<!-- ============ AUTH SCREEN ============ -->
+<!-- ============ AUTH SCREEN / QUIZ FUNNEL ============ -->
 <div id="authScreen">
-  <div class="auth-card">
+  <div class="auth-card quiz-card">
     <div class="auth-logo"><span><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><polyline points='3,17 9,11 13,15 21,5'/><polyline points='15,5 21,5 21,11'/></svg></span> ÖZGERIS</div>
-    <div class="auth-sub" data-i18n="trial.sub">Сынама нұсқаны көру үшін атыңды және телефон нөміріңді жаз</div>
-    <div id="authLogin">
+
+    <!-- Қадам 1: Аты + Телефон -->
+    <div id="qStep1" class="qstep">
+      <div class="auth-sub" data-i18n="trial.sub">Сәлем! Атыңды жаз, бірнеше сұраққа жауап бер, мен саған жеке жоспар көрсетемін</div>
       <label data-i18n="auth.nameLabel">Атың</label>
-      <input id="trialName" type="text" placeholder="Арман" onkeydown="if(event.key==='Enter')doTrialEnter()">
+      <input id="trialName" type="text" placeholder="Арман" onkeydown="if(event.key==='Enter')quizStep1Submit()">
       <label data-i18n="trial.phoneLabel">Телефон нөмірің</label>
-      <input id="trialPhone" type="tel" placeholder="+7 7__ ___ __ __" onkeydown="if(event.key==='Enter')doTrialEnter()">
+      <input id="trialPhone" type="tel" placeholder="+7 7__ ___ __ __" onkeydown="if(event.key==='Enter')quizStep1Submit()">
       <div class="auth-err" id="authErr"></div>
-      <button class="btn" onclick="doTrialEnter()" data-i18n="trial.enter">Кіру</button>
-      <div class="auth-alt" style="font-size:12.5px;line-height:1.5" data-i18n="trial.note">Бұл — сынама нұсқа, кейбір функциялар толық нұсқада ғана ашық.</div>
+      <button class="btn" onclick="quizStep1Submit()" data-i18n="trial.next">Жалғастыру</button>
+    </div>
+
+    <!-- Қадам 2: Бағыт таңдау -->
+    <div id="qStep2" class="qstep" style="display:none">
+      <h3 class="qtitle" data-i18n="trial.q2.title">Сені қазір не мазалап жүр?</h3>
+      <div class="qoptions" id="q2Options"></div>
+    </div>
+
+    <!-- Қадам 3: Бағытқа сай 1-сұрақ -->
+    <div id="qStep3" class="qstep" style="display:none">
+      <h3 class="qtitle" id="q3Title"></h3>
+      <div class="qoptions" id="q3Options"></div>
+    </div>
+
+    <!-- Қадам 4: Бағытқа сай 2-сұрақ -->
+    <div id="qStep4" class="qstep" style="display:none">
+      <h3 class="qtitle" id="q4Title"></h3>
+      <div class="qoptions" id="q4Options"></div>
+    </div>
+
+    <!-- Қадам 5: Ортақ сұрақ -->
+    <div id="qStep5" class="qstep" style="display:none">
+      <h3 class="qtitle" data-i18n="trial.q5.title">Бұрын өзгеруге тырысып көрдің бе?</h3>
+      <div class="qoptions" id="q5Options"></div>
+    </div>
+
+    <!-- Қадам 6: Талдау анимациясы -->
+    <div id="qStep6" class="qstep" style="display:none">
+      <div class="q-progress"><div class="q-progress-bar" id="qProgressBar"></div></div>
+      <div class="q-loading-text" id="qLoadingText"></div>
+    </div>
+
+    <!-- Қадам 7: Жеке нәтиже -->
+    <div id="qStep7" class="qstep" style="display:none">
+      <div class="qresult-text" id="qResultText"></div>
+      <button class="btn" onclick="showQStep(8)" data-i18n="trial.seeHow">Қалай болатынын көру →</button>
+    </div>
+
+    <!-- Қадам 8: Ұстап қалу текст + қосымшаға кіру -->
+    <div id="qStep8" class="qstep" style="display:none">
+      <div class="q-hook-icon">🚀</div>
+      <h3 class="qtitle" data-i18n="trial.hookTitle">ÖZGERIS-ті дәл қазір тегін байқап көр</h3>
+      <p class="q-hook-desc" data-i18n="trial.hookDesc">1 күндік тегін нұсқаға кіріп, өзіңе арналған трекерлерді дәл қазір баста — алғашқы өзгерісті бүгіннен сезесің.</p>
+      <button class="btn" onclick="enterTrialApp()" data-i18n="trial.hookBtn">Тегін кіру</button>
     </div>
   </div>
 </div>
@@ -1322,9 +1386,14 @@ const I18N = {
     'pending.desc':'ÖZGERIS-ті толық пайдалану үшін жазылымды рәсімдеу керек. Төмендегі батырма арқылы WhatsApp-қа жазып, төлемді рәсімдеңіз — доступ жылдам беріледі.',
     'pending.buyBtn':'Сатып алу (WhatsApp)',
     'home.randomTaskTitle':'Кездейсоқ тапсырма', 'home.checkinTitle':'Барлық check-типті трекерлерді бүгінге бекіту',
-    'trial.sub':'Сынама нұсқаны көру үшін атыңды және телефон нөміріңді жаз',
-    'trial.phoneLabel':'Телефон нөмірің', 'trial.enter':'Кіру',
+    'trial.sub':'Сәлем! Атыңды жаз, бірнеше сұраққа жауап бер, мен саған жеке жоспар көрсетемін',
+    'trial.phoneLabel':'Телефон нөмірің', 'trial.enter':'Кіру', 'trial.next':'Жалғастыру',
     'trial.note':'Бұл — сынама нұсқа, кейбір функциялар толық нұсқада ғана ашық.',
+    'trial.q2.title':'Сені қазір не мазалап жүр?', 'trial.q5.title':'Бұрын өзгеруге тырысып көрдің бе?',
+    'trial.seeHow':'Қалай болатынын көру →',
+    'trial.hookTitle':'ÖZGERIS-ті дәл қазір тегін байқап көр',
+    'trial.hookDesc':'1 күндік тегін нұсқаға кіріп, өзіңе арналған трекерлерді дәл қазір баста — алғашқы өзгерісті бүгіннен сезесің.',
+    'trial.hookBtn':'Тегін кіру',
     'trial.promoTitle':'Бұл — сынама нұсқа',
     'trial.promoDesc':'Әдет трекерлерін толық көресің. Қаржы басқару және басқа функциялар толық нұсқада ашылады.',
     'trial.getFull':'Толық нұсқаны алу',
@@ -1571,7 +1640,83 @@ async function syncToCloud(){
    ============================================================ */
 let currentUser = null;
 function authErr(msg){ const m=tr(msg); document.querySelectorAll('.auth-err').forEach(e=>e.textContent=m); }
-async function doTrialEnter(){
+/* ============================================================
+   СЫНАМА ВОРОНКА (квиз): Аты+Телефон → Бағыт → 2 сұрақ → ортақ сұрақ →
+   талдау анимациясы → жеке нәтиже → ұстап қалу текст → қосымшаға кіру.
+   Телефон бірінші қадамда-ақ серверге жазылады (лид сақталады), сондықтан
+   адам ортасынан шығып кетсе де нөмірі қалады.
+   ============================================================ */
+const QUIZ_DIRECTIONS = {
+  finance: { emoji:'💰', label:'Қаржы',
+    q1:{ title:'Ай соңында ақшаң қайда кеткенін білесің бе?', options:[
+      {key:'no',label:'Жоқ, білмеймін'},{key:'ish',label:'Шамамен'},{key:'yes',label:'Иә, білемін'}]},
+    q2:{ title:'Ең көп не мазалайды?', options:[
+      {key:'notenough',label:'Ақша жетпейді'},{key:'cantsave',label:'Жинай алмаймын'},
+      {key:'debt',label:'Қарызым бар'},{key:'invest',label:'Инвестиция бастағым келеді'}]},
+    results:{
+      notenough:{problem:'Сенің мәселең ақшаның аздығында емес. Ол қайда кететінін көрмейтініңде.',
+        solution:'ÖZGERIS-те әр шығының көрініп тұрады, ал 30 күннен кейін ақшаңның қайда кететінін нақты білесің.'},
+      cantsave:{problem:'Сенің мәселең — табысың аз болуында емес, «қалғанын жинаймын» деп жоспарсыз қалдыруыңда.',
+        solution:'ÖZGERIS-те алдымен өзіңе төлеу принципімен бөлек мақсат қойып, жүйелі жинай бастайсың.'},
+      debt:{problem:'Қарыз жалғыз қалса ауыр, бірақ көз алдыңда болса — басқаруға болатын нәрсе ғана.',
+        solution:'ÖZGERIS-те барлық қарызыңды бір жерден көріп, қайсысын бірінші жабу керегін өзің жоспарлайсың.'},
+      invest:{problem:'Инвестиция қорқынышты көрінеді, өйткені негізі белгісіз болып тұр.',
+        solution:'ÖZGERIS-тегі қаржылық сауаттылық бөлімі бюджет, қауіпсіздік қоры және күрделі пайыз секілді негіздерді қарапайым тілмен түсіндіреді.'}
+    }},
+  sport: { emoji:'🏃', label:'Спорт',
+    q1:{ title:'Қазір спортпен айналысасың ба?', options:[
+      {key:'none',label:'Мүлдем жоқ'},{key:'sometimes',label:'Кейде'},{key:'dropout',label:'Бастаймын да тастап кетемін'}]},
+    q2:{ title:'Не кедергі?', options:[
+      {key:'notime',label:'Уақыт жоқ'},{key:'nomotivation',label:'Мотивация жоқ'},{key:'noidea',label:'Неден бастарымды білмеймін'}]},
+    results:{
+      notime:{problem:'Сенің мәселең уақыттың жоқтығында емес, кішкентай қадамнан бастамауыңда.',
+        solution:'ÖZGERIS-те күніне 10-15 минуттық жаттығуды трекерге қойып, тек белгілеп отырасың — сол аз-ақ жеткілікті.'},
+      nomotivation:{problem:'Мотивация өзінен-өзі келмейді, ол әрекеттен кейін пайда болады.',
+        solution:'ÖZGERIS-тегі streak пен белгілер дәл осы үшін — әр күнгі қатар өзі итермелейтін күшке айналады.'},
+      noidea:{problem:'Басынан бәрі күрделі және шашыраңқы көрінеді.',
+        solution:'ÖZGERIS-те дайын шаблондар бар (отжимание, 10 000 қадам, спортзал күнтізбесі) — тек таңдап, бастай саласың.'}
+    }},
+  health: { emoji:'❤️', label:'Денсаулық',
+    q1:{ title:'Ұйқың қалай?', options:[
+      {key:'late',label:'Кеш жатамын'},{key:'notenough',label:'Ұйқым қанбайды'},{key:'good',label:'Жақсы'}]},
+    q2:{ title:'Не мазалайды?', options:[
+      {key:'tired',label:'Үнемі шаршаймын'},{key:'stress',label:'Стресс көп'},
+      {key:'food',label:'Дұрыс тамақтанбаймын'},{key:'water',label:'Су аз ішемін'}]},
+    results:{
+      tired:{problem:'Үнемі шаршау көбіне ұйқы мен су тапшылығынан басталады, бірақ соны ешкім байқамайды.',
+        solution:'ÖZGERIS-тегі ұйқы трекері жату/тұру уақытыңды көрсетіп, қайда «ұрланып» жатқанын ашады.'},
+      stress:{problem:'Стресс жинала береді, өйткені оны ешкім жазып, байқап отырмайды.',
+        solution:'ÖZGERIS-тегі көңіл-күй трекері мен шүкіршілік күнделігі ойыңды тазартуға көмектеседі.'},
+      food:{problem:'Дұрыс тамақтану — бір сәтте өзгеретін нәрсе емес, бір кішкентай әдеттен басталады.',
+        solution:'ÖZGERIS-те сол бір қадамды (мыс. 30 күн қантсыз) таңдап, тек соны ұстанасың.'},
+      water:{problem:'Су ішу — ең оңай көрінетін, бірақ көбіміз ұмытып кететін әдет.',
+        solution:'ÖZGERIS-тің су трекерінде стаканды бассаң болды, мақсатыңа дейін өзі есептей береді.'}
+    }},
+  edu: { emoji:'📚', label:'Білім',
+    q1:{ title:'Не үйренгің келеді?', options:[
+      {key:'lang',label:'Тіл'},{key:'profession',label:'Мамандық'},{key:'reading',label:'Кітап оқу'},{key:'other',label:'Басқа'}]},
+    q2:{ title:'Не кедергі?', options:[
+      {key:'dropout',label:'Бастаймын да тастаймын'},{key:'notime',label:'Уақыт жоқ'},{key:'nosystem',label:'Жүйе жоқ'}]},
+    results:{
+      dropout:{problem:'Сенің мәселең бастауда емес, жалғастыруда.',
+        solution:'ÖZGERIS-тегі streak дәл сол «тастап кету» сәтін көрсетіп, қатарыңды үзбеуге итермелейді.'},
+      notime:{problem:'Күніне көп уақыт керек деп ойлайсың, сондықтан мүлде бастамайсың.',
+        solution:'ÖZGERIS-те ағылшын сөздерін күнделікті 2-3 сөзден жинап, трекерде көресің — күніне 10 минут жеткілікті.'},
+      nosystem:{problem:'Жүйе болмаса, ынта қанша күшті болса да жылдам сөнеді.',
+        solution:'ÖZGERIS саған дайын күнделікті шаблон мен прогресс көрінісін береді — тек орындап отырасың.'}
+    }}
+};
+const QUIZ_COMMON = {
+  again:{label:'Иә, бірнеше рет, бірақ тастап кеттім', line:'Сен бұрын да тырысып, тастап кеткенсің. Ол сенің кінәң емес, жүйе болмаған.'},
+  first:{label:'Жоқ, бірінші рет', line:'Бұл — сенің алғашқы қадамың, және дәл қазір бастаудың ең дұрыс сәті.'},
+  trying:{label:'Қазір де тырысып жүрмін', line:'Сен қазірдің өзінде жолдасың — керегі тек дұрыс жүйе.'}
+};
+let quizState = { name:'', direction:null, q1:null, q2:null, common:null };
+
+function showQStep(n){
+  for(let i=1;i<=8;i++){ const el=document.getElementById('qStep'+i); if(el) el.style.display = (i===n?'block':'none'); }
+}
+async function quizStep1Submit(){
   const name=document.getElementById('trialName').value.trim();
   const phone=document.getElementById('trialPhone').value.trim();
   if(!name){ authErr(LANG==='ru'?'Напиши своё имя':'Атыңды жаз'); return; }
@@ -1580,8 +1725,73 @@ async function doTrialEnter(){
     const r = await apiCall('POST', {action:'login', name, phone});
     Store.setGlobal('app_token', r.token);
     Store.setGlobal('app_name', r.user.name);
-    await loginAs(r.user.name);
+    quizState.name = r.user.name;
+    renderQ2();
+    showQStep(2);
   }catch(e){ authErr(e.message); }
+}
+function renderQ2(){
+  const box = document.getElementById('q2Options');
+  box.innerHTML = Object.entries(QUIZ_DIRECTIONS).map(([key,d])=>
+    `<button class="qopt-btn qdir" onclick="pickDirection('${key}')"><span class="qe">${d.emoji}</span> ${d.label}</button>`).join('');
+}
+function pickDirection(key){
+  quizState.direction = key;
+  const d = QUIZ_DIRECTIONS[key];
+  document.getElementById('q3Title').textContent = d.q1.title;
+  document.getElementById('q3Options').innerHTML = d.q1.options.map(o=>
+    `<button class="qopt-btn" onclick="pickQ1('${o.key}')">${o.label}</button>`).join('');
+  showQStep(3);
+}
+function pickQ1(key){
+  quizState.q1 = key;
+  const d = QUIZ_DIRECTIONS[quizState.direction];
+  document.getElementById('q4Title').textContent = d.q2.title;
+  document.getElementById('q4Options').innerHTML = d.q2.options.map(o=>
+    `<button class="qopt-btn" onclick="pickQ2('${o.key}')">${o.label}</button>`).join('');
+  showQStep(4);
+}
+function pickQ2(key){
+  quizState.q2 = key;
+  const box = document.getElementById('q5Options');
+  box.innerHTML = Object.entries(QUIZ_COMMON).map(([k,c])=>
+    `<button class="qopt-btn" onclick="pickCommon('${k}')">${c.label}</button>`).join('');
+  showQStep(5);
+}
+function pickCommon(key){
+  quizState.common = key;
+  showQStep(6);
+  runLoadingAnimation();
+}
+function runLoadingAnimation(){
+  const el = document.getElementById('qLoadingText');
+  const bar = document.getElementById('qProgressBar');
+  const lines = [
+    'Жауаптарың қаралып жатыр…',
+    'Негізгі мәселең анықталды…',
+    'Саған арналған жоспар құрылып жатыр…'
+  ];
+  el.innerHTML = lines.map((l,i)=>`<div class="qll" id="qll${i}">${l}</div>`).join('');
+  bar.style.width = '0%';
+  setTimeout(()=>{ bar.style.width='35%'; document.getElementById('qll0').classList.add('show'); }, 150);
+  setTimeout(()=>{ bar.style.width='70%'; document.getElementById('qll1').classList.add('show'); }, 1000);
+  setTimeout(()=>{ bar.style.width='100%'; document.getElementById('qll2').classList.add('show'); }, 1800);
+  setTimeout(()=>{ showResult(); }, 2700);
+}
+function showResult(){
+  const d = QUIZ_DIRECTIONS[quizState.direction];
+  const r = d.results[quizState.q2];
+  const c = QUIZ_COMMON[quizState.common];
+  const firstName = (quizState.name||'').trim().split(/\s+/)[0] || 'Досым';
+  document.getElementById('qResultText').innerHTML = `
+    <p><b>${firstName}</b>, сен кездейсоқ келген жоқсың.</p>
+    <p>${r.problem}</p>
+    <p>${c.line}</p>
+    <p>${r.solution}</p>`;
+  showQStep(7);
+}
+async function enterTrialApp(){
+  await loginAs(quizState.name || Store.getGlobal('app_name',''));
 }
 let isAdmin = false;
 async function loginAs(name){
