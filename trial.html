@@ -5490,7 +5490,7 @@ renderCatTiles();
   const sess = Store.getGlobal('app_session', null);
   const tok = Store.getGlobal('app_token', null);
   if(sess && tok){ loginAs(sess); }
-  else { document.getElementById('authScreen').style.display='flex'; }
+  else { document.getElementById('authScreen').style.display='flex'; showQStep(1); }
 })();
 window.addEventListener('resize',()=>{
   if(document.getElementById('analytics').classList.contains('active')){ drawBar(); drawLine(); drawHeatmap(); }
