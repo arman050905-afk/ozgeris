@@ -1032,10 +1032,6 @@
           <div><label data-i18n="fin.dateLabel">Күні</label><input type="date" id="incDate"></div>
           <div><label data-i18n="fin.amountLabel">Сома</label><input type="number" id="incAmount" placeholder="0" min="0"></div>
         </div>
-        <div class="row">
-          <div><label data-i18n="fin.currencyLabel">Валюта</label><select id="incCurrency"><option>₸</option><option>$</option><option>€</option><option>₽</option></select></div>
-          <div><label data-i18n="fin.methodLabel">Төлем әдісі</label><select id="incMethod"><option data-i18n="fin.methodCash">Қолма-қол</option><option data-i18n="fin.methodCard">Карта</option><option data-i18n="fin.methodTransfer">Банк аударымы</option><option data-i18n="fin.methodOther">Басқа</option></select></div>
-        </div>
         <label data-i18n="fin.nameLabel">Атауы</label>
         <input type="text" id="incName" data-i18n-ph="fin.namePhIncome" placeholder="Мысалы: Жалақы" list="incNames">
         <datalist id="incNames"></datalist>
@@ -1060,10 +1056,6 @@
         <div class="row">
           <div><label data-i18n="fin.dateLabel">Күні</label><input type="date" id="expDate"></div>
           <div><label data-i18n="fin.amountLabel">Сома</label><input type="number" id="expAmount" placeholder="0" min="0"></div>
-        </div>
-        <div class="row">
-          <div><label data-i18n="fin.currencyLabel">Валюта</label><select id="expCurrency"><option>₸</option><option>$</option><option>€</option><option>₽</option></select></div>
-          <div><label data-i18n="fin.methodLabel">Төлем әдісі</label><select id="expMethod"><option data-i18n="fin.methodCash">Қолма-қол</option><option data-i18n="fin.methodCard">Карта</option><option data-i18n="fin.methodTransfer">Банк аударымы</option><option data-i18n="fin.methodOther">Басқа</option></select></div>
         </div>
         <label data-i18n="fin.catLabel">Категория</label>
         <input type="text" id="expName" data-i18n-ph="fin.namePhExpense" placeholder="Мысалы: Тамақ" list="expNames">
@@ -1566,8 +1558,7 @@ const I18N = {
     'fin.whereMoneyWent':'Ақша қайда кетті (осы ай)', 'fin.expenseStructure':'Шығын құрылымы',
     'fin.recentTx':'Соңғы транзакциялар', 'fin.goalsProgress':'Қаржылық мақсаттар прогресі',
     'fin.addIncome':'Табыс қосу', 'fin.addExpense':'Шығын қосу',
-    'fin.dateLabel':'Күні', 'fin.amountLabel':'Сома', 'fin.currencyLabel':'Валюта', 'fin.methodLabel':'Төлем әдісі',
-    'fin.methodCash':'Қолма-қол', 'fin.methodCard':'Карта', 'fin.methodTransfer':'Банк аударымы', 'fin.methodOther':'Басқа',
+    'fin.dateLabel':'Күні', 'fin.amountLabel':'Сома',
     'fin.nameLabel':'Атауы', 'fin.namePhIncome':'Мысалы: Жалақы', 'fin.catLabel':'Категория', 'fin.namePhExpense':'Мысалы: Тамақ',
     'fin.descLabel':'Сипаттама (қаласаң)', 'fin.descPh':'Қосымша ескертпе',
     'fin.receiptLabel':'Чек суреті (қаласаң, 300KB-тан аз)', 'fin.chooseFile':'Файл таңдау',
@@ -1676,8 +1667,7 @@ const I18N = {
     'fin.whereMoneyWent':'Куда ушли деньги (в этом месяце)', 'fin.expenseStructure':'Структура расходов',
     'fin.recentTx':'Последние транзакции', 'fin.goalsProgress':'Прогресс финансовых целей',
     'fin.addIncome':'Добавить доход', 'fin.addExpense':'Добавить расход',
-    'fin.dateLabel':'Дата', 'fin.amountLabel':'Сумма', 'fin.currencyLabel':'Валюта', 'fin.methodLabel':'Способ оплаты',
-    'fin.methodCash':'Наличные', 'fin.methodCard':'Карта', 'fin.methodTransfer':'Банковский перевод', 'fin.methodOther':'Другое',
+    'fin.dateLabel':'Дата', 'fin.amountLabel':'Сумма',
     'fin.nameLabel':'Название', 'fin.namePhIncome':'Например: Зарплата', 'fin.catLabel':'Категория', 'fin.namePhExpense':'Например: Еда',
     'fin.descLabel':'Описание (по желанию)', 'fin.descPh':'Дополнительная заметка',
     'fin.receiptLabel':'Фото чека (по желанию, менее 300КБ)', 'fin.chooseFile':'Выбрать файл',
@@ -3944,11 +3934,9 @@ function addIncome(){
   const amount = +document.getElementById('incAmount').value;
   const name = document.getElementById('incName').value.trim() || 'Табыс';
   const date = document.getElementById('incDate').value || todayStr();
-  const currency = document.getElementById('incCurrency').value;
-  const method = document.getElementById('incMethod').value;
   const desc = document.getElementById('incDesc').value.trim();
   if(!amount || amount<=0){ toast('Соманы дұрыс енгіз'); return; }
-  txs.push({id:uid(), type:'in', cat:name, amount, date, currency, method, desc});
+  txs.push({id:uid(), type:'in', cat:name, amount, date, desc});
   saveTx();
   document.getElementById('incAmount').value=''; document.getElementById('incName').value=''; document.getElementById('incDesc').value='';
   renderTxLists();
@@ -3963,14 +3951,12 @@ function addExpense(){
   const amount = +document.getElementById('expAmount').value;
   const name = document.getElementById('expName').value.trim() || 'Шығын';
   const date = document.getElementById('expDate').value || todayStr();
-  const currency = document.getElementById('expCurrency').value;
-  const method = document.getElementById('expMethod').value;
   const desc = document.getElementById('expDesc').value.trim();
   if(!amount || amount<=0){ toast('Соманы дұрыс енгіз'); return; }
   const fileInput = document.getElementById('expReceipt');
   const file = fileInput.files[0];
   const finish = (receipt)=>{
-    txs.push({id:uid(), type:'out', cat:name, amount, date, currency, method, desc, receipt: receipt||null});
+    txs.push({id:uid(), type:'out', cat:name, amount, date, desc, receipt: receipt||null});
     saveTx();
     document.getElementById('expAmount').value=''; document.getElementById('expName').value=''; document.getElementById('expDesc').value=''; fileInput.value='';
     updateFileLabel(fileInput,'expReceiptText');
