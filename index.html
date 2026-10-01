@@ -1258,6 +1258,18 @@
         <tbody id="adminBody"></tbody>
       </table>
     </div>
+
+    <div class="box-head" style="margin-top:32px;margin-bottom:0">
+      <h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='9'/><circle cx='12' cy='12' r='4.5'/><circle cx='12' cy='12' r='1.3' fill='currentColor' stroke='none'/></svg> <span data-i18n="admin.trial.title">Сынама сайтқа кірген адамдар</span></h3>
+      <span class="sum-badge in" id="trialLeadCount">0</span>
+    </div>
+    <p class="cd" style="margin-bottom:14px" data-i18n="admin.trial.sub">/trial сілтемесі арқылы кіргендер — аты, телефоны, қанша трекер қосқаны</p>
+    <div class="box" style="overflow-x:auto">
+      <table class="admin-table" id="trialLeadsTable">
+        <thead><tr><th data-i18n="admin.thName">Аты</th><th data-i18n="admin.trial.thPhone">Телефон</th><th data-i18n="admin.trial.thTrackers">Трекер</th><th data-i18n="admin.thRegistered">Келген күні</th></tr></thead>
+        <tbody id="trialLeadsBody"></tbody>
+      </table>
+    </div>
   </div>
 </section>
 
@@ -1606,6 +1618,8 @@ const I18N = {
     'profile.curPassLabel':'Ағымдағы пароль', 'profile.newPassLabel':'Жаңа пароль', 'profile.newPass2Label':'Жаңа парольді қайтала',
     'admin.title':'Админ панель', 'admin.sub':'Пайдаланушыларға доступ беру/алу, парольді ысырып тастау.',
     'admin.thName':'Аты', 'admin.thStatus':'Статус', 'admin.thRegistered':'Тіркелген',
+    'admin.trial.title':'Сынама сайтқа кірген адамдар', 'admin.trial.sub':'/trial сілтемесі арқылы кіргендер — аты, телефоны, қанша трекер қосқаны',
+    'admin.trial.thPhone':'Телефон', 'admin.trial.thTrackers':'Трекер',
     'auth.sub':'Аккаунтыңмен кіріп, әдеттеріңді бақыла', 'auth.login':'Кіру', 'auth.register':'Тіркелу',
     'auth.passLabel':'Пароль', 'auth.passPh':'кемінде 4 таңба', 'auth.nameLabel':'Атың',
     'auth.noAccount':'Аккаунтың жоқ па?', 'auth.registerShort':'Тіркел',
@@ -1717,6 +1731,8 @@ const I18N = {
     'profile.curPassLabel':'Текущий пароль', 'profile.newPassLabel':'Новый пароль', 'profile.newPass2Label':'Повтори новый пароль',
     'admin.title':'Панель администратора', 'admin.sub':'Выдача/отмена доступа пользователям, сброс пароля.',
     'admin.thName':'Имя', 'admin.thStatus':'Статус', 'admin.thRegistered':'Зарегистрирован',
+    'admin.trial.title':'Посетители пробной версии', 'admin.trial.sub':'Зашедшие по ссылке /trial — имя, телефон, сколько трекеров создали',
+    'admin.trial.thPhone':'Телефон', 'admin.trial.thTrackers':'Трекеров',
     'auth.sub':'Войди в аккаунт и следи за привычками', 'auth.login':'Войти', 'auth.register':'Регистрация',
     'auth.passLabel':'Пароль', 'auth.passPh':'минимум 4 символа', 'auth.nameLabel':'Имя',
     'auth.noAccount':'Нет аккаунта?', 'auth.registerShort':'Зарегистрироваться',
@@ -2298,6 +2314,26 @@ async function renderAdmin(){
       </tr>`).join('') || `<tr><td colspan="5">${LANG==='ru'?'Нет пользователей':'Пайдаланушы жоқ'}</td></tr>`;
   }catch(e){
     body.innerHTML = `<tr><td colspan="5">${LANG==='ru'?'Ошибка':'Қате'}: ${e.message}</td></tr>`;
+  }
+  renderTrialLeads();
+}
+async function renderTrialLeads(){
+  const body = document.getElementById('trialLeadsBody');
+  const countEl = document.getElementById('trialLeadCount');
+  if(!body) return;
+  body.innerHTML = `<tr><td colspan="4">${LANG==='ru'?'Загрузка...':'Жүктелуде...'}</td></tr>`;
+  try{
+    const r = await apiCall('/trial?admin=1', 'GET');
+    if(countEl) countEl.textContent = r.users.length;
+    body.innerHTML = r.users.map(u=>`
+      <tr>
+        <td>${(u.name||'').replace(/</g,'&lt;')}</td>
+        <td>${u.phone}</td>
+        <td>${u.tracker_count}</td>
+        <td>${new Date(u.created_at).toLocaleDateString(LANG==='ru'?'ru-RU':'kk-KZ')}</td>
+      </tr>`).join('') || `<tr><td colspan="4">${LANG==='ru'?'Пока никто не заходил':'Әзірге ешкім кірмеген'}</td></tr>`;
+  }catch(e){
+    body.innerHTML = `<tr><td colspan="4">${LANG==='ru'?'Ошибка':'Қате'}: ${e.message}</td></tr>`;
   }
 }
 async function toggleAccess(userId, active){

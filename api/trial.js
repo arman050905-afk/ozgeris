@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { sql } = require('./_db');
+const { requireAdmin } = require('./_admin');
 
 if (!process.env.JWT_SECRET) {
   throw new Error('JWT_SECRET env var орнатылмаған');
@@ -20,6 +21,24 @@ function verify(req) {
 }
 
 module.exports = async (req, res) => {
+  // ---- Админ: сынама сайтқа кірген адамдардың тізімі (нағыз ÖZGERIS admin-і ғана) ----
+  if (req.method === 'GET' && req.query && req.query.admin === '1') {
+    const admin = await requireAdmin(req);
+    if (!admin) return res.status(403).json({ error: 'тек админге рұқсат' });
+    try {
+      const rows = await sql`
+        select tu.id, tu.name, tu.phone, tu.created_at,
+          coalesce(jsonb_array_length(td.data->'trackers'), 0) as tracker_count
+        from trial_users tu
+        left join trial_data td on td.user_id = tu.id
+        order by tu.created_at desc
+      `;
+      return res.status(200).json({ users: rows });
+    } catch (e) {
+      return res.status(500).json({ error: 'Сервер қатесі, кейінірек көр' });
+    }
+  }
+
   // ---- Кіру: {action:'login', name, phone} — пароль жоқ, телефон бойынша тауып/жасап бірден кіреді ----
   if (req.method === 'POST' && req.body && req.body.action === 'login') {
     const { name, phone } = req.body;

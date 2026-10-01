@@ -763,23 +763,53 @@
   .auth-alt span{color:var(--s7);cursor:pointer;font-weight:700}
 
   /* ---------- Сынама воронка (квиз) ---------- */
-  .quiz-card{max-width:440px}
-  .qtitle{font-size:19px;font-weight:800;text-align:center;margin-bottom:18px;line-height:1.35}
+  .quiz-card{max-width:460px;position:relative;overflow:hidden}
+  .quiz-card::before{content:'';position:absolute;top:-80px;right:-80px;width:220px;height:220px;border-radius:50%;
+    background:radial-gradient(circle, rgba(var(--accent-rgb),.35), transparent 70%);pointer-events:none;z-index:0}
+  .quiz-card::after{content:'';position:absolute;bottom:-90px;left:-70px;width:220px;height:220px;border-radius:50%;
+    background:radial-gradient(circle, rgba(var(--accent3-rgb),.28), transparent 70%);pointer-events:none;z-index:0}
+  .quiz-card > *{position:relative;z-index:1}
+  .qdots{display:flex;justify-content:center;gap:7px;margin:4px 0 22px}
+  .qdots .qd{width:7px;height:7px;border-radius:50%;background:var(--line);transition:.3s}
+  .qdots .qd.done{background:var(--s7);width:16px;border-radius:4px}
+  .qdots .qd.cur{background:var(--grad);width:16px;border-radius:4px;box-shadow:0 0 0 3px rgba(var(--accent-rgb),.25)}
+  .qstep{animation:qfade .4s ease}
+  @keyframes qfade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .qtitle{font-size:20px;font-weight:800;text-align:center;margin-bottom:20px;line-height:1.35}
   .qoptions{display:flex;flex-direction:column;gap:10px}
+  .qoptions.qgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .qopt-btn{width:100%;text-align:left;background:var(--panel-2);border:1.5px solid var(--line);color:var(--text);
-    padding:14px 16px;border-radius:13px;font-size:15px;font-weight:600;cursor:pointer;transition:.15s;font-family:inherit}
-  .qopt-btn:hover{border-color:var(--s7);background:var(--panel-hover);transform:translateY(-1px)}
-  .qopt-btn.qdir{display:flex;align-items:center;gap:12px;font-size:16px;font-weight:800}
-  .qopt-btn.qdir .qe{font-size:22px}
-  .q-progress{width:100%;height:8px;background:var(--panel-2);border-radius:10px;overflow:hidden;margin:18px 0 20px}
-  .q-progress-bar{height:100%;width:0;background:var(--grad);border-radius:10px;transition:width .4s ease}
+    padding:14px 16px;border-radius:13px;font-size:15px;font-weight:600;cursor:pointer;transition:.18s cubic-bezier(.2,.8,.2,1);font-family:inherit}
+  .qopt-btn:hover{border-color:var(--s7);background:var(--panel-hover);transform:translateY(-2px);box-shadow:0 10px 22px -12px rgba(var(--accent-rgb),.5)}
+  .qopt-btn:active{transform:translateY(0) scale(.97)}
+  .qopt-btn.qdir{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+    font-size:14.5px;font-weight:800;text-align:center;padding:22px 10px;min-height:108px;border-width:1.5px}
+  .qopt-btn.qdir .qe{font-size:30px;line-height:1}
+  .qopt-btn.qdir[data-c="finance"]:hover{border-color:var(--s6);box-shadow:0 10px 24px -12px rgba(62,207,147,.45)}
+  .qopt-btn.qdir[data-c="sport"]:hover{border-color:var(--s4);box-shadow:0 10px 24px -12px rgba(240,171,82,.45)}
+  .qopt-btn.qdir[data-c="health"]:hover{border-color:var(--s8);box-shadow:0 10px 24px -12px rgba(242,99,126,.45)}
+  .qopt-btn.qdir[data-c="edu"]:hover{border-color:var(--s1);box-shadow:0 10px 24px -12px rgba(108,141,255,.45)}
+  .q-progress{width:100%;height:9px;background:var(--panel-2);border-radius:10px;overflow:hidden;margin:18px 0 20px;box-shadow:inset 0 1px 3px rgba(0,0,0,.3)}
+  .q-progress-bar{height:100%;width:0;background:var(--grad);border-radius:10px;transition:width .5s cubic-bezier(.2,.8,.2,1);
+    background-size:200% 100%;animation:qshimmer 1.6s linear infinite}
+  @keyframes qshimmer{0%{background-position:0% 0}100%{background-position:200% 0}}
+  .q-loading-icon{font-size:40px;text-align:center;margin-bottom:6px;animation:qspin 1.8s linear infinite}
+  @keyframes qspin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
   .q-loading-text{min-height:70px;text-align:center;color:var(--muted);font-size:14.5px;line-height:1.7}
   .q-loading-text .qll{opacity:0;transform:translateY(6px);transition:.35s;margin-bottom:6px}
   .q-loading-text .qll.show{opacity:1;transform:translateY(0)}
-  .qresult-text{font-size:15.5px;line-height:1.75;color:var(--text);margin-bottom:22px}
+  .qresult-badge{width:56px;height:56px;border-radius:18px;display:flex;align-items:center;justify-content:center;
+    font-size:28px;margin:0 auto 16px;background:color-mix(in srgb, var(--s7) 16%, transparent)}
+  .qresult-text{font-size:15.5px;line-height:1.8;color:var(--text);margin-bottom:22px;
+    background:var(--panel-2);border:1px solid var(--line);border-radius:16px;padding:20px}
   .qresult-text b{color:var(--s7)}
-  .q-hook-icon{font-size:48px;text-align:center;margin-bottom:12px}
+  .qresult-text p{margin-bottom:10px}
+  .qresult-text p:last-child{margin-bottom:0}
+  .q-hook-icon{font-size:52px;text-align:center;margin-bottom:12px;animation:qbounce 2s ease-in-out infinite}
+  @keyframes qbounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
   .q-hook-desc{color:var(--muted);font-size:14.5px;line-height:1.6;text-align:center;margin-bottom:22px}
+  #qStep8 .btn{box-shadow:0 0 0 0 rgba(var(--accent-rgb),.5);animation:qpulse 1.8s ease-in-out infinite}
+  @keyframes qpulse{0%,100%{box-shadow:0 0 0 0 rgba(var(--accent-rgb),.45)}50%{box-shadow:0 0 0 10px rgba(var(--accent-rgb),0)}}
   .user-badge{color:var(--muted);font-size:14px;font-weight:600;display:flex;align-items:center;margin-left:8px}
   .logout-btn{background:none;border:1px solid var(--line);color:var(--muted);border-radius:9px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:600;margin-left:12px;transition:.15s}
   .logout-btn:hover{color:#f0a5a5;border-color:var(--crit)}
@@ -834,6 +864,7 @@
 <div id="authScreen">
   <div class="auth-card quiz-card">
     <div class="auth-logo"><span><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><polyline points='3,17 9,11 13,15 21,5'/><polyline points='15,5 21,5 21,11'/></svg></span> ÖZGERIS</div>
+    <div class="qdots" id="qDots"></div>
 
     <!-- Қадам 1: Аты + Телефон -->
     <div id="qStep1" class="qstep">
@@ -872,12 +903,14 @@
 
     <!-- Қадам 6: Талдау анимациясы -->
     <div id="qStep6" class="qstep" style="display:none">
+      <div class="q-loading-icon">⚙️</div>
       <div class="q-progress"><div class="q-progress-bar" id="qProgressBar"></div></div>
       <div class="q-loading-text" id="qLoadingText"></div>
     </div>
 
     <!-- Қадам 7: Жеке нәтиже -->
     <div id="qStep7" class="qstep" style="display:none">
+      <div class="qresult-badge" id="qResultBadge"></div>
       <div class="qresult-text" id="qResultText"></div>
       <button class="btn" onclick="showQStep(8)" data-i18n="trial.seeHow">Қалай болатынын көру →</button>
     </div>
@@ -1724,6 +1757,13 @@ let quizState = { name:'', direction:null, q1:null, q2:null, common:null };
 
 function showQStep(n){
   for(let i=1;i<=8;i++){ const el=document.getElementById('qStep'+i); if(el) el.style.display = (i===n?'block':'none'); }
+  const dots = document.getElementById('qDots');
+  if(dots){
+    dots.innerHTML = Array.from({length:8},(_,i)=>{
+      const idx=i+1, cls = idx<n?'done':(idx===n?'cur':'');
+      return `<span class="qd ${cls}"></span>`;
+    }).join('');
+  }
 }
 async function quizStep1Submit(){
   const btn = document.querySelector('#qStep1 .btn');
@@ -1745,8 +1785,9 @@ async function quizStep1Submit(){
 }
 function renderQ2(){
   const box = document.getElementById('q2Options');
+  box.className = 'qoptions qgrid';
   box.innerHTML = Object.entries(QUIZ_DIRECTIONS).map(([key,d])=>
-    `<button class="qopt-btn qdir" onclick="pickDirection('${key}')"><span class="qe">${d.emoji}</span> ${d.label}</button>`).join('');
+    `<button class="qopt-btn qdir" data-c="${key}" onclick="pickDirection('${key}')"><span class="qe">${d.emoji}</span> ${d.label}</button>`).join('');
 }
 function pickDirection(key){
   quizState.direction = key;
@@ -1796,6 +1837,8 @@ function showResult(){
   const r = d.results[quizState.q2];
   const c = QUIZ_COMMON[quizState.common];
   const firstName = (quizState.name||'').trim().split(/\s+/)[0] || 'Досым';
+  const badge = document.getElementById('qResultBadge');
+  if(badge) badge.textContent = d.emoji;
   document.getElementById('qResultText').innerHTML = `
     <p><b>${firstName}</b>, сен кездейсоқ келген жоқсың.</p>
     <p>${r.problem}</p>
