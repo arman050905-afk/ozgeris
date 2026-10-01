@@ -1228,6 +1228,12 @@
         <canvas id="lineChart" width="560" height="300"></canvas>
       </div>
     </div>
+    <div class="chart-box" id="dailyExpenseBox" style="margin-top:20px">
+      <h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='3' y='7' width='18' height='12' rx='2'/><line x1='3' y1='10.5' x2='21' y2='10.5'/><circle cx='17' cy='14' r='1.3' fill='currentColor' stroke='none'/></svg> <span data-i18n="ana.dailyExpense">Күндік шығын</span></h3>
+      <div class="cd" data-i18n="ana.dailyExpenseDesc">Соңғы 30 күн — бағанды бас, сол күнгі соманы көресің</div>
+      <canvas id="dailyExpenseChart" width="820" height="220" onclick="pickDailyExpenseBar(event)"></canvas>
+      <div id="dailyExpensePick" style="margin-top:10px;font-size:14px;color:var(--muted)"></div>
+    </div>
     <div id="streakLeaderboard" style="margin-top:20px"></div>
     <div class="chart-box" id="trackerOverviewBox" style="margin-top:20px">
       <div class="box-head"><h3 data-i18n="ana.overview">Трекерлер шолуы</h3></div>
@@ -1553,6 +1559,8 @@ const I18N = {
     'ana.catProgress':'Категория бойынша прогресс', 'ana.catProgressDesc':'Әр саладағы орташа орындалу %',
     'ana.dyn30':'30 күндік динамика', 'ana.dyn30Desc':'Күніне неше әдет орындалды',
     'ana.overview':'Трекерлер шолуы',
+    'ana.dailyExpense':'Күндік шығын', 'ana.dailyExpenseDesc':'Соңғы 30 күн — бағанды бас, сол күнгі соманы көресің',
+    'ana.dailyExpenseEmpty':'Әзірге шығын жазылмаған', 'ana.dailyExpenseTotal':'Соңғы 30 күндегі жалпы шығын',
     'fin.balance':'Жалпы баланс', 'fin.monthIn':'Осы айдағы кіріс:', 'fin.monthOut':'Осы айдағы шығыс:', 'fin.netProfit':'Таза пайда:',
     'fin.last6mChart':'Соңғы 6 айдың кіріс/шығыны', 'fin.monthlyCompare':'Ай сайынғы салыстыру',
     'fin.whereMoneyWent':'Ақша қайда кетті (осы ай)', 'fin.expenseStructure':'Шығын құрылымы',
@@ -1662,6 +1670,8 @@ const I18N = {
     'ana.catProgress':'Прогресс по категориям', 'ana.catProgressDesc':'Среднее выполнение % по каждой сфере',
     'ana.dyn30':'Динамика за 30 дней', 'ana.dyn30Desc':'Сколько привычек выполнено в день',
     'ana.overview':'Обзор трекеров',
+    'ana.dailyExpense':'Дневные расходы', 'ana.dailyExpenseDesc':'Последние 30 дней — нажми на столбец, узнаешь сумму за день',
+    'ana.dailyExpenseEmpty':'Пока нет расходов', 'ana.dailyExpenseTotal':'Всего расходов за 30 дней',
     'fin.balance':'Общий баланс', 'fin.monthIn':'Доход за месяц:', 'fin.monthOut':'Расход за месяц:', 'fin.netProfit':'Чистая прибыль:',
     'fin.last6mChart':'Доход/расход за последние 6 месяцев', 'fin.monthlyCompare':'Помесячное сравнение',
     'fin.whereMoneyWent':'Куда ушли деньги (в этом месяце)', 'fin.expenseStructure':'Структура расходов',
@@ -5068,6 +5078,71 @@ function drawLine(){
   [1,10,20,30].forEach(d=> ctx.fillText(LANG==='ru'?`д.${d}`:d+'-күн',xAt(d-1),pad.t+ch+8));
 }
 
+/* ---------- Талдау: соңғы 30 күндегі шығын (қаржы) ---------- */
+function dailyExpenseData(days){
+  days = days || 30;
+  const todayMid = new Date(todayStr()+'T00:00:00').getTime();
+  const out=[];
+  for(let o=days-1; o>=0; o--){
+    const d = new Date(todayMid - o*86400000);
+    const ds = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    const sum = (typeof txs!=='undefined'?txs:[]).filter(t=>t.type==='out' && t.date===ds).reduce((s,t)=>s+t.amount,0);
+    out.push({date:ds, dateObj:d, sum});
+  }
+  return out;
+}
+let _dailyExpenseLayout = null;
+function drawDailyExpenseChart(){
+  const cv=document.getElementById('dailyExpenseChart'); if(!cv) return;
+  const {ctx,w,h}=setupCanvas(cv);
+  ctx.clearRect(0,0,w,h);
+  const data = dailyExpenseData(30);
+  const total = data.reduce((s,d)=>s+d.sum,0);
+  const totalEl = document.getElementById('dailyExpensePick');
+  const pad={l:44,r:12,t:14,b:28};
+  const cw=w-pad.l-pad.r, ch=h-pad.t-pad.b;
+  _dailyExpenseLayout = {data, pad, cw, ch, bw: cw/data.length};
+  if(!total){
+    ctx.fillStyle='#64748b'; ctx.font='14px system-ui'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(t('ana.dailyExpenseEmpty'), w/2, h/2);
+    if(totalEl) totalEl.textContent='';
+    return;
+  }
+  const maxV = Math.max(1, ...data.map(d=>d.sum));
+  ctx.font='11px system-ui'; ctx.textAlign='right'; ctx.textBaseline='middle';
+  for(let g=0; g<=maxV; g+=Math.max(1,Math.ceil(maxV/4))){
+    const y = pad.t+ch-(g/maxV*ch);
+    ctx.strokeStyle=cssVar('--line'); ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(w-pad.r,y); ctx.stroke();
+    ctx.fillStyle=cssVar('--faint');
+    ctx.fillText(g>=1000?Math.round(g/1000)+'k':String(Math.round(g)), pad.l-8, y);
+  }
+  const bw=cw/data.length;
+  const labelStep = Math.max(1, Math.ceil(56/bw));
+  data.forEach((d,i)=>{
+    const bh = d.sum/maxV*ch;
+    const x = pad.l+i*bw+bw*0.18, bwid=bw*0.64;
+    const y = pad.t+ch-bh;
+    ctx.fillStyle = d.sum>0 ? '#d03b3b' : cssVar('--line');
+    roundRect(ctx,x,y,bwid,Math.max(bh,1.5),2,true);
+    if(i%labelStep===0 || i===data.length-1){
+      ctx.fillStyle=cssVar('--faint'); ctx.font='10px system-ui'; ctx.textAlign='center'; ctx.textBaseline='top';
+      ctx.fillText(String(d.dateObj.getDate()), pad.l+i*bw+bw/2, pad.t+ch+6);
+    }
+  });
+  if(totalEl) totalEl.textContent = `${t('ana.dailyExpenseTotal')}: ${fmt(total)}`;
+}
+function pickDailyExpenseBar(ev){
+  if(!_dailyExpenseLayout) return;
+  const {data,pad,bw} = _dailyExpenseLayout;
+  const x = ev.offsetX;
+  let i = Math.floor((x-pad.l)/bw);
+  if(i<0) i=0; if(i>=data.length) i=data.length-1;
+  const d = data[i];
+  const el = document.getElementById('dailyExpensePick');
+  if(!el) return;
+  el.innerHTML = `<b style="color:var(--text)">${fmtDate(d.date)}</b> — <b style="color:#f0a5a5">${fmt(d.sum)}</b> ${LANG==='ru'?'потрачено':'жұмсалды'}`;
+}
 function drawDetailChart(t){
   const cv=document.getElementById('detailChart');
   if(!cv) return;
@@ -5382,6 +5457,7 @@ function renderAnalytics(){
   const kpi=document.getElementById('kpis');
   renderHealthPanel(); renderAchievements();
   renderAnalyticsInsights(); renderStreakLeaderboard(); renderOverview();
+  drawDailyExpenseChart();
   if(!trackers.length){
     kpi.innerHTML='';
     document.getElementById('derived').innerHTML=
