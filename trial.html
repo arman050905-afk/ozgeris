@@ -1721,6 +1721,9 @@ async function quizStep1Submit(){
   const phone=document.getElementById('trialPhone').value.trim();
   if(!name){ authErr(LANG==='ru'?'Напиши своё имя':'Атыңды жаз'); return; }
   if(!phone){ authErr(LANG==='ru'?'Напиши номер телефона':'Телефон нөміріңді жаз'); return; }
+  const btn = document.querySelector('#qStep1 .btn');
+  const originalLabel = btn.textContent;
+  btn.disabled = true; btn.textContent = LANG==='ru' ? 'Жіберілуде…' : 'Жіберілуде…';
   try{
     const r = await apiCall('POST', {action:'login', name, phone});
     Store.setGlobal('app_token', r.token);
@@ -1728,7 +1731,7 @@ async function quizStep1Submit(){
     quizState.name = r.user.name;
     renderQ2();
     showQStep(2);
-  }catch(e){ authErr(e.message); }
+  }catch(e){ authErr(e.message); btn.disabled = false; btn.textContent = originalLabel; }
 }
 function renderQ2(){
   const box = document.getElementById('q2Options');
