@@ -2163,7 +2163,7 @@ function save(){ Store.set('trackers', trackers); scheduleSync(); }
 function saveTx(){ Store.set('txs', txs); scheduleSync(); }
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 function todayStr(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-function fmt(n){ return Math.round(n).toLocaleString('ru-RU')+' ₸'; }
+function fmt(n){ return Math.round(n).toLocaleString('ru-RU').replace(/ /g,' ')+' ₸'; }
 
 // Трекер басталғаннан бері неше күн өтті (трекердің толық ұзақтығына дейін)
 function daysPassed(t){
