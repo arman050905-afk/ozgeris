@@ -304,6 +304,7 @@
   }
   .btn:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 14px 30px -10px rgba(var(--accent-rgb),.75)}
   .btn:active{transform:translateY(0) scale(.98)}
+  .btn:disabled{opacity:.6;cursor:not-allowed;filter:none;transform:none}
   .btn.ghost{background:var(--panel-2);border:1.5px solid var(--line);color:var(--text);box-shadow:none}
   .btn.ghost:hover{background:var(--panel-hover);border-color:var(--s7);transform:translateY(-1px)}
   .btn.sm{width:auto;padding:9px 17px;font-size:14px}
@@ -1604,7 +1605,15 @@ async function apiCall(method, body){
   const headers = {'Content-Type':'application/json'};
   const t = authToken();
   if(t) headers.Authorization = 'Bearer '+t;
-  const res = await fetch(API_BASE, {method, headers, body: body?JSON.stringify(body):undefined});
+  const controller = new AbortController();
+  const timeoutId = setTimeout(()=>controller.abort(), 15000);
+  let res;
+  try{
+    res = await fetch(API_BASE, {method, headers, body: body?JSON.stringify(body):undefined, signal: controller.signal});
+  }catch(e){
+    console.error('apiCall network error:', e);
+    throw new Error(e.name==='AbortError' ? (LANG==='ru'?'Сервер жауап бермеді, қайта көр':'Сервер жауап бермеді, қайта көр') : (LANG==='ru'?'Интернет байланысын тексер':'Интернет байланысын тексер'));
+  }finally{ clearTimeout(timeoutId); }
   let json = {}; try{ json = await res.json(); }catch(e){}
   if(!res.ok) throw new Error(json.error || 'Қате шықты, қайта көр');
   return json;
@@ -1717,11 +1726,12 @@ function showQStep(n){
   for(let i=1;i<=8;i++){ const el=document.getElementById('qStep'+i); if(el) el.style.display = (i===n?'block':'none'); }
 }
 async function quizStep1Submit(){
+  const btn = document.querySelector('#qStep1 .btn');
+  if(btn.disabled) return; // қос-клик қорғанысы
   const name=document.getElementById('trialName').value.trim();
   const phone=document.getElementById('trialPhone').value.trim();
   if(!name){ authErr(LANG==='ru'?'Напиши своё имя':'Атыңды жаз'); return; }
   if(!phone){ authErr(LANG==='ru'?'Напиши номер телефона':'Телефон нөміріңді жаз'); return; }
-  const btn = document.querySelector('#qStep1 .btn');
   const originalLabel = btn.textContent;
   btn.disabled = true; btn.textContent = LANG==='ru' ? 'Жіберілуде…' : 'Жіберілуде…';
   try{
