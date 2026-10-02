@@ -112,9 +112,15 @@ module.exports = async (req, res) => {
 
   try {
     if (req.method === 'GET') {
-      const rows = await sql`select td.data, tu.name from trial_data td join trial_users tu on tu.id = td.user_id where td.user_id = ${payload.tuid}`;
+      const rows = await sql`
+        select td.data, tu.name, tu.offer_deadline, tu.whatsapp_clicked_at
+        from trial_data td join trial_users tu on tu.id = td.user_id where td.user_id = ${payload.tuid}`;
       await sql`update trial_users set last_seen_at = now() where id = ${payload.tuid}`;
-      return res.status(200).json({ data: rows[0] ? rows[0].data : {}, name: rows[0] ? rows[0].name : '' });
+      return res.status(200).json({
+        data: rows[0] ? rows[0].data : {}, name: rows[0] ? rows[0].name : '',
+        offerDeadline: rows[0] ? rows[0].offer_deadline : null,
+        whatsappClicked: rows[0] ? !!rows[0].whatsapp_clicked_at : false
+      });
     }
     if (req.method === 'PUT' || req.method === 'POST') {
       const data = (req.body && req.body.data) || {};

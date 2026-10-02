@@ -792,6 +792,8 @@
   .admin-table th{text-align:left;color:var(--muted);font-size:12px;font-weight:700;padding:10px 12px;border-bottom:1px solid var(--line)}
   .admin-table td{padding:12px;border-bottom:1px solid var(--line);vertical-align:middle}
   .admin-table tr:last-child td{border-bottom:none}
+  .btn-sm{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:5px 9px;font-size:14px;cursor:pointer;margin-right:4px}
+  .btn-sm:hover{border-color:var(--s7)}
   .status-pill{padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700}
   .status-pill.on{color:var(--good);background:#22c55e22}
   .status-pill.off{color:var(--warn);background:#f2b53d22}
@@ -1264,9 +1266,15 @@
       <span class="sum-badge in" id="trialLeadCount">0</span>
     </div>
     <p class="cd" style="margin-bottom:14px" data-i18n="admin.trial.sub">/trial сілтемесі арқылы кіргендер — аты, телефоны, қанша трекер қосқаны</p>
+    <div class="box" id="trialFunnelStats" style="margin-bottom:14px"></div>
     <div class="box" style="overflow-x:auto">
       <table class="admin-table" id="trialLeadsTable">
-        <thead><tr><th data-i18n="admin.thName">Аты</th><th data-i18n="admin.trial.thPhone">Телефон</th><th data-i18n="admin.trial.thTrackers">Трекер</th><th data-i18n="admin.thRegistered">Келген күні</th></tr></thead>
+        <thead><tr>
+          <th data-i18n="admin.thName">Аты</th><th data-i18n="admin.trial.thPhone">Телефон</th>
+          <th data-i18n="admin.trial.thWarmth">Жылылық</th><th data-i18n="admin.trial.thDirection">Бағыт</th>
+          <th data-i18n="admin.trial.thDream">Арман</th><th data-i18n="admin.trial.thTrackers">Трекер</th>
+          <th data-i18n="admin.thRegistered">Келген күні</th><th></th>
+        </tr></thead>
         <tbody id="trialLeadsBody"></tbody>
       </table>
     </div>
@@ -1619,7 +1627,7 @@ const I18N = {
     'admin.title':'Админ панель', 'admin.sub':'Пайдаланушыларға доступ беру/алу, парольді ысырып тастау.',
     'admin.thName':'Аты', 'admin.thStatus':'Статус', 'admin.thRegistered':'Тіркелген',
     'admin.trial.title':'Сынама сайтқа кірген адамдар', 'admin.trial.sub':'/trial сілтемесі арқылы кіргендер — аты, телефоны, қанша трекер қосқаны',
-    'admin.trial.thPhone':'Телефон', 'admin.trial.thTrackers':'Трекер',
+    'admin.trial.thPhone':'Телефон', 'admin.trial.thTrackers':'Трекер', 'admin.trial.thWarmth':'Жылылық', 'admin.trial.thDirection':'Бағыт', 'admin.trial.thDream':'Арман',
     'auth.sub':'Аккаунтыңмен кіріп, әдеттеріңді бақыла', 'auth.login':'Кіру', 'auth.register':'Тіркелу',
     'auth.passLabel':'Пароль', 'auth.passPh':'кемінде 4 таңба', 'auth.nameLabel':'Атың',
     'auth.noAccount':'Аккаунтың жоқ па?', 'auth.registerShort':'Тіркел',
@@ -1732,7 +1740,7 @@ const I18N = {
     'admin.title':'Панель администратора', 'admin.sub':'Выдача/отмена доступа пользователям, сброс пароля.',
     'admin.thName':'Имя', 'admin.thStatus':'Статус', 'admin.thRegistered':'Зарегистрирован',
     'admin.trial.title':'Посетители пробной версии', 'admin.trial.sub':'Зашедшие по ссылке /trial — имя, телефон, сколько трекеров создали',
-    'admin.trial.thPhone':'Телефон', 'admin.trial.thTrackers':'Трекеров',
+    'admin.trial.thPhone':'Телефон', 'admin.trial.thTrackers':'Трекеров', 'admin.trial.thWarmth':'Теплота', 'admin.trial.thDirection':'Направление', 'admin.trial.thDream':'Мечта',
     'auth.sub':'Войди в аккаунт и следи за привычками', 'auth.login':'Войти', 'auth.register':'Регистрация',
     'auth.passLabel':'Пароль', 'auth.passPh':'минимум 4 символа', 'auth.nameLabel':'Имя',
     'auth.noAccount':'Нет аккаунта?', 'auth.registerShort':'Зарегистрироваться',
@@ -2317,23 +2325,99 @@ async function renderAdmin(){
   }
   renderTrialLeads();
 }
+const TRIAL_DIR_LABEL = { finance:{kk:'Қаржы',ru:'Финансы'}, sport:{kk:'Спорт',ru:'Спорт'}, health:{kk:'Денсаулық',ru:'Здоровье'}, edu:{kk:'Білім',ru:'Образование'} };
+function trialWarmth(u){
+  let w = Math.round((u.funnel_step||1)/9*50);
+  if(u.whatsapp_clicked_at) w += 35;
+  if(u.dream_text) w += 8;
+  if(u.last_seen_at){
+    const hrs = (Date.now() - new Date(u.last_seen_at).getTime())/3600000;
+    if(hrs <= 24) w += 15; else if(hrs <= 24*7) w += 5;
+  }
+  return Math.max(0, Math.min(100, w));
+}
+function trialLeadWaMessage(u){
+  const qa = u.quiz_answers || {};
+  const dirLabel = qa.direction ? (TRIAL_DIR_LABEL[qa.direction] ? TRIAL_DIR_LABEL[qa.direction].kk : qa.direction) : '';
+  const firstName = (u.name||'').trim().split(/\s+/)[0] || 'Досым';
+  let msg = `Сәлем, ${firstName}! ÖZGERIS сынама нұсқасында${dirLabel?` «${dirLabel}»`:''} бағытын таңдап, квизден өттің.`;
+  if(u.dream_text) msg += ` Сенің мақсатың: «${u.dream_text}».`;
+  msg += ` Саған арнап толық нұсқаға жеңілдік дайындадық — қызығасың ба? 😊`;
+  return msg;
+}
+async function copyLeadMessage(idx){
+  const u = (window._trialLeadsCache||[])[idx];
+  if(!u) return;
+  const msg = trialLeadWaMessage(u);
+  try{ await navigator.clipboard.writeText(msg); toast(LANG==='ru'?'Сообщение скопировано':'Хабарлама көшірілді'); }
+  catch(e){ toast(msg); }
+}
+function openLeadWa(idx){
+  const u = (window._trialLeadsCache||[])[idx];
+  if(!u) return;
+  window.open('https://wa.me/'+u.phone+'?text='+encodeURIComponent(trialLeadWaMessage(u)), '_blank');
+}
+function renderTrialFunnelStats(users){
+  const box = document.getElementById('trialFunnelStats');
+  if(!box) return;
+  const total = users.length;
+  const stepLabels = LANG==='ru'
+    ? ['Телефон','Направление','Вопрос 1','Вопрос 2','Общий вопрос','Мечта','Анализ','Результат','Вход в приложение']
+    : ['Телефон','Бағыт','1-сұрақ','2-сұрақ','Ортақ сұрақ','Арман','Талдау','Нәтиже','Қосымшаға кіру'];
+  const dropoff = Array.from({length:9},(_,i)=> users.filter(u=>(u.funnel_step||1) >= i+1).length);
+  const dirCounts = {};
+  users.forEach(u=>{ const d = u.quiz_answers && u.quiz_answers.direction; if(d) dirCounts[d]=(dirCounts[d]||0)+1; });
+  const topDir = Object.entries(dirCounts).sort((a,b)=>b[1]-a[1])[0];
+  const topDirLabel = topDir ? (TRIAL_DIR_LABEL[topDir[0]] ? TRIAL_DIR_LABEL[topDir[0]][LANG==='ru'?'ru':'kk'] : topDir[0]) : (LANG==='ru'?'—':'—');
+  box.innerHTML = `
+    <div style="display:flex;gap:18px;flex-wrap:wrap;margin-bottom:14px">
+      <div><div class="cd">${LANG==='ru'?'Всего зашло':'Барлық кірген'}</div><div style="font-size:22px;font-weight:800">${total}</div></div>
+      <div><div class="cd">${LANG==='ru'?'Популярное направление':'Ең көп таңдалған бағыт'}</div><div style="font-size:22px;font-weight:800">${topDirLabel}${topDir?' ('+topDir[1]+')':''}</div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:5px">
+      ${stepLabels.map((l,i)=>{
+        const cnt = dropoff[i]; const pct = total ? Math.round(cnt/total*100) : 0;
+        return `<div style="display:flex;align-items:center;gap:8px;font-size:12.5px">
+          <span style="min-width:150px;color:var(--muted)">${i+1}. ${l}</span>
+          <div style="flex:1;height:8px;background:var(--line);border-radius:5px;overflow:hidden"><div style="height:100%;width:${pct}%;background:var(--grad)"></div></div>
+          <span style="min-width:60px;text-align:right">${cnt} (${pct}%)</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
 async function renderTrialLeads(){
   const body = document.getElementById('trialLeadsBody');
   const countEl = document.getElementById('trialLeadCount');
   if(!body) return;
-  body.innerHTML = `<tr><td colspan="4">${LANG==='ru'?'Загрузка...':'Жүктелуде...'}</td></tr>`;
+  body.innerHTML = `<tr><td colspan="8">${LANG==='ru'?'Загрузка...':'Жүктелуде...'}</td></tr>`;
   try{
     const r = await apiCall('/trial?admin=1', 'GET');
     if(countEl) countEl.textContent = r.users.length;
-    body.innerHTML = r.users.map(u=>`
+    renderTrialFunnelStats(r.users);
+    const users = r.users.map(u=>({...u, _warmth: trialWarmth(u)})).sort((a,b)=>b._warmth-a._warmth);
+    window._trialLeadsCache = users;
+    body.innerHTML = users.map((u,idx)=>{
+      const dirLabel = u.quiz_answers && u.quiz_answers.direction
+        ? (TRIAL_DIR_LABEL[u.quiz_answers.direction] ? TRIAL_DIR_LABEL[u.quiz_answers.direction][LANG==='ru'?'ru':'kk'] : u.quiz_answers.direction)
+        : '—';
+      const warmColor = u._warmth>=60 ? 'var(--good,#3ecf93)' : u._warmth>=30 ? 'var(--warn,#f0ab52)' : 'var(--muted)';
+      return `
       <tr>
         <td>${(u.name||'').replace(/</g,'&lt;')}</td>
         <td>${u.phone}</td>
+        <td><span style="font-weight:800;color:${warmColor}">${u._warmth}</span></td>
+        <td>${dirLabel}</td>
+        <td style="max-width:160px;white-space:normal;word-break:break-word;font-size:12.5px;color:var(--muted)">${u.dream_text ? (''+u.dream_text).replace(/</g,'&lt;') : '—'}</td>
         <td>${u.tracker_count}</td>
         <td>${new Date(u.created_at).toLocaleDateString(LANG==='ru'?'ru-RU':'kk-KZ')}</td>
-      </tr>`).join('') || `<tr><td colspan="4">${LANG==='ru'?'Пока никто не заходил':'Әзірге ешкім кірмеген'}</td></tr>`;
+        <td style="white-space:nowrap">
+          <button class="btn-sm" onclick="copyLeadMessage(${idx})" title="${LANG==='ru'?'Скопировать сообщение':'Хабарламаны көшіру'}">📋</button>
+          <button class="btn-sm" onclick="openLeadWa(${idx})" title="WhatsApp">💬</button>
+        </td>
+      </tr>`;
+    }).join('') || `<tr><td colspan="8">${LANG==='ru'?'Пока никто не заходил':'Әзірге ешкім кірмеген'}</td></tr>`;
   }catch(e){
-    body.innerHTML = `<tr><td colspan="4">${LANG==='ru'?'Ошибка':'Қате'}: ${e.message}</td></tr>`;
+    body.innerHTML = `<tr><td colspan="8">${LANG==='ru'?'Ошибка':'Қате'}: ${e.message}</td></tr>`;
   }
 }
 async function toggleAccess(userId, active){
