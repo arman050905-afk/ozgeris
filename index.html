@@ -538,7 +538,7 @@
   .empty .em{font-size:44px;display:block;margin-bottom:12px}
 
   /* ---------- Modal ---------- */
-  .modal-bg{position:fixed;inset:0;background:rgba(5,6,12,.72);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+  .modal-bg{position:fixed;inset:0;background:rgba(5,6,12,.72);backdrop-filter:blur(6px);display:none;align-items:safe center;justify-content:center;z-index:100;padding:20px;overflow-y:auto}
   .modal-bg.open{display:flex}
   .modal{background:linear-gradient(165deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:22px;padding:28px;max-width:440px;width:100%;box-shadow:0 40px 90px -20px rgba(0,0,0,.6)}
   .modal h3{font-family:var(--font-body);font-weight:800;margin-bottom:18px;font-size:20px}
@@ -746,10 +746,10 @@
   .welcome-btn{margin-top:20px;font-size:16px;padding:14px}
 
   /* AUTH screen */
-  #authScreen{position:fixed;inset:0;z-index:500;
+  #authScreen{position:fixed;inset:0;z-index:500;overflow-y:auto;
     background:radial-gradient(circle at 18% 12%, rgba(var(--accent-rgb),.32), transparent 45%),
       radial-gradient(circle at 88% 88%, rgba(var(--accent3-rgb),.22), transparent 45%), var(--bg);
-    display:flex;align-items:center;justify-content:center;padding:20px}
+    display:flex;align-items:safe center;justify-content:center;padding:20px}
   .auth-card{background:linear-gradient(165deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:24px;padding:36px;max-width:400px;width:100%;box-shadow:0 40px 90px -24px rgba(0,0,0,.6)}
   .auth-logo{display:flex;align-items:center;gap:10px;font-size:23px;justify-content:center;margin-bottom:6px;
     background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
@@ -777,10 +777,10 @@
   .buy-nav{background:var(--grad)!important;color:#fff!important;border-radius:10px;padding:9px 16px!important;font-weight:700!important;box-shadow:0 8px 20px -8px rgba(var(--accent-rgb),.6)}
 
   /* PENDING (доступ күту) screen */
-  #pendingScreen{position:fixed;inset:0;z-index:500;
+  #pendingScreen{position:fixed;inset:0;z-index:500;overflow-y:auto;
     background:radial-gradient(circle at 18% 12%, rgba(var(--accent-rgb),.32), transparent 45%),
       radial-gradient(circle at 88% 88%, rgba(var(--accent3-rgb),.22), transparent 45%), var(--bg);
-    display:flex;align-items:center;justify-content:center;padding:20px}
+    display:flex;align-items:safe center;justify-content:center;padding:20px}
   .pending-card{background:linear-gradient(165deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:24px;padding:36px;max-width:440px;width:100%;text-align:center;box-shadow:0 40px 90px -24px rgba(0,0,0,.6)}
   .pending-card .pe{font-size:44px;margin-bottom:14px;color:var(--s7)}
   .pending-card h2{font-size:21px;margin-bottom:10px}
