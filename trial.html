@@ -950,7 +950,7 @@
     <div id="qStep6" class="qstep" style="display:none">
       <h3 class="qtitle" data-i18n="trial.q6.title">Ең үлкен арманың не?</h3>
       <p class="q-hook-desc" style="margin-bottom:14px" data-i18n="trial.q6.sub">Бір сөйлеммен жаз — нәтижеңді дәл осыған бағыттап құрамыз</p>
-      <textarea id="qDream" placeholder="Мыс: 3 айда 5 кг арықтап, формамда болу" data-i18n-ph="trial.q6.ph"></textarea>
+      <textarea id="qDream" placeholder="Мыс: 3 айда 5 кг арықтап, формамда болу"></textarea>
       <button class="btn" style="margin-top:14px" onclick="submitDream()" data-i18n="trial.next">Жалғастыру</button>
       <span class="qskip" onclick="submitDream(true)" data-i18n="trial.skip">Өткізіп жіберу</span>
     </div>
@@ -1932,11 +1932,20 @@ function pickQ2(key){
   setReact(d.results[key] ? d.results[key].problem : null);
   showQStep(5);
 }
+const DREAM_PLACEHOLDERS = {
+  finance:{kk:'Мыс: 3 айда 300 000 теңге жинау', ru:'Напр.: накопить 300 000 тенге за 3 месяца'},
+  sport:{kk:'Мыс: 3 айда 5 кг арықтап, формамда болу', ru:'Напр.: похудеть на 5 кг за 3 месяца и быть в форме'},
+  health:{kk:'Мыс: түнде 7-8 сағат ұйықтап, шаршамай ояну', ru:'Напр.: спать 7-8 часов и просыпаться бодрым'},
+  edu:{kk:'Мыс: 3 айда ағылшынша еркін сөйлеу', ru:'Напр.: за 3 месяца свободно заговорить на английском'}
+};
 function pickCommon(key){
   quizState.common = key;
   setReact(QUIZ_COMMON[key].line);
+  const ph = DREAM_PLACEHOLDERS[quizState.direction];
+  const dream = document.getElementById('qDream');
+  if(ph) dream.placeholder = ph[LANG==='ru'?'ru':'kk'];
   showQStep(6);
-  setTimeout(()=>document.getElementById('qDream').focus(), 350);
+  setTimeout(()=>dream.focus(), 350);
 }
 function submitDream(skip){
   quizState.dream = skip ? '' : document.getElementById('qDream').value.trim().slice(0,500);
