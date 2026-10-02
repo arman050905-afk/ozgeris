@@ -6,10 +6,16 @@ module.exports = async (req, res) => {
   const sql = neon(process.env.DATABASE_URL);
   const { action, email, phone } = req.body || {};
   if (action === 'grant-admin') {
-    const hash = await bcrypt.hash('testpass123', 10);
-    await sql`insert into users (name, email, password_hash, active, is_admin) values ('Verify Admin', ${email}, ${hash}, true, true)
-      on conflict (email) do update set is_admin=true, active=true`;
-    return res.status(200).json({ ok: true });
+    try {
+      const hash = await bcrypt.hash('testpass123', 10);
+      const existing = await sql`select id from users where email = ${email}`;
+      if (existing.length) {
+        await sql`update users set is_admin=true, active=true where email = ${email}`;
+      } else {
+        await sql`insert into users (name, email, pass_hash, active, is_admin) values ('Verify Admin', ${email}, ${hash}, true, true)`;
+      }
+      return res.status(200).json({ ok: true });
+    } catch (e) { return res.status(500).json({ error: e.message }); }
   }
   if (action === 'delete-admin') {
     const r = await sql`delete from users where email = ${email} and email like '%@example.com' returning id`;
