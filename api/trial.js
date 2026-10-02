@@ -27,7 +27,8 @@ module.exports = async (req, res) => {
     if (!admin) return res.status(403).json({ error: 'тек админге рұқсат' });
     try {
       const rows = await sql`
-        select tu.id, tu.name, tu.phone, tu.created_at,
+        select tu.id, tu.name, tu.phone, tu.created_at, tu.quiz_answers, tu.change_index,
+          tu.dream_text, tu.funnel_step, tu.last_seen_at, tu.whatsapp_clicked_at,
           coalesce(jsonb_array_length(td.data->'trackers'), 0) as tracker_count
         from trial_users tu
         left join trial_data td on td.user_id = tu.id
@@ -50,8 +51,9 @@ module.exports = async (req, res) => {
       let user;
       if (existing.length) {
         user = existing[0];
+        await sql`update trial_users set last_seen_at = now() where id = ${user.id}`;
       } else {
-        const rows = await sql`insert into trial_users (name, phone) values (${String(name).trim()}, ${phoneDigits}) returning id, name`;
+        const rows = await sql`insert into trial_users (name, phone, funnel_step, last_seen_at) values (${String(name).trim()}, ${phoneDigits}, 1, now()) returning id, name`;
         user = rows[0];
         await sql`insert into trial_data (user_id, data) values (${user.id}, '{}'::jsonb)`;
       }
@@ -62,6 +64,48 @@ module.exports = async (req, res) => {
     }
   }
 
+  // ---- Квиз қадамын бақылау: {action:'track', step} — қайдан бас тартатынын көру үшін ----
+  if (req.method === 'POST' && req.body && req.body.action === 'track') {
+    const payload = verify(req);
+    if (!payload) return res.status(401).json({ error: 'unauthorized' });
+    const step = Math.max(1, Math.min(9, +req.body.step || 1));
+    try {
+      await sql`update trial_users set funnel_step = greatest(funnel_step, ${step}), last_seen_at = now() where id = ${payload.tuid}`;
+      return res.status(200).json({ ok: true });
+    } catch (e) { return res.status(500).json({ error: 'server error' }); }
+  }
+
+  // ---- Квиз аяқталғанда: {action:'complete-quiz', quizAnswers, changeIndex, dreamText} ----
+  if (req.method === 'POST' && req.body && req.body.action === 'complete-quiz') {
+    const payload = verify(req);
+    if (!payload) return res.status(401).json({ error: 'unauthorized' });
+    const { quizAnswers, changeIndex, dreamText } = req.body;
+    try {
+      await sql`
+        update trial_users set
+          quiz_answers = ${JSON.stringify(quizAnswers || {})}::jsonb,
+          change_index = ${+changeIndex || null},
+          dream_text = ${dreamText ? String(dreamText).slice(0, 500) : null},
+          funnel_step = 8,
+          offer_deadline = coalesce(offer_deadline, now() + interval '24 hours'),
+          last_seen_at = now()
+        where id = ${payload.tuid}
+      `;
+      const rows = await sql`select offer_deadline from trial_users where id = ${payload.tuid}`;
+      return res.status(200).json({ ok: true, offerDeadline: rows[0] ? rows[0].offer_deadline : null });
+    } catch (e) { return res.status(500).json({ error: 'server error' }); }
+  }
+
+  // ---- WhatsApp батырмасын басқанын белгілеу: {action:'whatsapp-click'} ----
+  if (req.method === 'POST' && req.body && req.body.action === 'whatsapp-click') {
+    const payload = verify(req);
+    if (!payload) return res.status(401).json({ error: 'unauthorized' });
+    try {
+      await sql`update trial_users set whatsapp_clicked_at = now(), funnel_step = 9, last_seen_at = now() where id = ${payload.tuid}`;
+      return res.status(200).json({ ok: true });
+    } catch (e) { return res.status(500).json({ error: 'server error' }); }
+  }
+
   // ---- Деректер: GET/PUT, токен арқылы ----
   const payload = verify(req);
   if (!payload) return res.status(401).json({ error: 'unauthorized' });
@@ -69,6 +113,7 @@ module.exports = async (req, res) => {
   try {
     if (req.method === 'GET') {
       const rows = await sql`select td.data, tu.name from trial_data td join trial_users tu on tu.id = td.user_id where td.user_id = ${payload.tuid}`;
+      await sql`update trial_users set last_seen_at = now() where id = ${payload.tuid}`;
       return res.status(200).json({ data: rows[0] ? rows[0].data : {}, name: rows[0] ? rows[0].name : '' });
     }
     if (req.method === 'PUT' || req.method === 'POST') {
