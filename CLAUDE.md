@@ -172,7 +172,7 @@ in-memory), сосын Playwright сол серверге қарсы index.html 
 өзгерту → debounce sync → reload → cloud-тан қалпына келу) тексереді.
 
 ## Деплой (Vercel)
-Repo GitHub-қа қосылған, Vercel авто-деплой етеді (жанды сайт: `ozgerisozindiozgert-swart.vercel.app`).
+Repo GitHub-қа қосылған, Vercel авто-деплой етеді (жанды сайт: `www.ozgeris.asia`, ескі `ozgerisozindiozgert-swart.vercel.app` те жұмыс істейді).
 `DATABASE_URL`/`JWT_SECRET` Vercel-де орнатылған, `schema.sql` Neon-да орындалған — жұмыс істеп тұр.
 Схема өзгерсе (жаңа баған қосу т.б.), `schema.sql`-ды жаңарту **жеткіліксіз** — production базаға
 да қолмен ALTER TABLE орындау керек (Neon SQL Editor немесе `@neondatabase/serverless` арқылы
