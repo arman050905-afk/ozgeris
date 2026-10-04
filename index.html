@@ -369,6 +369,29 @@
   .day.today{box-shadow:0 0 0 2px var(--s7)}
   .day.future{opacity:.4;cursor:default}
   .day.future:hover{border-color:var(--line);transform:none}
+  /* ---------- Gym calendar (ықшам ай күнтізбесі) ---------- */
+  .gcal{max-width:420px;margin:20px auto 0;padding:16px 16px 12px;border-radius:18px;background:var(--panel-2);border:1px solid var(--line)}
+  .gcal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .gcal-title{font-weight:800;font-size:15px;letter-spacing:.2px}
+  .gcal-nav{width:32px;height:32px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--muted);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s;padding:0}
+  .gcal-nav:hover{color:var(--text);border-color:var(--s7)}
+  .gcal-nav svg{width:16px;height:16px}
+  .gcal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+  .gcal-wd{text-align:center;font-size:11px;font-weight:700;color:var(--faint);text-transform:uppercase;padding-bottom:4px}
+  .gcal-wd.we{color:var(--s7)}
+  .gcal-d{aspect-ratio:1;min-width:0;border-radius:12px;display:flex;align-items:center;justify-content:center;
+    font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;user-select:none;transition:.15s;border:1px solid transparent;
+    -webkit-tap-highlight-color:transparent}
+  .gcal-d:hover{background:rgba(var(--accent-rgb),.12);color:var(--text)}
+  .gcal-d.gpad{cursor:default;pointer-events:none}
+  .gcal-d.today{border-color:var(--s7);color:var(--text);font-weight:800}
+  .gcal-d.done{background:var(--grad-soft);color:#fff;font-weight:800;box-shadow:0 6px 14px -6px rgba(var(--accent-rgb),.7)}
+  .gcal-d.done:hover{filter:brightness(1.1)}
+  .gcal-d.future{opacity:.45}
+  .gcal-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;font-size:12px;color:var(--muted)}
+  .gcal-bar{flex:1;height:6px;border-radius:6px;background:var(--panel);overflow:hidden}
+  .gcal-bar span{display:block;height:100%;background:var(--grad);border-radius:6px;transition:width .4s}
   .progressbar{height:9px;border-radius:8px;background:var(--panel-2);overflow:hidden;margin-top:14px}
   .progressbar > span{display:block;height:100%;background:var(--grad);border-radius:8px;transition:width .4s cubic-bezier(.2,.8,.2,1)}
 
@@ -3494,12 +3517,12 @@ function renderGym(t){
   const today = todayStr();
   let visitCount = 0;
   const cells = [];
-  for(let i=0;i<offset;i++) cells.push(`<div class="day" style="background:transparent;border-color:transparent;cursor:default"></div>`);
+  for(let i=0;i<offset;i++) cells.push(`<div class="gcal-d gpad"></div>`);
   for(let d=1; d<=daysInMonth; d++){
     const ds = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const done = !!t.gymDates[ds];
     if(done) visitCount++;
-    const cls = 'day'+(done?' done':'')+(ds===today?' today':'');
+    const cls = 'gcal-d'+(done?' done':'')+(ds===today?' today':'')+(ds>today&&!done?' future':'');
     cells.push(`<div class="${cls}" onclick="toggleGymDate('${t.id}','${ds}')">${d}</div>`);
   }
   const totalVisits = Object.values(t.gymDates).filter(Boolean).length;
@@ -3510,16 +3533,23 @@ function renderGym(t){
         <div class="stat"><div class="num">${visitCount}</div><div class="lbl">${ru?'Посещений в этом месяце':'Осы айда барды'}</div></div>
         <div class="stat"><div class="num">${totalVisits}</div><div class="lbl">${ru?'Всего':'Барлығы'}</div></div>
       </div>`)}
-      <div style="display:flex;align-items:center;justify-content:space-between;margin:18px 0 10px">
-        <button class="btn ghost sm" onclick="gymNavMonth(-1,'${t.id}')" aria-label="${ru?'Прошлый месяц':'Алдыңғы ай'}">${ic('arrowLeft')}</button>
-        <div style="font-weight:800;font-size:15px">${(ru?GYM_MONTHS_RU:GYM_MONTHS)[m]} ${y}</div>
-        <button class="btn ghost sm" onclick="gymNavMonth(1,'${t.id}')" aria-label="${ru?'Следующий месяц':'Келесі ай'}">${ic('arrowRight')}</button>
+      <div class="gcal">
+        <div class="gcal-head">
+          <button class="gcal-nav" onclick="gymNavMonth(-1,'${t.id}')" aria-label="${ru?'Прошлый месяц':'Алдыңғы ай'}">${ic('arrowLeft')}</button>
+          <div class="gcal-title">${(ru?GYM_MONTHS_RU:GYM_MONTHS)[m]} ${y}</div>
+          <button class="gcal-nav" onclick="gymNavMonth(1,'${t.id}')" aria-label="${ru?'Следующий месяц':'Келесі ай'}">${ic('arrowRight')}</button>
+        </div>
+        <div class="gcal-grid">
+          ${(ru?GYM_WEEKDAYS_RU:GYM_WEEKDAYS).map((w,i)=>`<div class="gcal-wd${i>4?' we':''}">${w}</div>`).join('')}
+          ${cells.join('')}
+        </div>
+        <div class="gcal-foot">
+          <span>${visitCount} / ${daysInMonth}</span>
+          <div class="gcal-bar"><span style="width:${Math.round(visitCount/daysInMonth*100)}%"></span></div>
+          <span>${Math.round(visitCount/daysInMonth*100)}%</span>
+        </div>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:8px">
-        ${(ru?GYM_WEEKDAYS_RU:GYM_WEEKDAYS).map(w=>`<div style="text-align:center;font-size:12px;color:var(--muted);font-weight:700">${w}</div>`).join('')}
-      </div>
-      <div class="days" style="grid-template-columns:repeat(7,1fr)">${cells.join('')}</div>
-      <div class="days-hint" style="margin-top:14px">${ru?'Нажми на ячейку — отметь, что в этот день был в зале.':'Ұяшықты бас — сол күні залда болғаныңды белгіле.'}</div>
+      <div class="days-hint" style="margin-top:14px;text-align:center">${ru?'Нажми на ячейку — отметь, что в этот день был в зале.':'Ұяшықты бас — сол күні залда болғаныңды белгіле.'}</div>
       ${detailFooter(t)}
     </div>`;
 }
