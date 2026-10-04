@@ -369,6 +369,45 @@
   .day.today{box-shadow:0 0 0 2px var(--s7)}
   .day.future{opacity:.4;cursor:default}
   .day.future:hover{border-color:var(--line);transform:none}
+  /* ---------- Trial funnel (админ воронкасы) ---------- */
+  .fn-title{font-weight:800;font-size:16px;margin-bottom:4px}
+  .fn-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:12px}
+  .fn-kpi{background:var(--panel-2);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+  .fn-kv{font-size:22px;font-weight:800;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fn-kv small{font-size:13px;font-weight:700;color:var(--muted)}
+  .fn-kl{font-size:12px;color:var(--muted);margin-top:2px}
+  .fn-dirs{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:16px}
+  .fn-chip{font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;background:rgba(var(--accent-rgb),.14);color:var(--text)}
+  .fn-steps{display:flex;flex-direction:column;gap:4px}
+  .fn-row{display:grid;grid-template-columns:24px 200px minmax(60px,1fr) 110px 80px;align-items:center;gap:10px;font-size:13px;padding:6px 8px;border-radius:10px}
+  .fn-row.worst{background:rgba(239,68,68,.08)}
+  .fn-n{width:22px;height:22px;border-radius:50%;background:var(--panel-2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--muted)}
+  .fn-l{color:var(--text)}
+  .fn-bar{height:8px;background:var(--panel-2);border-radius:5px;overflow:hidden}
+  .fn-bar span{display:block;height:100%;background:var(--grad);border-radius:5px}
+  .fn-c{text-align:right;color:var(--muted);white-space:nowrap}
+  .fn-c b{color:var(--text)}
+  .fn-d{color:var(--crit);font-weight:700;font-size:12px;white-space:nowrap}
+  .fn-note{margin-top:12px;font-size:13px;color:var(--muted);padding:10px 12px;border-radius:12px;background:var(--panel-2)}
+  @media(max-width:760px){
+    .fn-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .fn-row{grid-template-columns:22px minmax(0,1fr) auto;row-gap:4px}
+    .fn-bar{grid-column:2 / 4;grid-row:2}
+    .fn-d{grid-column:2 / 4;grid-row:3}
+    .fn-d:empty{display:none}
+  }
+  .fn-more{margin-top:4px}
+  .fn-more summary{cursor:pointer;font-size:13px;font-weight:700;color:var(--muted);padding:6px 0;list-style:none}
+  .fn-more summary::before{content:'▸ '}
+  .fn-more[open] summary::before{content:'▾ '}
+  .ps{min-width:190px}
+  .ps-dots{display:flex;gap:3px;margin-bottom:5px}
+  .ps-dots i{width:14px;height:6px;border-radius:3px;background:var(--line)}
+  .ps-dots i.on{background:var(--s7)}
+  .ps-dots i.last{background:var(--warn)}
+  .ps.done .ps-dots i.on{background:var(--good)}
+  .ps-t{font-size:12.5px;white-space:nowrap}
+  .ps-next{font-size:11.5px;color:var(--crit);margin-top:2px;white-space:nowrap}
   /* ---------- Gym calendar (ықшам ай күнтізбесі) ---------- */
   .gcal{max-width:420px;margin:20px auto 0;padding:16px 16px 12px;border-radius:18px;background:var(--panel-2);border:1px solid var(--line)}
   .gcal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
@@ -1293,7 +1332,7 @@
     <div class="box" style="overflow-x:auto">
       <table class="admin-table" id="trialLeadsTable">
         <thead><tr>
-          <th data-i18n="admin.thName">Аты</th><th data-i18n="admin.trial.thPhone">Телефон</th>
+          <th data-i18n="admin.thName">Аты</th><th data-i18n="admin.trial.thPhone">Телефон</th><th data-i18n="admin.trial.thStep">Қай жерге дейін жетті</th>
           <th data-i18n="admin.trial.thWarmth">Жылылық</th><th data-i18n="admin.trial.thDirection">Бағыт</th>
           <th data-i18n="admin.trial.thDream">Арман</th><th data-i18n="admin.trial.thTrackers">Трекер</th>
           <th data-i18n="admin.thRegistered">Келген күні</th><th></th>
@@ -1650,7 +1689,7 @@ const I18N = {
     'admin.title':'Админ панель', 'admin.sub':'Пайдаланушыларға доступ беру/алу, парольді ысырып тастау.',
     'admin.thName':'Аты', 'admin.thStatus':'Статус', 'admin.thRegistered':'Тіркелген',
     'admin.trial.title':'Сынама сайтқа кірген адамдар', 'admin.trial.sub':'/trial сілтемесі арқылы кіргендер — аты, телефоны, қанша трекер қосқаны',
-    'admin.trial.thPhone':'Телефон', 'admin.trial.thTrackers':'Трекер', 'admin.trial.thWarmth':'Жылылық', 'admin.trial.thDirection':'Бағыт', 'admin.trial.thDream':'Арман',
+    'admin.trial.thPhone':'Телефон', 'admin.trial.thStep':'Қай жерге дейін жетті', 'admin.trial.thTrackers':'Трекер', 'admin.trial.thWarmth':'Жылылық', 'admin.trial.thDirection':'Бағыт', 'admin.trial.thDream':'Арман',
     'auth.sub':'Аккаунтыңмен кіріп, әдеттеріңді бақыла', 'auth.login':'Кіру', 'auth.register':'Тіркелу',
     'auth.passLabel':'Пароль', 'auth.passPh':'кемінде 4 таңба', 'auth.nameLabel':'Атың',
     'auth.noAccount':'Аккаунтың жоқ па?', 'auth.registerShort':'Тіркел',
@@ -1763,7 +1802,7 @@ const I18N = {
     'admin.title':'Панель администратора', 'admin.sub':'Выдача/отмена доступа пользователям, сброс пароля.',
     'admin.thName':'Имя', 'admin.thStatus':'Статус', 'admin.thRegistered':'Зарегистрирован',
     'admin.trial.title':'Посетители пробной версии', 'admin.trial.sub':'Зашедшие по ссылке /trial — имя, телефон, сколько трекеров создали',
-    'admin.trial.thPhone':'Телефон', 'admin.trial.thTrackers':'Трекеров', 'admin.trial.thWarmth':'Теплота', 'admin.trial.thDirection':'Направление', 'admin.trial.thDream':'Мечта',
+    'admin.trial.thPhone':'Телефон', 'admin.trial.thStep':'До какого шага дошёл', 'admin.trial.thTrackers':'Трекеров', 'admin.trial.thWarmth':'Теплота', 'admin.trial.thDirection':'Направление', 'admin.trial.thDream':'Мечта',
     'auth.sub':'Войди в аккаунт и следи за привычками', 'auth.login':'Войти', 'auth.register':'Регистрация',
     'auth.passLabel':'Пароль', 'auth.passPh':'минимум 4 символа', 'auth.nameLabel':'Имя',
     'auth.noAccount':'Нет аккаунта?', 'auth.registerShort':'Зарегистрироваться',
@@ -2380,39 +2419,73 @@ function openLeadWa(idx){
   if(!u) return;
   window.open('https://wa.me/'+u.phone+'?text='+encodeURIComponent(trialLeadWaMessage(u)), '_blank');
 }
+function trialSteps(){
+  return LANG==='ru'
+    ? ['Ввёл телефон','Выбрал направление','Ответил на 1-й вопрос','Ответил на 2-й вопрос','Ответил на общий вопрос','Написал мечту','Увидел анализ','Увидел результат','Вошёл в приложение']
+    : ['Телефон енгізді','Бағыт таңдады','1-сұраққа жауап берді','2-сұраққа жауап берді','Ортақ сұраққа жауап берді','Арманын жазды','Талдауды көрді','Нәтижені көрді','Қосымшаға кірді'];
+}
+function trialStepCell(u){
+  const steps = trialSteps(), n = steps.length;
+  const st = Math.max(1, Math.min(n, u.funnel_step||1));
+  const done = st===n;
+  const dots = steps.map((l,i)=>`<i class="${i<st?'on':''}${i===st-1&&!done?' last':''}" title="${i+1}. ${l}"></i>`).join('');
+  const nextNames = LANG==='ru'
+    ? ['Телефон','Выбор направления','1-й вопрос','2-й вопрос','Общий вопрос','Мечта','Анализ','Результат','Вход в приложение']
+    : ['Телефон','Бағыт таңдау','1-сұрақ','2-сұрақ','Ортақ сұрақ','Арман жазу','Талдау','Нәтиже','Қосымшаға кіру'];
+  const next = done ? '' : `<div class="ps-next">${LANG==='ru'?'Не прошёл':'Өтпеді'}: ${nextNames[st]}</div>`;
+  return `<div class="ps${done?' done':''}"><div class="ps-dots">${dots}</div>
+    <div class="ps-t"><b>${st}/${n}</b> · ${steps[st-1]}${done?' ✅':''}</div>${next}</div>`;
+}
 function renderTrialFunnelStats(users){
   const box = document.getElementById('trialFunnelStats');
   if(!box) return;
+  const ru = LANG==='ru';
   const total = users.length;
-  const stepLabels = LANG==='ru'
-    ? ['Телефон','Направление','Вопрос 1','Вопрос 2','Общий вопрос','Мечта','Анализ','Результат','Вход в приложение']
-    : ['Телефон','Бағыт','1-сұрақ','2-сұрақ','Ортақ сұрақ','Арман','Талдау','Нәтиже','Қосымшаға кіру'];
-  const dropoff = Array.from({length:9},(_,i)=> users.filter(u=>(u.funnel_step||1) >= i+1).length);
+  const steps = trialSteps();
+  const reached = Array.from({length:9},(_,i)=> users.filter(u=>(u.funnel_step||1) >= i+1).length);
+  const drops = reached.map((c,i)=> i ? reached[i-1]-c : total-c);
+  const maxDrop = Math.max(0,...drops);
+  const worst = maxDrop>0 ? drops.indexOf(maxDrop) : -1;
+  const pctOf = n => total ? Math.round(n/total*100) : 0;
   const dirCounts = {};
   users.forEach(u=>{ const d = u.quiz_answers && u.quiz_answers.direction; if(d) dirCounts[d]=(dirCounts[d]||0)+1; });
-  const topDir = Object.entries(dirCounts).sort((a,b)=>b[1]-a[1])[0];
-  const topDirLabel = topDir ? (TRIAL_DIR_LABEL[topDir[0]] ? TRIAL_DIR_LABEL[topDir[0]][LANG==='ru'?'ru':'kk'] : topDir[0]) : (LANG==='ru'?'—':'—');
+  const dirs = Object.entries(dirCounts).sort((x,y)=>y[1]-x[1]);
+  const dirName = k => TRIAL_DIR_LABEL[k] ? TRIAL_DIR_LABEL[k][ru?'ru':'kk'] : k;
+  const people = n => ru ? `${n} чел.` : `${n} адам`;
+  if(!total){
+    box.innerHTML = `<div class="fn-title">${ru?'Воронка':'Воронка'}</div><div class="cd">${ru?'Пока никто не заходил.':'Әзірге ешкім кірген жоқ.'}</div>`;
+    return;
+  }
   box.innerHTML = `
-    <div style="display:flex;gap:18px;flex-wrap:wrap;margin-bottom:14px">
-      <div><div class="cd">${LANG==='ru'?'Всего зашло':'Барлық кірген'}</div><div style="font-size:22px;font-weight:800">${total}</div></div>
-      <div><div class="cd">${LANG==='ru'?'Популярное направление':'Ең көп таңдалған бағыт'}</div><div style="font-size:22px;font-weight:800">${topDirLabel}${topDir?' ('+topDir[1]+')':''}</div></div>
+    <div class="fn-title">${ru?'Воронка: на каком шаге люди уходят':'Воронка: адамдар қай қадамда тоқтайды'}</div>
+    <div class="cd" style="margin-bottom:14px">${ru?'Ниже в таблице видно, до какого шага дошёл каждый человек.':'Төмендегі кестеде әр адамның қай қадамға дейін жеткені көрсетілген.'}</div>
+    <div class="fn-kpis">
+      <div class="fn-kpi"><div class="fn-kv">${total}</div><div class="fn-kl">${ru?'Зашли на сайт':'Сайтқа кірді'}</div></div>
+      <div class="fn-kpi"><div class="fn-kv">${reached[7]} <small>${pctOf(reached[7])}%</small></div><div class="fn-kl">${ru?'Прошли квиз до конца':'Квизді соңына дейін өтті'}</div></div>
+      <div class="fn-kpi"><div class="fn-kv">${reached[8]} <small>${pctOf(reached[8])}%</small></div><div class="fn-kl">${ru?'Вошли в приложение':'Қосымшаға кірді'}</div></div>
+      <div class="fn-kpi"><div class="fn-kv">${dirs[0]?dirName(dirs[0][0]):'—'}</div><div class="fn-kl">${ru?'Популярное направление':'Ең көп таңдалған бағыт'}</div></div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:5px">
-      ${stepLabels.map((l,i)=>{
-        const cnt = dropoff[i]; const pct = total ? Math.round(cnt/total*100) : 0;
-        return `<div style="display:flex;align-items:center;gap:8px;font-size:12.5px">
-          <span style="min-width:150px;color:var(--muted)">${i+1}. ${l}</span>
-          <div style="flex:1;height:8px;background:var(--line);border-radius:5px;overflow:hidden"><div style="height:100%;width:${pct}%;background:var(--grad)"></div></div>
-          <span style="min-width:60px;text-align:right">${cnt} (${pct}%)</span>
+    ${dirs.length?`<div class="fn-dirs"><span class="cd">${ru?'Направления:':'Бағыттар:'}</span>${dirs.map(([k,n])=>`<span class="fn-chip">${dirName(k)} · ${n}</span>`).join('')}</div>`:''}
+    <details class="fn-more"><summary>${ru?'Общая воронка по шагам':'Жалпы воронка (қадамдар бойынша)'}</summary>
+    <div class="fn-steps">
+      ${steps.map((l,i)=>{
+        const c = reached[i], pct = pctOf(c), d = drops[i];
+        return `<div class="fn-row${i===worst?' worst':''}">
+          <span class="fn-n">${i+1}</span>
+          <span class="fn-l">${l}</span>
+          <div class="fn-bar"><span style="width:${pct}%"></span></div>
+          <span class="fn-c"><b>${people(c)}</b> · ${pct}%</span>
+          <span class="fn-d">${d>0?`−${d} ${ru?'ушли':'кетті'}`:''}</span>
         </div>`;
       }).join('')}
-    </div>`;
+    </div></details>
+    ${worst>=0?`<div class="fn-note">⚠️ ${ru?`Больше всего уходят на шаге «${steps[worst]}» (${people(maxDrop)}).`:`Ең көп адам «${steps[worst]}» қадамында кетіп қалды (${people(maxDrop)}).`}</div>`:''}`;
 }
 async function renderTrialLeads(){
   const body = document.getElementById('trialLeadsBody');
   const countEl = document.getElementById('trialLeadCount');
   if(!body) return;
-  body.innerHTML = `<tr><td colspan="8">${LANG==='ru'?'Загрузка...':'Жүктелуде...'}</td></tr>`;
+  body.innerHTML = `<tr><td colspan="9">${LANG==='ru'?'Загрузка...':'Жүктелуде...'}</td></tr>`;
   try{
     const r = await apiCall('/trial?admin=1', 'GET');
     if(countEl) countEl.textContent = r.users.length;
@@ -2428,6 +2501,7 @@ async function renderTrialLeads(){
       <tr>
         <td>${(u.name||'').replace(/</g,'&lt;')}</td>
         <td>${u.phone}</td>
+        <td>${trialStepCell(u)}</td>
         <td><span style="font-weight:800;color:${warmColor}">${u._warmth}</span></td>
         <td>${dirLabel}</td>
         <td style="max-width:160px;white-space:normal;word-break:break-word;font-size:12.5px;color:var(--muted)">${u.dream_text ? (''+u.dream_text).replace(/</g,'&lt;') : '—'}</td>
@@ -2438,9 +2512,9 @@ async function renderTrialLeads(){
           <button class="btn-sm" onclick="openLeadWa(${idx})" title="WhatsApp">💬</button>
         </td>
       </tr>`;
-    }).join('') || `<tr><td colspan="8">${LANG==='ru'?'Пока никто не заходил':'Әзірге ешкім кірмеген'}</td></tr>`;
+    }).join('') || `<tr><td colspan="9">${LANG==='ru'?'Пока никто не заходил':'Әзірге ешкім кірмеген'}</td></tr>`;
   }catch(e){
-    body.innerHTML = `<tr><td colspan="8">${LANG==='ru'?'Ошибка':'Қате'}: ${e.message}</td></tr>`;
+    body.innerHTML = `<tr><td colspan="9">${LANG==='ru'?'Ошибка':'Қате'}: ${e.message}</td></tr>`;
   }
 }
 async function toggleAccess(userId, active){
