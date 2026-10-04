@@ -849,6 +849,10 @@
   .offer-title{font-weight:800;font-size:14.5px;margin-bottom:6px}
   .offer-timer{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--s4);margin:4px 0}
   .offer-sub{font-size:12.5px;color:var(--muted)}
+  .offer-price{display:flex;align-items:baseline;justify-content:center;gap:10px;margin:2px 0 6px;flex-wrap:wrap}
+  .offer-price .old{font-size:16px;font-weight:700;color:var(--muted);text-decoration:line-through;text-decoration-color:var(--crit);text-decoration-thickness:2px}
+  .offer-price .new{font-size:28px;font-weight:800;color:var(--text)}
+  .offer-price .off{font-size:12px;font-weight:800;color:#fff;background:var(--crit);padding:3px 8px;border-radius:20px;align-self:center}
   .wa-btn{display:flex;align-items:center;justify-content:center;gap:8px;background:#25D366;color:#fff;border:none;
     border-radius:13px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;width:100%;font-family:inherit;transition:.15s}
   .wa-btn:hover{filter:brightness(1.08)}
@@ -1022,6 +1026,7 @@
     </div>
     <div class="offer-box" id="offerBanner" style="display:none">
       <div class="offer-title" id="offerTitle"></div>
+      <div class="offer-price"><span class="old">9 990 ₸</span><span class="new">4 990 ₸</span><span class="off">−50%</span></div>
       <div class="offer-timer" id="offerTimer"></div>
       <div class="offer-sub" id="offerSub"></div>
       <button class="wa-btn" style="margin-top:12px" onclick="openWhatsappOffer()">
@@ -2085,11 +2090,20 @@ function initOfferBanner(){
   _offerTimerInt = setInterval(()=>tickOfferTimer(deadline), 1000);
   tickOfferTimer(deadline);
 }
+// Мерзім өтіп кетсе — ұсыныс тағы 24 сағатқа жаңарады (әрқашан ≤ 1 күн қалады)
+function rollOfferDeadline(deadline){
+  const DAY = 86400000;
+  let t = new Date(deadline).getTime();
+  if(!isFinite(t)) return Date.now() + DAY;
+  const now = Date.now();
+  if(t <= now) t += Math.ceil((now - t + 1) / DAY) * DAY;
+  return t;
+}
 function tickOfferTimer(deadline){
   const timerEl = document.getElementById('offerTimer');
   const banner = document.getElementById('offerBanner');
   if(!timerEl || !banner) return;
-  const ms = new Date(deadline).getTime() - Date.now();
+  const ms = rollOfferDeadline(deadline) - Date.now();
   if(ms <= 0){
     clearInterval(_offerTimerInt);
     banner.classList.add('expired');
