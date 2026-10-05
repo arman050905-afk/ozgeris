@@ -2175,16 +2175,17 @@ function saveFinGoals(){ Store.set('finGoals', finGoals); scheduleSync(); }
 function saveRecurring(){ Store.set('recurring', recurring); scheduleSync(); }
 
 // Ағымдағы қолданушының деректерін жүктеу (кіргеннен кейін шақырылады)
-// "Кітап оқу" шаблонынан бұрын (kind:'book' қосылмай тұрып) жасалған ескі check-типті
-// трекерлерді бір рет жаңа пішінге көтереді. Ескі белгілер бет саны ретінде мағынасыз
-// болғандықтан (true/false еді), күндер қайта басталады — бірақ ай саны/ұзақтығы сақталады.
+// "Кітап оқу" трекерін бір рет жаңа (бірнеше кітапты тізім ретінде сақтайтын) пішінге
+// көтереді — күнтізбе-негізді ескі нұсқадан (check-типті де, алғашқы бір-кітаптық
+// kind:'book' нұсқадан да) t.books=[] тізіміне көшіреді, бар атауы/бет саны болса жоғалтпай.
 function migrateReadingTrackers(list){
   let changed = false;
   list.forEach(t=>{
-    if(t.tplKey==='reading' && t.kind!=='book'){
-      t.kind='book'; t.type='value'; t.unit='бет';
-      t.bookTitle=t.bookTitle||''; t.totalPages=t.totalPages||0; t.insights=t.insights||[];
-      t.days = new Array(t.days.length).fill(null);
+    if(t.tplKey==='reading' && !Array.isArray(t.books)){
+      const books=[];
+      if(t.bookTitle){ books.push({id:uid(), title:t.bookTitle, totalPages:t.totalPages||0, log:[], insights:t.insights||[]}); }
+      t.books=books; t.kind='book';
+      delete t.bookTitle; delete t.totalPages; delete t.insights;
       changed = true;
     }
   });
@@ -2287,7 +2288,7 @@ function monthGrid(cells){
 /* ---- Трекер типтері: check / count / value ---- */
 function dtype(t){ return t.type||'check'; }
 // Күнге негізделмеген трекерлер (тізім түрлі)
-function isDayBased(t){ return !(t.kind==='english'||t.kind==='podcast'||t.kind==='vitamins'||t.kind==='anxiety'||t.kind==='emotion'||t.kind==='plan'||t.kind==='gym'); }
+function isDayBased(t){ return !(t.kind==='english'||t.kind==='podcast'||t.kind==='vitamins'||t.kind==='anxiety'||t.kind==='emotion'||t.kind==='plan'||t.kind==='gym'||t.kind==='book'); }
 function isDaySuccess(t,v){
   if(t.kind==='sleep') return isSleepOk(v);
   const ty=dtype(t);
@@ -2839,7 +2840,7 @@ function startTracker(t){
   if(nt.kind==='mood'){ nt.days=new Array(30).fill(null); }
   if(nt.kind==='english'){ nt.words=[]; }
   if(nt.kind==='podcast'){ nt.items=[]; }
-  if(nt.kind==='book'){ nt.type='value'; nt.unit='бет'; nt.bookTitle=''; nt.totalPages=0; nt.insights=[]; nt.days=new Array(30).fill(null); }
+  if(nt.kind==='book'){ nt.books=[]; }
   if(nt.kind==='vitamins'){ nt.vits=[]; }
   if(nt.kind==='anxiety'){ nt.tests=[]; }
   if(nt.kind==='emotion'){ nt.entries=[]; }
@@ -2933,6 +2934,7 @@ function renderMine(){
         else if(t.kind==='emotion'){ n=(t.entries||[]).length; lbl='записей'; }
         else if(t.kind==='plan'){ n=(t.plans||[]).length; lbl='планов'; }
         else if(t.kind==='gym'){ n=Object.values(t.gymDates||{}).filter(Boolean).length; lbl='посещений'; }
+        else if(t.kind==='book'){ n=(t.books||[]).length; lbl='книг в процессе'; }
       } else {
         if(t.kind==='english'){ n=(t.words||[]).length; lbl='сөз үйрендің'; }
         else if(t.kind==='podcast'){ n=(t.items||[]).length; lbl='инсайт жаздың'; }
@@ -2941,6 +2943,7 @@ function renderMine(){
         else if(t.kind==='emotion'){ n=(t.entries||[]).length; lbl='жазба'; }
         else if(t.kind==='plan'){ n=(t.plans||[]).length; lbl='жоспар'; }
         else if(t.kind==='gym'){ n=Object.values(t.gymDates||{}).filter(Boolean).length; lbl='рет барды'; }
+        else if(t.kind==='book'){ n=(t.books||[]).length; lbl='кітап оқып жүрсің'; }
       }
       body = `<div class="tcard-meta" style="margin-top:6px"><span><b>${n}</b> ${lbl}</span><span>${ic('arrowRight')}</span></div>`;
     }
@@ -3374,118 +3377,105 @@ function delPodcast(iid){
 }
 
 /* ============================================================
-   SPECIAL: Кітап оқу (ат + бет саны → күнделікті бет санау → пайыз + инсайттар)
+   SPECIAL: Кітап оқу (бірнеше кітап тізімі — әрқайсысы: ат + бет саны →
+   оқыған сайын бет санын жазу (күнтізбесіз, жай жазба тізімі) → пайыз + инсайттар)
    ============================================================ */
 function renderBook(t){
   const ru = LANG==='ru';
-  if(!t.bookTitle){
-    document.getElementById('detailBody').innerHTML = `
-      <div class="detail-card">
-        ${detailHeader(t,'')}
-        <div class="days-hint">${ru?'Сначала впиши книгу — после этого сможешь отмечать прочитанные страницы каждый день.':'Алдымен кітап туралы жаз — содан кейін күнделікті оқыған бетіңді белгілей аласың.'}</div>
-        <label>${ru?'Название книги':'Кітап атауы'}</label>
-        <input id="bkTitle" placeholder="${ru?'Напр.: Атомные привычки':'Мыс: Атомды әдеттер'}">
-        <label>${ru?'Сколько страниц в книге':'Кітап қанша беттен тұрады'}</label>
-        <input id="bkPages" type="number" placeholder="320" min="1">
-        <button class="btn" onclick="saveBookInfo('${t.id}')">${ic('checkCircle')} ${ru?'Сохранить':'Сақтау'}</button>
-        ${detailFooter(t)}
-      </div>`;
-    return;
-  }
-  const passed = daysPassed(t);
-  const totalPages = t.totalPages||0;
-  const totalRead = Math.min(totalPages, (t.days||[]).reduce((s,v)=> s + (+v||0), 0));
-  const pct = totalPages>0 ? Math.min(100, Math.round(totalRead/totalPages*100)) : 0;
-  const cells = t.days.map((v,i)=>{
-    let cls='day';
-    const future = i>=passed;
-    if(future) cls+=' future';
-    if(v!=null && +v>0) cls+=' done';
-    if(i===passed-1) cls+=' today';
-    const label = (v!=null && +v>0) ? `<b>${v}</b>` : `<span style="color:var(--faint)">${(i%30)+1}</span>`;
-    return `<div class="${cls}" onclick="${future?'':`handleBookDay('${t.id}',${i})`}">${label}</div>`;
-  });
-  const days = monthGrid(cells);
-  const insights = t.insights||[];
-  const months = Math.ceil(t.days.length/30);
-  const extendBtn = `<button class="btn ghost sm" onclick="extendTracker('${t.id}')">${ic('plus')} ${ru?'Добавить ещё 1 месяц':'Тағы 1 ай қосу'}</button>
-    <span style="color:var(--muted);font-size:13px;margin-left:8px">${ru?`Сейчас: ${months} мес.`:`Қазір: ${months} ай`}</span>`;
-
+  const books = t.books||[];
   document.getElementById('detailBody').innerHTML = `
     <div class="detail-card">
-      ${detailHeader(t, `<div class="detail-stats">
-          <div class="stat"><div class="num">${pct}%</div><div class="lbl">${ru?'Прочитано':'Оқылды'}</div></div>
-          <div class="stat"><div class="num">${ic('flame')} ${currentStreak(t)}</div><div class="lbl">${ru?'Серия':'Қатар'}</div></div>
-        </div>`)}
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 2px;flex-wrap:wrap">
-        <div style="font-weight:700">${ic('book2')} ${t.bookTitle}</div>
-        <div style="color:var(--muted);font-size:13px;white-space:nowrap">${totalRead} / ${totalPages} ${ru?'стр.':'бет'}</div>
+      ${detailHeader(t, `<div class="detail-stats"><div class="stat"><div class="num">${books.length}</div><div class="lbl">${ru?'Книг':'Кітап'}</div></div></div>`)}
+      <div class="days-hint">${ru?'Добавь книгу, впиши сколько страниц прочитал — прогресс считается сам.':'Кітап қос, оқыған сайын қанша бет оқығаныңды жаз — пайызы өзі есептеледі.'}</div>
+      ${books.length? books.map(b=>bookBlock(t,b)).join('') : `<div style="color:var(--faint);padding:14px 0">${ru?'Пока нет книг':'Әзірге кітап жоқ'}</div>`}
+      <div class="box" style="margin-top:16px;background:var(--panel-2)">
+        <label>${ru?'Название книги':'Кітап атауы'}</label>
+        <input id="bkNewTitle" placeholder="${ru?'Напр.: Атомные привычки':'Мыс: Атомды әдеттер'}">
+        <label>${ru?'Сколько страниц в книге':'Кітап қанша беттен тұрады'}</label>
+        <input id="bkNewPages" type="number" placeholder="320" min="1">
+        <button class="btn" onclick="addBook('${t.id}')">${ic('plus')} ${ru?'Добавить книгу':'Кітап қосу'}</button>
       </div>
-      <div class="progressbar"><span style="width:${pct}%"></span></div>
-      <div class="days-hint" style="margin-top:14px">${ru?'Нажми на ячейку и впиши, сколько страниц прочитал в этот день.':'Ұяшықты бас та, сол күні қанша бет оқығаныңды жаз.'}</div>
-      ${days}
-      <div style="margin-top:14px">${extendBtn}</div>
-
-      <div style="margin-top:24px">
-        <button class="btn ghost sm" onclick="toggleBookInsights()">${ic('lightbulb')} ${ru?'Инсайты':'Инсайттар'} (${insights.length})</button>
-        <div id="bkInsightsBox" style="display:none;margin-top:14px">
-          <label>${ru?'Новый инсайт':'Жаңа инсайт'}</label>
-          <input id="bkInsightText" placeholder="${ru?'Что узнал из книги?':'Кітаптан не үйрендің?'}" onkeydown="if(event.key==='Enter')addBookInsight('${t.id}')">
-          <button class="btn sm" onclick="addBookInsight('${t.id}')">${ic('plus')} ${ru?'Добавить':'Қосу'}</button>
-          <div class="ins-grid" style="margin-top:14px">${insights.length? insights.slice().reverse().map(bkInsightCard).join('') :
-            `<div style="color:var(--faint);padding:14px 0">${ru?'Пока нет инсайтов':'Әзірге инсайт жоқ'}</div>`}</div>
-        </div>
-      </div>
-      <div style="margin-top:18px"><button class="btn ghost sm" onclick="editBookInfo('${t.id}')">${ic('edit')} ${ru?'Изменить книгу':'Кітапты өзгерту'}</button></div>
       ${detailFooter(t)}
     </div>`;
 }
-function bkInsightCard(it){
+function bookBlock(t,b){
+  const ru = LANG==='ru';
+  const totalPages = b.totalPages||0;
+  const totalRead = Math.min(totalPages, (b.log||[]).reduce((s,e)=> s + (+e.pages||0), 0));
+  const pct = totalPages>0 ? Math.min(100, Math.round(totalRead/totalPages*100)) : 0;
+  const insights = b.insights||[];
+  const log = (b.log||[]).slice().reverse();
+  return `<div class="box" style="margin-top:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <div style="font-weight:700">${ic('book2')} ${b.title}</div>
+        <span class="del" onclick="delBook('${t.id}','${b.id}')" title="${ru?'Удалить книгу':'Кітапты өшіру'}">${ic('trash')}</span>
+      </div>
+      <div style="color:var(--muted);font-size:13px;margin:4px 0">${totalRead} / ${totalPages} ${ru?'стр.':'бет'} (${pct}%)</div>
+      <div class="progressbar"><span style="width:${pct}%"></span></div>
+      <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
+        <button class="btn sm" onclick="logBookPages('${t.id}','${b.id}')">${ic('plus')} ${ru?'Записать страницы':'Бет белгілеу'}</button>
+        <button class="btn ghost sm" onclick="toggleBookInsights('${b.id}')">${ic('lightbulb')} ${ru?'Инсайты':'Инсайттар'} (${insights.length})</button>
+      </div>
+      ${log.length? `<div style="margin-top:10px;font-size:13px;color:var(--muted);display:grid;gap:3px">${log.slice(0,5).map(e=>
+        `<div>${fmtDate(e.date)} — <b style="color:var(--text)">+${e.pages}</b> ${ru?'стр.':'бет'}</div>`).join('')}</div>` : ''}
+      <div id="bkInsightsBox-${b.id}" style="display:none;margin-top:14px">
+        <label>${ru?'Новый инсайт':'Жаңа инсайт'}</label>
+        <input id="bkInsightText-${b.id}" placeholder="${ru?'Что узнал из книги?':'Кітаптан не үйрендің?'}" onkeydown="if(event.key==='Enter')addBookInsight('${t.id}','${b.id}')">
+        <button class="btn sm" onclick="addBookInsight('${t.id}','${b.id}')">${ic('plus')} ${ru?'Добавить':'Қосу'}</button>
+        <div class="ins-grid" style="margin-top:14px">${insights.length? insights.slice().reverse().map(it=>bkInsightCard(t.id,b.id,it)).join('') :
+          `<div style="color:var(--faint);padding:14px 0">${ru?'Пока нет инсайтов':'Әзірге инсайт жоқ'}</div>`}</div>
+      </div>
+    </div>`;
+}
+function bkInsightCard(tid,bid,it){
   return `<div class="ins-card">
     <div class="ins-text">${it.text}</div>
     <div class="ins-foot"><small style="color:var(--faint)">${it.date}</small>
-    <span class="del" onclick="delBookInsight('${it.id}')">${ic('x')}</span></div>
+    <span class="del" onclick="delBookInsight('${tid}','${bid}','${it.id}')">${ic('x')}</span></div>
   </div>`;
 }
-function saveBookInfo(id){
+function addBook(id){
   const t=trackers.find(x=>x.id===id); if(!t) return;
-  const title=document.getElementById('bkTitle').value.trim();
-  const pages=+document.getElementById('bkPages').value;
+  const title=document.getElementById('bkNewTitle').value.trim();
+  const pages=+document.getElementById('bkNewPages').value;
   if(!title){ toast(LANG==='ru'?'Напиши название книги':'Кітап атауын жаз'); return; }
   if(!pages||pages<=0){ toast(LANG==='ru'?'Укажи количество страниц':'Бет санын жаз'); return; }
-  t.bookTitle=title; t.totalPages=pages; save(); renderBook(t);
-}
-function editBookInfo(id){
-  const t=trackers.find(x=>x.id===id); if(!t) return;
-  t.bookTitle=''; renderBook(t);
-}
-function handleBookDay(id,i){
-  const t=trackers.find(x=>x.id===id); if(!t) return;
-  if(i>=daysPassed(t)) return;
-  const cur = (t.days[i]!=null)? t.days[i] : '';
-  const inp = prompt(LANG==='ru' ? `${i+1}-й день: сколько страниц прочитал?` : `${i+1}-күн: қанша бет оқыдың?`, cur);
-  if(inp===null) return;
-  t.days[i] = inp.trim()===''? null : Math.max(0,+inp||0);
+  t.books=t.books||[]; t.books.push({id:uid(), title, totalPages:pages, log:[], insights:[]});
   save(); renderBook(t);
 }
-function toggleBookInsights(){
-  const box=document.getElementById('bkInsightsBox');
+function delBook(tid,bid){
+  const t=trackers.find(x=>x.id===tid); if(!t) return;
+  if(!confirm(LANG==='ru'?'Удалить эту книгу?':'Бұл кітапты өшіреміз бе?')) return;
+  t.books=(t.books||[]).filter(b=>b.id!==bid); save(); renderBook(t);
+}
+function logBookPages(tid,bid){
+  const t=trackers.find(x=>x.id===tid); if(!t) return;
+  const b=(t.books||[]).find(x=>x.id===bid); if(!b) return;
+  const inp = prompt(LANG==='ru' ? 'Сколько страниц прочитал сейчас?' : 'Дәл қазір қанша бет оқыдың?', '');
+  if(inp===null) return;
+  const pages = Math.max(0, +inp||0);
+  if(!pages) return;
+  b.log=b.log||[]; b.log.push({id:uid(), date:todayStr(), pages});
+  save(); renderBook(t);
+}
+function toggleBookInsights(bid){
+  const box=document.getElementById('bkInsightsBox-'+bid);
   if(box) box.style.display = box.style.display==='none' ? 'block' : 'none';
 }
-function addBookInsight(id){
-  const t=trackers.find(x=>x.id===id); if(!t) return;
-  const text=document.getElementById('bkInsightText').value.trim();
+function addBookInsight(tid,bid){
+  const t=trackers.find(x=>x.id===tid); if(!t) return;
+  const b=(t.books||[]).find(x=>x.id===bid); if(!b) return;
+  const text=document.getElementById('bkInsightText-'+bid).value.trim();
   if(!text){ toast(LANG==='ru'?'Напиши инсайт':'Инсайтты жаз'); return; }
-  t.insights=t.insights||[]; t.insights.push({id:uid(),text,date:todayStr()}); save();
-  const wasOpen = document.getElementById('bkInsightsBox');
-  const openState = wasOpen ? wasOpen.style.display : 'block';
+  b.insights=b.insights||[]; b.insights.push({id:uid(),text,date:todayStr()}); save();
   renderBook(t);
-  if(openState==='block'){ toggleBookInsights(); }
+  toggleBookInsights(bid); // жаңа render-де жабық болады — қайта ашамыз
 }
-function delBookInsight(iid){
-  const t=trackers.find(x=>x.kind==='book' && (x.insights||[]).some(it=>it.id===iid));
-  if(!t) return; t.insights=t.insights.filter(it=>it.id!==iid); save(); renderBook(t);
-  toggleBookInsights();
+function delBookInsight(tid,bid,iid){
+  const t=trackers.find(x=>x.id===tid); if(!t) return;
+  const b=(t.books||[]).find(x=>x.id===bid); if(!b) return;
+  b.insights=(b.insights||[]).filter(it=>it.id!==iid); save(); renderBook(t);
+  toggleBookInsights(bid);
 }
 
 /* ============================================================
