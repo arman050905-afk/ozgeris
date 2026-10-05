@@ -2175,9 +2175,26 @@ function saveFinGoals(){ Store.set('finGoals', finGoals); scheduleSync(); }
 function saveRecurring(){ Store.set('recurring', recurring); scheduleSync(); }
 
 // Ағымдағы қолданушының деректерін жүктеу (кіргеннен кейін шақырылады)
+// "Кітап оқу" шаблонынан бұрын (kind:'book' қосылмай тұрып) жасалған ескі check-типті
+// трекерлерді бір рет жаңа пішінге көтереді. Ескі белгілер бет саны ретінде мағынасыз
+// болғандықтан (true/false еді), күндер қайта басталады — бірақ ай саны/ұзақтығы сақталады.
+function migrateReadingTrackers(list){
+  let changed = false;
+  list.forEach(t=>{
+    if(t.tplKey==='reading' && t.kind!=='book'){
+      t.kind='book'; t.type='value'; t.unit='бет';
+      t.bookTitle=t.bookTitle||''; t.totalPages=t.totalPages||0; t.insights=t.insights||[];
+      t.days = new Array(t.days.length).fill(null);
+      changed = true;
+    }
+  });
+  return changed;
+}
 function loadUserData(){
   trackers  = Store.get('trackers', []);
+  if(migrateReadingTrackers(trackers)){ Store.set('trackers', trackers); scheduleSync(); }
   archived  = Store.get('archived', []);
+  if(migrateReadingTrackers(archived)){ Store.set('archived', archived); scheduleSync(); }
   hiddenTpl = Store.get('hiddenTpl', []);
   userTpl   = Store.get('userTpl', []);
   txs       = Store.get('txs', []);
