@@ -32,6 +32,25 @@
   сәтті кіргенде JWT токен қайтарады (180 күн жарамды). Токен `Store.setGlobal('app_token', ...)`
   ішінде localStorage-та сақталады, әр сұранысында `Authorization: Bearer <token>`
   ретінде жіберіледі (`authToken()`, `apiCall()`).
+- **Email растау (2026-10-06-дан бастап, міндетті)**: `users.email_verified` — `false` болса,
+  `api/login.js` 403 + `needsVerification:true` қайтарады, UI `#authVerify` экранына ауысады.
+  `api/register.js` тіркелгенде ТОКЕН ҚАЙТАРМАЙДЫ — 6 таңбалы кодты (`users.verify_code`,
+  `verify_code_expires`, 15 мин) `api/_email.js` арқылы Resend-пен поштаға жібереді де
+  `{needsVerification:true, email}` қайтарады. `api/verify-email.js` — `{action:'verify',
+  email, code}` (сәтті болса токен қайтарады, `email_verified=true` етеді) немесе
+  `{action:'resend', email}` (жаңа код, 30 секундтық спам-шектеумен). Фронтта: `doRegister` →
+  `#authVerify`-ды ашады, `doVerifyCode()`/`resendVerifyCode()` соны басқарады, `doLogin()`-да
+  `needsVerification` келсе де сол экранға секіреді. Бұрыннан бар аккаунттар (баған қосылғанда)
+  бірден `email_verified=true` деп белгіленген — оларға тимейді.
+  **Орнату міндетті** (жоқ болса `api/register.js`/`api/verify-email.js` 500 қатесін қайтарады,
+  `api/_email.js`-тегі `RESEND_API_KEY` env var тексерісі арқылы, `DATABASE_URL`/`JWT_SECRET`
+  секілді): [resend.com](https://resend.com)-да тегін тіркеліп, API кілт жаса (`RESEND_API_KEY`
+  Vercel env var-ына қой). Resend-тің домен расталмаған режимінде тек өз аккаунтыңның email-іне
+  ғана жібере аласың — НАҒЫЗ пайдаланушыларға (кез келген email-ге) жіберу үшін Resend-те
+  `ozgeris.asia` (немесе бір субдомен) қосып, олар берген DNS жазбаларын (SPF/DKIM) домен DNS-іне
+  (Vercel DNS-те тұр) қосу керек. `RESEND_FROM` (қосымша, міндетті емес) — жіберуші адрес,
+  әдепкісі `ÖZGERIS <onboarding@resend.dev>` (домен расталмаса соны қолдан, бірақ сол кезде де
+  тек Resend аккаунт иесінің email-іне ғана жетеді).
 - **Access control (ақылы SaaS моделі)**: `users.active` — аккаунтқа толық доступ бар ма (жаңа
   тіркелген адамда әдепкі `false`). `users.is_admin` — админ құқығы. JWT-де сақталмайды, әр сезімтал
   сұраныста DB-ден тексеріледі (`api/_admin.js`-тегі `requireAdmin`, `api/data.js`-тегі `active` тексеру).
