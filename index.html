@@ -868,6 +868,41 @@
   .grat-date .del:hover{color:var(--crit)}
   .grat-q{font-size:13px;color:var(--muted);margin-top:8px}
   .grat-a{font-size:15px;color:var(--text)}
+
+  /* course roadmap */
+  .rm-hero{text-align:center;padding:36px 16px 10px}
+  .rm-hero h1{font-size:30px;margin:0 0 8px}
+  .rm-hero p{color:var(--muted);font-size:15px;max-width:560px;margin:0 auto}
+  .rm-path{position:relative;max-width:760px;margin:36px auto 0;padding:0 12px 40px}
+  .rm-path::before{content:'';position:absolute;left:50%;top:6px;bottom:6px;width:3px;
+    background:linear-gradient(var(--line),var(--line));transform:translateX(-50%);border-radius:3px}
+  .rm-stage{position:relative;display:flex;margin-bottom:28px}
+  .rm-stage:nth-child(odd){justify-content:flex-start}
+  .rm-stage:nth-child(even){justify-content:flex-end}
+  .rm-stage .rm-dot{position:absolute;left:50%;top:26px;width:16px;height:16px;border-radius:50%;
+    background:var(--panel);border:3px solid var(--s7);transform:translateX(-50%);z-index:2}
+  .rm-stage.rm-soon .rm-dot{border-color:var(--muted)}
+  .rm-card{width:calc(50% - 30px);background:var(--panel);border:1px solid var(--line);border-radius:16px;
+    overflow:hidden;position:relative;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+  .rm-card-img{height:120px;background-size:cover;background-position:center 20%;position:relative}
+  .rm-card-img::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.1),rgba(0,0,0,.65))}
+  .rm-card-num{position:absolute;top:10px;left:12px;font-weight:800;font-size:13px;color:#fff;
+    background:rgba(0,0,0,.4);padding:3px 9px;border-radius:20px;z-index:1}
+  .rm-card-badge{position:absolute;top:10px;right:12px;font-weight:700;font-size:11px;color:#fff;
+    background:var(--s7);padding:3px 10px;border-radius:20px;z-index:1;letter-spacing:.3px}
+  .rm-card.rm-soon .rm-card-badge{background:var(--panel-2);color:var(--muted);border:1px solid var(--line)}
+  .rm-card-title{position:absolute;bottom:10px;left:14px;right:14px;color:#fff;font-weight:800;font-size:17px;z-index:1}
+  .rm-card-body{padding:14px}
+  .rm-card-sub{color:var(--muted);font-size:13px;margin-bottom:10px;min-height:18px}
+  .rm-card-meta{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted)}
+  .rm-card-price{font-weight:800;color:var(--text);font-size:15px}
+  .rm-card.rm-soon{opacity:.85}
+  @media(max-width:760px){
+    .rm-path::before{left:18px}
+    .rm-stage,.rm-stage:nth-child(odd),.rm-stage:nth-child(even){justify-content:flex-start;padding-left:40px}
+    .rm-stage .rm-dot{left:18px}
+    .rm-card{width:100%}
+  }
 </style>
 </head>
 <body>
@@ -930,6 +965,7 @@
     <nav class="nav-links" id="navLinks">
       <a data-view="home" class="active"><span data-i18n="nav.create">Трекер құру</span></a>
       <a data-view="mine"><span data-i18n="nav.mine">Менің трекерлерім</span></a>
+      <a data-view="course"><span data-i18n="nav.course">Курс</span></a>
       <a class="rt-nav" onclick="randomTask()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='4' y='4' width='16' height='16' rx='3'/><circle cx='8' cy='8' r='1.2' fill='currentColor' stroke='none'/><circle cx='16' cy='8' r='1.2' fill='currentColor' stroke='none'/><circle cx='12' cy='12' r='1.2' fill='currentColor' stroke='none'/><circle cx='8' cy='16' r='1.2' fill='currentColor' stroke='none'/><circle cx='16' cy='16' r='1.2' fill='currentColor' stroke='none'/></svg> <span data-i18n="nav.task">Тапсырма</span></a>
       <a data-view="finance"><span data-i18n="nav.finance">Қаржы</span></a>
       <a data-view="analytics"><span data-i18n="nav.analytics">Талдау</span></a>
@@ -1319,6 +1355,17 @@
   </div>
 </section>
 
+<!-- ============ COURSE ROADMAP ============ -->
+<section id="course" class="view">
+  <div class="container">
+    <div class="rm-hero">
+      <h1>ÖZGERIS курстары</h1>
+      <p>Өзіңді өзгертуге апаратын жол — әр баспалдақ жаңа деңгей.</p>
+    </div>
+    <div class="rm-path" id="coursePath"></div>
+  </div>
+</section>
+
 <!-- ============ ADMIN ============ -->
 <section id="admin" class="view">
   <div class="container">
@@ -1595,7 +1642,7 @@ const Store = (() => {
 let LANG = Store.getGlobal('lang','kk');
 const I18N = {
   kk: {
-    'nav.create':'Трекер құру', 'nav.mine':'Менің трекерлерім', 'nav.task':'Тапсырма',
+    'nav.create':'Трекер құру', 'nav.mine':'Менің трекерлерім', 'nav.task':'Тапсырма', 'nav.course':'Курс',
     'nav.finance':'Қаржы', 'nav.analytics':'Талдау', 'nav.profile':'Профиль',
     'nav.admin':'Админ', 'nav.buy':'Сатып алу', 'nav.logout':'Шығу',
     'bottomnav.home':'Басты', 'bottomnav.mine':'Трекерлер',
@@ -1711,7 +1758,7 @@ const I18N = {
     'home.randomTaskTitle':'Кездейсоқ тапсырма', 'home.checkinTitle':'Барлық check-типті трекерлерді бүгінге бекіту',
   },
   ru: {
-    'nav.create':'Создать трекер', 'nav.mine':'Мои трекеры', 'nav.task':'Задание',
+    'nav.create':'Создать трекер', 'nav.mine':'Мои трекеры', 'nav.task':'Задание', 'nav.course':'Курс',
     'nav.finance':'Финансы', 'nav.analytics':'Аналитика', 'nav.profile':'Профиль',
     'nav.admin':'Админ', 'nav.buy':'Купить', 'nav.logout':'Выйти',
     'bottomnav.home':'Главная', 'bottomnav.mine':'Трекеры',
@@ -2422,7 +2469,43 @@ function showView(v){
   if(v==='archive') renderArchive();
   if(v==='admin') renderAdmin();
   if(v==='profile') renderProfile();
+  if(v==='course') renderCourse();
   window.scrollTo(0,0);
+}
+
+/* ============================================================
+   COURSE ROADMAP — курстар жолы (baipket.one стилінде этаптар)
+   ============================================================ */
+const COURSE_STAGES = [
+  { key:'edu', title:'Ozgeris 1.0', sub:'Білім', desc:'Жуырда — өз курсымыз осы жерден басталады.',
+    img:'course-edu.jpg', soon:true, items:[] },
+  { title:'Акселерация', sub:'Өсудің турбо-режимі', lessons:167, price:'800 000 ₸' },
+  { title:'SENIOR SALES', sub:'Сатылым — интуиция немесе жалғыз емес, ол математика, психология және басқарылатын жүйе.', lessons:55, price:'500 000 ₸' },
+  { title:'Senior Marketer', sub:'Жоғары лига маркетологтар', lessons:118, price:'800 000 ₸' },
+  { title:'Коммерциялық интеллект', sub:'Интенсив', lessons:28, price:'60 000 ₸' },
+  { title:'SENIOR AI WORKSPACE | МСБ', sub:'Маркетинг, сату, басқару', lessons:111, price:'800 000 ₸' },
+  { title:'Senior Marketer Pro', sub:'Ең жоғары деңгей', lessons:197, price:'1 000 000 ₸' },
+];
+function renderCourse(){
+  const box = document.getElementById('coursePath');
+  box.innerHTML = COURSE_STAGES.map((s,i)=>{
+    const soon = !!s.soon;
+    const bg = s.img ? `url('${s.img}')` : 'linear-gradient(135deg,var(--s7),var(--s1))';
+    const meta = soon
+      ? `<div class="rm-card-sub">${s.desc||''}</div>`
+      : `<div class="rm-card-sub">${s.sub||''}</div><div class="rm-card-meta"><span>${s.lessons} сабақ</span><span class="rm-card-price">${s.price}</span></div>`;
+    return `<div class="rm-stage ${soon?'rm-soon':''}">
+      <span class="rm-dot"></span>
+      <div class="rm-card ${soon?'rm-soon':''}">
+        <div class="rm-card-img" style="background-image:${bg}">
+          <span class="rm-card-num">${i+1}-этап</span>
+          <span class="rm-card-badge">${soon?'Жуырда':'Қолжетімді'}</span>
+          <span class="rm-card-title">${s.title}</span>
+        </div>
+        <div class="rm-card-body">${meta}</div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 /* ============================================================
