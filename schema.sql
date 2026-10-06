@@ -10,6 +10,9 @@ create table if not exists users (
   pass_hash  text not null,
   is_admin   boolean not null default false,
   active     boolean not null default false, -- төлем расталғанша аккаунт күтуде тұрады
+  email_verified       boolean not null default false, -- поштаға жіберілген кодты растағанша true болмайды
+  verify_code          text,          -- ағымдағы 6 таңбалы растау коды (расталғаннан кейін null)
+  verify_code_expires  timestamptz,   -- кодтың жарамдылық мерзімі (15 минут)
   created_at timestamptz not null default now()
 );
 

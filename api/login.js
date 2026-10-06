@@ -9,12 +9,16 @@ module.exports = async (req, res) => {
   const em = String(email || '').trim().toLowerCase();
 
   try {
-    const rows = await sql`select id, name, email, pass_hash from users where email = ${em}`;
+    const rows = await sql`select id, name, email, pass_hash, email_verified from users where email = ${em}`;
     const user = rows[0];
     if (!user) return res.status(401).json({ error: 'Email не пароль қате' });
 
     const ok = await bcrypt.compare(String(pass || ''), user.pass_hash);
     if (!ok) return res.status(401).json({ error: 'Email не пароль қате' });
+
+    if (!user.email_verified) {
+      return res.status(403).json({ error: 'Email расталмаған — алдымен поштаңа келген кодты енгіз', needsVerification: true });
+    }
 
     const token = sign(user);
     res.status(200).json({ token, user: { name: user.name, email: user.email } });

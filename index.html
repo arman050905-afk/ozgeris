@@ -911,6 +911,15 @@
       <button class="btn" onclick="doRegister()" data-i18n="auth.register">Тіркелу</button>
       <div class="auth-alt"><span data-i18n="auth.hasAccount">Аккаунтың бар ма?</span> <span onclick="authSwitch('login')" data-i18n="auth.loginShort">Кір</span></div>
     </div>
+
+    <div id="authVerify" style="display:none">
+      <div class="auth-sub" style="margin-bottom:18px" data-i18n="auth.verifySub">Поштаңа 6 таңбалы код жібердік. Кодты осы жерге жаз.</div>
+      <label data-i18n="auth.verifyCodeLabel">Код</label>
+      <input id="verifyCode" type="text" inputmode="numeric" maxlength="6" placeholder="••••••" style="letter-spacing:8px;font-size:22px;text-align:center" onkeydown="if(event.key==='Enter')doVerifyCode()">
+      <div class="auth-err" id="verifyErr"></div>
+      <button class="btn" onclick="doVerifyCode()" data-i18n="auth.verifyBtn">Растау</button>
+      <div class="auth-alt"><span data-i18n="auth.verifyNoCode">Код келмеді ме?</span> <span onclick="resendVerifyCode()" data-i18n="auth.verifyResend">Қайта жіберу</span></div>
+    </div>
   </div>
 </div>
 
@@ -1693,6 +1702,9 @@ const I18N = {
     'auth.passLabel':'Пароль', 'auth.passPh':'кемінде 4 таңба', 'auth.nameLabel':'Атың',
     'auth.noAccount':'Аккаунтың жоқ па?', 'auth.registerShort':'Тіркел',
     'auth.hasAccount':'Аккаунтың бар ма?', 'auth.loginShort':'Кір',
+    'auth.verifySub':'Поштаңа 6 таңбалы код жібердік. Кодты осы жерге жаз.',
+    'auth.verifyCodeLabel':'Код', 'auth.verifyBtn':'Растау',
+    'auth.verifyNoCode':'Код келмеді ме?', 'auth.verifyResend':'Қайта жіберу',
     'pending.title':'Аккаунтыңа әлі доступ берілмеген',
     'pending.desc':'ÖZGERIS-ті толық пайдалану үшін жазылымды рәсімдеу керек. Төмендегі батырма арқылы WhatsApp-қа жазып, төлемді рәсімдеңіз — доступ жылдам беріледі.',
     'pending.buyBtn':'Сатып алу (WhatsApp)',
@@ -1806,6 +1818,9 @@ const I18N = {
     'auth.passLabel':'Пароль', 'auth.passPh':'минимум 4 символа', 'auth.nameLabel':'Имя',
     'auth.noAccount':'Нет аккаунта?', 'auth.registerShort':'Зарегистрироваться',
     'auth.hasAccount':'Есть аккаунт?', 'auth.loginShort':'Войти',
+    'auth.verifySub':'Мы отправили 6-значный код на твою почту. Введи его здесь.',
+    'auth.verifyCodeLabel':'Код', 'auth.verifyBtn':'Подтвердить',
+    'auth.verifyNoCode':'Код не пришёл?', 'auth.verifyResend':'Отправить снова',
     'pending.title':'Доступ к твоему аккаунту пока не открыт',
     'pending.desc':'Чтобы полноценно пользоваться ÖZGERIS, нужно оформить подписку. Напиши в WhatsApp через кнопку ниже и оформи оплату — доступ откроется быстро.',
     'pending.buyBtn':'Купить (WhatsApp)',
@@ -1901,7 +1916,7 @@ async function apiCall(path, method, body){
   if(t) headers.Authorization = 'Bearer '+t;
   const res = await fetch(API_BASE+path, {method, headers, body: body?JSON.stringify(body):undefined});
   let json = {}; try{ json = await res.json(); }catch(e){}
-  if(!res.ok) throw new Error(json.error || 'Қате шықты, қайта көр');
+  if(!res.ok){ const err=new Error(json.error || 'Қате шықты, қайта көр'); Object.assign(err, json); throw err; }
   return json;
 }
 // Кіргенде базадан деректі тартып, локал кэшке құяды (loadUserData содан оқиды)
@@ -1936,11 +1951,14 @@ let currentUser = null;
 function authSwitch(mode){
   document.getElementById('authLogin').style.display  = mode==='login'?'block':'none';
   document.getElementById('authRegister').style.display = mode==='register'?'block':'none';
+  document.getElementById('authVerify').style.display = mode==='verify'?'block':'none';
+  document.querySelector('.auth-tabs').style.display = mode==='verify'?'none':'flex';
   document.getElementById('tabLogin').classList.toggle('active', mode==='login');
   document.getElementById('tabRegister').classList.toggle('active', mode==='register');
   document.querySelectorAll('.auth-err').forEach(e=>e.textContent='');
 }
 function authErr(msg){ const m=tr(msg); document.querySelectorAll('.auth-err').forEach(e=>e.textContent=m); }
+let pendingVerifyEmail = null;
 async function doRegister(){
   const name=document.getElementById('regName').value.trim();
   const email=document.getElementById('regEmail').value.trim().toLowerCase();
@@ -1950,9 +1968,11 @@ async function doRegister(){
   if(pass.length<4){ authErr('Пароль кемінде 4 таңба'); return; }
   try{
     const r = await apiCall('/register', 'POST', {name, email, pass});
-    Store.setGlobal('app_token', r.token);
-    Store.setGlobal('app_name', r.user.name);
-    await loginAs(email);
+    if(r.needsVerification){
+      pendingVerifyEmail = r.email;
+      authSwitch('verify');
+      toast(tr('Поштаңа код жібердік'));
+    }
   }catch(e){ authErr(e.message); }
 }
 async function doLogin(){
@@ -1963,7 +1983,32 @@ async function doLogin(){
     Store.setGlobal('app_token', r.token);
     Store.setGlobal('app_name', r.user.name);
     await loginAs(email);
-  }catch(e){ authErr(e.message); }
+  }catch(e){
+    if(e.needsVerification){
+      pendingVerifyEmail = email;
+      authSwitch('verify');
+      toast(tr(e.message));
+    } else { authErr(e.message); }
+  }
+}
+async function doVerifyCode(){
+  const code=document.getElementById('verifyCode').value.trim();
+  if(!pendingVerifyEmail){ authSwitch('login'); return; }
+  if(!code){ document.getElementById('verifyErr').textContent = tr('Кодты жаз'); return; }
+  try{
+    const r = await apiCall('/verify-email', 'POST', {action:'verify', email:pendingVerifyEmail, code});
+    Store.setGlobal('app_token', r.token);
+    Store.setGlobal('app_name', r.user.name);
+    pendingVerifyEmail = null;
+    await loginAs(r.user.email);
+  }catch(e){ document.getElementById('verifyErr').textContent = tr(e.message); }
+}
+async function resendVerifyCode(){
+  if(!pendingVerifyEmail) return;
+  try{
+    await apiCall('/verify-email', 'POST', {action:'resend', email:pendingVerifyEmail});
+    toast(tr('Код қайта жіберілді'));
+  }catch(e){ document.getElementById('verifyErr').textContent = tr(e.message); }
 }
 let isAdmin = false;
 async function loginAs(email){
@@ -5861,6 +5906,16 @@ let toastTimer;
 // дисплей алдында бір үлкен сөздікпен (ішінара сәйкестік бойынша) автоматты аударамыз.
 // Иконка HTML-і (ic('x')) әр тілде бірдей, сол себепті проблема жоқ — тек мәтін бөлігі ауысады.
 const RU_PHRASES = {
+  'Email расталмаған — алдымен поштаңа келген кодты енгіз':'Email не подтверждён — сначала введи код из письма',
+  'Поштаңа код жібердік':'Мы отправили код на твою почту',
+  'Кодты жаз':'Напиши код',
+  'Код қайта жіберілді':'Код отправлен повторно',
+  'Аккаунт табылмады':'Аккаунт не найден',
+  'Email расталған, кіріп көр':'Email уже подтверждён, попробуй войти',
+  'Код қате':'Неверный код',
+  'Кодтың мерзімі өтті, жаңасын сұра':'Срок кода истёк, запроси новый',
+  'Сәл күте тұр, кодты жаңа ғана жібердік':'Подожди немного, код только что отправлен',
+  'Email жоқ':'Email не указан',
   'Push ескертулер қосылды':'Push-уведомления включены',
   'Push ескертулер әлі орнатылмаған':'Push-уведомления ещё не настроены',
   'Push ескертулер өшірілді':'Push-уведомления отключены',
