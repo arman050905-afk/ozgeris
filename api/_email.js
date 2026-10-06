@@ -2,7 +2,7 @@ if (!process.env.RESEND_API_KEY) {
   throw new Error('RESEND_API_KEY env var орнатылмаған (Vercel Project Settings → Environment Variables)');
 }
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const FROM = process.env.RESEND_FROM || 'ÖZGERIS <onboarding@resend.dev>';
+const FROM = process.env.RESEND_FROM || 'ÖZGERIS <noreply@ozgeris.asia>';
 
 async function sendVerificationEmail(to, code) {
   const html = `
