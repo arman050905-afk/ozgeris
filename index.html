@@ -2442,6 +2442,7 @@ async function renderAdmin(){
         <td><div class="admin-acts">
           <button class="btn ghost sm" onclick="toggleAccess('${u.id}',${!u.active})">${u.active?(LANG==='ru'?'Забрать доступ':'Доступ алу'):(LANG==='ru'?'Дать доступ':'Доступ беру')}</button>
           <button class="btn ghost sm" onclick="resetPassPrompt('${u.id}','${u.email}')">${LANG==='ru'?'Сбросить пароль':'Пароль ысыру'}</button>
+          <button class="btn danger sm" onclick="deleteUserPrompt('${u.id}','${u.email.replace(/'/g,"\\'")}')">${LANG==='ru'?'Удалить':'Өшіру'}</button>
         </div></td>
       </tr>`).join('') || `<tr><td colspan="5">${LANG==='ru'?'Нет пользователей':'Пайдаланушы жоқ'}</td></tr>`;
   }catch(e){
@@ -2588,6 +2589,14 @@ async function resetPassPrompt(userId, email){
   if(!p) return;
   if(p.length<4){ toast('Пароль кемінде 4 таңба болу керек'); return; }
   try{ await apiCall('/admin/reset-password', 'POST', {userId, newPass:p}); toast('Пароль ауыстырылды'); }
+  catch(e){ toast((LANG==='ru'?'Ошибка':'Қате')+': '+e.message); }
+}
+async function deleteUserPrompt(userId, email){
+  const ok = confirm(LANG==='ru'
+    ? `Шынымен ${email} аккаунтын өшіресің бе? Бұл әрекетті қайтару мүмкін емес.`
+    : `${email} аккаунтын шынымен өшіремісің? Бұл әрекетті қайтару мүмкін емес.`);
+  if(!ok) return;
+  try{ await apiCall('/admin/grant', 'POST', {userId, action:'delete'}); toast(LANG==='ru'?'Аккаунт удалён':'Аккаунт өшірілді'); renderAdmin(); }
   catch(e){ toast((LANG==='ru'?'Ошибка':'Қате')+': '+e.message); }
 }
 
