@@ -1,5 +1,6 @@
 {
   "rewrites": [
-    { "source": "/trial", "destination": "/trial.html" }
+    { "source": "/trial", "destination": "/trial.html" },
+    { "source": "/3d", "destination": "/world.html" }
   ]
 }
