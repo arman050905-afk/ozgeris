@@ -1,0 +1,1884 @@
+<!doctype html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0a0a14">
+<meta name="description" content="ÖZGERIS — әдет, мақсат, денсаулық және қаржы трекері. Үш өлшемді бөлме мен қалада қосымшаның бөлімдерін аралап көр.">
+<title>ÖZGERIS — 3D әлем</title>
+<script>try{if(localStorage.getItem('oz3d-theme')==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='64'%20y2='64'%3E%3Cstop%20offset='0'%20stop-color='%237c5cff'/%3E%3Cstop%20offset='1'%20stop-color='%23c045e8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='64'%20height='64'%20rx='14'%20fill='url(%23g)'/%3E%3Ccircle%20cx='32'%20cy='33'%20r='23'%20fill='%23fff'/%3E%3Cg%20fill='none'%20stroke='%237c5cff'%20stroke-width='4.2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpolyline%20points='19.4,41.4%2027.8,33%2033.4,38.6%2044.6,24.6'/%3E%3Cpolyline%20points='36.2,24.6%2044.6,24.6%2044.6,33'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}
+</script>
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#0a0a14;
+  --ink:#f6f4ff; --ink-2:#e2deef; --muted:#b4aec8; --quiet:#8d87a3;
+  --line:rgba(255,255,255,.14); --line-strong:rgba(255,255,255,.34);
+  --glass:rgba(16,14,26,.74); --glass-hover:rgba(38,34,56,.9);
+  --solid:#fbfaff; --solid-hover:#ebe7f7; --on-solid:#14111f;
+  --tint:rgba(255,255,255,.05); --tint-2:rgba(255,255,255,.1);
+  --shadow:rgba(0,0,0,.45);
+  --scrim:rgba(6,5,12,.72);
+  --panel:#15131f; --panel-2:#1d1a2b;
+  --grad-1:#7c5cff; --grad-2:#c045e8; --grad-3:#ff5da2;
+  --grad:linear-gradient(135deg,var(--grad-1) 0%,var(--grad-2) 55%,var(--grad-3) 100%);
+  --good:#3ecf93;
+  --f-display:'Unbounded',system-ui,sans-serif;
+  --f-body:'Manrope',system-ui,sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,monospace;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+:root[data-theme=light]{
+  color-scheme:light;
+  --bg:#f3f1fa;
+  --ink:#15121f; --ink-2:#2f2b3d; --muted:#5d5870; --quiet:#7d7891;
+  --line:rgba(20,16,40,.13); --line-strong:rgba(20,16,40,.3);
+  --glass:rgba(255,255,255,.82); --glass-hover:rgba(244,241,252,.96);
+  --solid:#15121f; --solid-hover:#2c2840; --on-solid:#fff;
+  --tint:rgba(20,16,40,.04); --tint-2:rgba(20,16,40,.08);
+  --shadow:rgba(30,20,60,.18);
+  --scrim:rgba(40,32,70,.38);
+  --panel:#ffffff; --panel-2:#f4f1fb;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--f-body);-webkit-font-smoothing:antialiased}
+button,a,input{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;padding:0}
+a{text-decoration:none}
+:focus-visible{outline:2px solid var(--grad-1);outline-offset:3px}
+svg.i{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+#gl{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;outline:none}
+#fade{position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity .45s ease;z-index:50}
+#fade.on{opacity:1}
+
+/* ---------- loader ---------- */
+#loader{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:var(--bg);transition:opacity .6s ease,visibility .6s}
+#loader.done{opacity:0;visibility:hidden}
+.ld{width:min(340px,80vw)}
+.ld-eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--quiet);display:flex;justify-content:space-between}
+.ld-pct{font-family:var(--f-display);font-weight:800;font-size:64px;line-height:1;margin:14px 0 10px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ld-bar{height:3px;background:var(--tint-2);border-radius:3px;overflow:hidden}
+.ld-bar i{display:block;height:100%;width:0;background:var(--grad);transition:width .35s var(--ease)}
+.ld-title{margin-top:18px;font-weight:700;font-size:16px}
+.ld-step{margin-top:4px;color:var(--muted);font-size:13px;min-height:1.4em}
+
+/* ---------- header ---------- */
+.top{position:fixed;left:0;right:0;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 40px;pointer-events:none}
+.top>*{pointer-events:auto}
+.top-l,.top-r{display:flex;align-items:center;gap:10px;flex:1}
+.top-r{justify-content:flex-end}
+.logo{width:46px;height:46px;border-radius:14px;border:1px solid var(--line);background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:grid;place-items:center}
+.logo b{width:30px;height:30px;border-radius:9px;background:var(--grad);color:#fff;display:grid;place-items:center;font-family:var(--f-display);font-weight:800;font-size:15px;box-shadow:0 6px 18px -6px #c045e8}
+.pill{display:flex;gap:2px;padding:4px;border-radius:16px;border:1px solid var(--line);background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.pill button,.pill a{padding:9px 16px;border-radius:12px;font-size:14px;font-weight:600;color:var(--muted);white-space:nowrap;transition:background .2s,color .2s}
+.pill button:hover,.pill a:hover{color:var(--ink)}
+.pill .on{background:var(--tint-2);color:var(--ink)}
+.icon-btn{width:46px;height:46px;border-radius:14px;border:1px solid var(--line);background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:grid;place-items:center;transition:background .2s,border-color .2s}
+.icon-btn:hover{background:var(--glass-hover);border-color:var(--line-strong)}
+.icon-btn:hover svg{transform:rotate(18deg)}
+.icon-btn svg{transition:transform .45s var(--ease)}
+.lang{display:flex;padding:4px;border-radius:14px;border:1px solid var(--line);background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.lang button{padding:8px 10px;border-radius:10px;font-family:var(--f-mono);font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--quiet)}
+.lang button.on{background:var(--tint-2);color:var(--ink)}
+.lang-sm{display:none;font-family:var(--f-mono);font-size:12px;font-weight:700;letter-spacing:.04em}
+.cta{display:inline-flex;align-items:center;gap:8px;height:46px;padding:0 18px;border-radius:14px;background:var(--solid);color:var(--on-solid);font-weight:700;font-size:14px;white-space:nowrap;transition:background .2s,transform .2s}
+.cta:hover{background:var(--solid-hover)}
+.cta.grad{background:var(--grad);color:#fff;box-shadow:0 10px 30px -12px #c045e8}
+
+/* ---------- shared buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:48px;padding:0 22px;border-radius:14px;border:1px solid var(--line-strong);background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-weight:600;font-size:15px;white-space:nowrap;transition:background .2s,border-color .2s,transform .2s}
+.btn:hover{background:var(--glass-hover)}
+.btn.solid{background:var(--solid);color:var(--on-solid);border-color:transparent}
+.btn.solid:hover{background:var(--solid-hover)}
+.btn.grad{background:var(--grad);color:#fff;border-color:transparent}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--muted)}
+.eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--grad);box-shadow:0 0 10px #c045e8}
+.hint{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--quiet)}
+
+/* ---------- room UI ---------- */
+.ui{position:fixed;inset:0;pointer-events:none;z-index:10}
+.ui .pane{position:absolute;opacity:0;visibility:hidden;transform:translateY(10px);transition:opacity .5s ease,transform .6s var(--ease),visibility .5s}
+.ui .pane>*{pointer-events:auto}
+body[data-view=room][data-stop=desk] .pane.desk,
+body[data-view=room][data-stop=board] .pane.board,
+body[data-view=room][data-stop=shelf] .pane.shelf{opacity:1;visibility:visible;transform:none;transition-delay:.35s}
+body:not([data-view=room]) #roomUI,body:not([data-view=city]) #cityUI{display:none}
+body:not([data-view=room]) .room-only,body:not([data-view=city]) .city-only{display:none!important}
+
+.hero{left:40px;top:50%;margin-top:-170px;width:380px}
+.hero h1{font-family:var(--f-display);font-weight:800;font-size:68px;line-height:1;letter-spacing:-.02em;margin:20px 0 14px}
+.hero .sub{font-family:var(--f-mono);font-size:14px;color:var(--ink-2)}
+.hero p{font-size:16px;line-height:1.55;color:var(--ink-2);margin:22px 0 26px}
+.hero .row{display:flex;gap:10px;margin-bottom:22px}
+
+#screenBtn{position:absolute;left:0;top:0;transform:translate(-50%,-50%);display:inline-flex;align-items:center;gap:10px;padding:11px 18px;border-radius:999px;background:rgba(12,10,20,.82);color:#fff;font-weight:700;font-size:15px;border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);pointer-events:auto;transition:opacity .3s ease,background .2s;opacity:0;white-space:nowrap}
+#screenBtn:hover{background:rgba(124,92,255,.9)}
+#screenBtn.show{opacity:1}
+
+.board-bar{left:50%;bottom:22px;transform:translateX(-50%)!important;display:flex;gap:10px}
+body[data-stop=board] .board-bar{transform:translateX(-50%)!important}
+.side-link{position:absolute;top:50%;display:flex;align-items:center;gap:10px;font-weight:600;font-size:15px;color:var(--ink-2);padding:10px 4px}
+.side-link:hover{color:var(--ink)}
+.board-next{right:40px}
+
+.shelf-panel{left:40px;top:96px;bottom:40px;width:390px;display:flex;flex-direction:column}
+.back-link{display:inline-flex;align-items:center;gap:10px;font-weight:600;font-size:15px;color:var(--ink-2);padding:6px 0;align-self:flex-start}
+.sp-body{margin-top:auto;margin-bottom:auto}
+.sp-head{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-top:1px solid var(--line);border-bottom:1px dashed var(--line)}
+.sp-count{font-family:var(--f-mono);font-size:20px}
+.sp-count small{font-size:11px;color:var(--quiet);letter-spacing:.14em;margin-left:6px}
+.arrows{display:flex;gap:8px}
+.round{width:34px;height:34px;border-radius:50%;border:1px solid var(--line-strong);display:grid;place-items:center;transition:background .2s}
+.round:hover{background:var(--tint-2)}
+.round svg.i{width:15px;height:15px}
+.sp-title{font-family:var(--f-display);font-weight:700;font-size:30px;line-height:1.12;margin:22px 0 10px;letter-spacing:-.01em}
+.sp-meta{font-family:var(--f-mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px}
+.sp-meta i{width:7px;height:7px;border-radius:50%;display:inline-block}
+.sp-desc{font-size:15px;line-height:1.6;color:var(--ink-2);margin:16px 0 18px}
+.sp-stats{display:flex;gap:26px;border-left:1px solid var(--line-strong);padding-left:16px;margin-bottom:22px}
+.sp-stats:empty{display:none}
+.sp-stats b{display:block;font-family:var(--f-display);font-weight:700;font-size:26px;line-height:1.1}
+.sp-stats span{font-size:12.5px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:24px}
+.chip{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.1em;padding:6px 9px;border:1px solid var(--line-strong);border-radius:7px;color:var(--ink-2)}
+.sp-actions{display:flex;gap:10px}
+.sp-actions .btn{flex:1}
+
+/* ---------- city UI ---------- */
+.city-l{position:fixed;left:40px;top:84px;z-index:12}
+.chip-btn{display:inline-flex;align-items:center;gap:10px;height:42px;padding:0 16px;border-radius:13px;border:1px solid var(--line);background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font-weight:700;font-size:14px;transition:background .2s}
+.chip-btn:hover{background:var(--glass-hover)}
+.guide-card{position:fixed;right:40px;top:84px;z-index:12;display:flex;align-items:center;gap:12px;padding:10px 14px 10px 10px;border-radius:16px;border:1px solid var(--line);background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);text-align:left;transition:background .2s}
+.guide-card:hover{background:var(--glass-hover)}
+.avatar{width:44px;height:44px;border-radius:12px;background:#2a2340;display:grid;place-items:center;overflow:hidden}
+.guide-card b{display:block;font-size:14.5px}
+.guide-card small{display:block;font-size:12px;color:var(--muted)}
+.guide-card .i{margin-left:8px;color:var(--muted)}
+.blist{position:fixed;right:40px;bottom:96px;z-index:12;display:flex;flex-direction:column;gap:8px;width:300px;transition:opacity .3s,transform .4s var(--ease)}
+.blist.hide{opacity:0;transform:translateX(20px);pointer-events:none}
+.bitem{display:flex;align-items:center;gap:12px;height:46px;padding:0 14px;border-radius:13px;border:1px solid var(--line);background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font-weight:700;font-size:14px;text-align:left;transition:background .2s,border-color .2s}
+.bitem:hover{background:var(--glass-hover);border-color:var(--line-strong)}
+.bitem .n{font-family:var(--f-mono);font-size:10px;color:var(--quiet);width:16px}
+.bitem .dot{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;color:#fff}
+.bitem .dot svg.i{width:13px;height:13px;stroke-width:2.2}
+.bitem .nm{flex:1}
+.bitem .go{color:var(--muted)}
+.toolbar{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:12;display:flex;gap:10px}
+.tb{display:flex;align-items:center;gap:2px;padding:4px;border-radius:15px;border:1px solid var(--line);background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.tb button{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 12px;border-radius:11px;font-size:13px;font-weight:700;transition:background .2s}
+.tb button:hover,.tb button.on{background:var(--tint-2)}
+.tb .zoom{font-family:var(--f-mono);font-size:11px;min-width:44px;text-align:center;color:var(--ink-2)}
+#minimap{position:fixed;left:40px;bottom:24px;z-index:12;width:200px;height:200px;border-radius:20px;border:1px solid var(--line);background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);cursor:crosshair;transition:opacity .3s,transform .4s var(--ease)}
+#minimap.hide{opacity:0;transform:translateY(12px);pointer-events:none}
+#prompt{position:fixed;left:50%;bottom:92px;transform:translate(-50%,10px);z-index:13;display:flex;align-items:center;gap:10px;padding:8px 16px 8px 8px;border-radius:14px;background:var(--solid);color:var(--on-solid);font-weight:700;font-size:14px;opacity:0;pointer-events:none;transition:opacity .25s,transform .35s var(--ease);box-shadow:0 12px 30px -10px var(--shadow)}
+#prompt.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+#prompt kbd{font-family:var(--f-mono);font-size:12px;padding:5px 9px;border-radius:8px;background:var(--grad);color:#fff}
+.tags{position:fixed;inset:0;pointer-events:none;z-index:9}
+.tag{position:absolute;left:0;top:0;transform:translate(-50%,-100%);padding:4px 9px;border-radius:7px;background:#fff;color:#14111f;font-size:12.5px;font-weight:800;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,.25)}
+.tag::after{content:'';position:absolute;left:50%;bottom:-5px;margin-left:-5px;border:5px solid transparent;border-bottom:0;border-top-color:#fff}
+.tags.off{display:none}
+
+/* ---------- modals ---------- */
+.modal{position:fixed;inset:0;z-index:40;display:grid;place-items:center;padding:24px;background:var(--scrim);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s}
+.modal.open{opacity:1;visibility:visible}
+.card{position:relative;width:min(560px,100%);max-height:calc(100dvh - 48px);overflow:auto;border-radius:24px;border:1px solid var(--line);background:linear-gradient(165deg,var(--panel),var(--panel-2));box-shadow:0 30px 80px -20px rgba(0,0,0,.6);padding:34px;transform:translateY(14px) scale(.98);transition:transform .45s var(--ease)}
+.modal.open .card{transform:none}
+.card.wide{width:min(720px,100%)}
+.x{position:absolute;right:16px;top:16px;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;color:var(--muted);transition:background .2s}
+.x:hover{background:var(--tint-2);color:var(--ink)}
+.card h2{font-family:var(--f-display);font-weight:700;font-size:28px;line-height:1.15;margin:14px 0 10px;letter-spacing:-.01em}
+.card h3{font-family:var(--f-display);font-weight:700;font-size:17px;margin:26px 0 8px}
+.card p{font-size:15.5px;line-height:1.7;color:var(--ink-2);margin:0 0 14px}
+.card .lead{color:var(--muted)}
+.card ul{list-style:none;padding:0;margin:18px 0 24px;display:grid;gap:10px}
+.card li{display:flex;gap:12px;align-items:flex-start;font-size:15px;line-height:1.5;color:var(--ink-2)}
+.card li svg.i{margin-top:2px;color:var(--good)}
+.card .acts{display:flex;gap:10px;flex-wrap:wrap}
+.mod-badge{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;color:#fff}
+.mod-badge svg.i{width:26px;height:26px}
+.price{display:flex;align-items:baseline;gap:14px;margin:18px 0 6px;flex-wrap:wrap}
+.price b{font-family:var(--f-display);font-weight:800;font-size:46px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.price s{color:var(--quiet);font-size:18px}
+.price em{font-style:normal;font-family:var(--f-mono);font-size:12px;font-weight:700;padding:5px 9px;border-radius:8px;background:var(--grad);color:#fff}
+.quote{font-family:var(--f-display);font-weight:600;font-size:18px;line-height:1.45;padding:16px 18px;border-left:3px solid var(--grad-2);background:var(--tint);border-radius:0 12px 12px 0;margin:22px 0}
+
+/* chat */
+#chat{position:fixed;right:40px;top:84px;bottom:24px;width:380px;z-index:30;display:flex;flex-direction:column;border-radius:22px;border:1px solid var(--line);background:linear-gradient(165deg,var(--panel),var(--panel-2));box-shadow:0 30px 80px -20px rgba(0,0,0,.55);transform:translateX(24px);opacity:0;visibility:hidden;transition:opacity .3s,transform .45s var(--ease),visibility .3s}
+#chat.open{opacity:1;visibility:visible;transform:none}
+.ch-head{display:flex;align-items:center;gap:12px;padding:14px 14px 14px 16px;border-bottom:1px solid var(--line)}
+.ch-head b{display:block;font-size:15px}
+.ch-head small{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.ch-head small::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--good)}
+.ch-head .x{position:static;margin-left:auto}
+.ch-log{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:88%;padding:11px 14px;border-radius:16px;font-size:14.5px;line-height:1.5}
+.msg.bot{background:var(--tint-2);border-bottom-left-radius:5px;align-self:flex-start}
+.msg.me{background:var(--grad);color:#fff;border-bottom-right-radius:5px;align-self:flex-end}
+.msg .acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.msg .acts button,.msg .acts a{font-size:13px;font-weight:700;padding:7px 11px;border-radius:10px;background:var(--solid);color:var(--on-solid)}
+.typing{display:inline-flex;gap:4px}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:tp 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes tp{0%,60%,100%{opacity:.3;transform:none}30%{opacity:1;transform:translateY(-3px)}}
+.ch-chips{display:flex;gap:6px;flex-wrap:wrap;padding:0 16px 12px}
+.ch-chips button{font-size:12.5px;font-weight:600;padding:7px 11px;border-radius:999px;border:1px solid var(--line-strong);color:var(--ink-2);transition:background .2s}
+.ch-chips button:hover{background:var(--tint-2)}
+.ch-form{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}
+.ch-form input{flex:1;min-width:0;height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--tint);outline:none}
+.ch-form input:focus{border-color:var(--grad-1)}
+.ch-form button{width:44px;height:44px;border-radius:12px;background:var(--grad);color:#fff;display:grid;place-items:center}
+#toast{position:fixed;left:50%;top:84px;transform:translate(-50%,-10px);z-index:45;max-width:min(560px,calc(100vw - 32px));padding:12px 16px;border-radius:14px;background:var(--solid);color:var(--on-solid);font-size:14px;line-height:1.5;font-weight:600;opacity:0;pointer-events:none;transition:opacity .3s,transform .4s var(--ease);text-align:center}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+.skip{position:fixed;left:16px;top:-60px;z-index:70;padding:10px 14px;border-radius:10px;background:var(--solid);color:var(--on-solid);font-weight:700}
+.skip:focus{top:16px}
+
+/* ---------- phone ---------- */
+@media (max-width:900px){
+  .top{padding:14px 16px}
+  .top .cta,.top .seg-view{display:none}
+  .hero{left:16px;right:16px;width:auto;top:auto;bottom:24px;margin-top:0}
+  .hero h1{font-size:48px;margin:14px 0 10px}
+  .hero p{font-size:15px;margin:14px 0 18px}
+  .hero .row .btn{flex:1}
+  .hero .hint{display:none}
+  .shelf-panel{left:16px;right:16px;width:auto;top:auto;bottom:16px;padding:16px;border-radius:20px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+  .shelf-panel .back-link,.sp-desc,.sp-stats,.chips{display:none}
+  .sp-head{border-top:0;padding-top:0}
+  .sp-title{font-size:22px;margin:12px 0 8px}
+  .sp-meta{margin-bottom:14px}
+  .sp-actions .btn{min-width:0;padding:0 12px;font-size:14px}
+  .sp-actions .btn svg{display:none}
+  .board-bar{left:16px;right:16px;bottom:16px;transform:none!important}
+  body[data-stop=board] .board-bar{transform:none!important}
+  .board-bar .btn{flex:1;padding:0 12px}
+  .board-next{right:16px;top:auto;bottom:80px}
+  .city-l{left:16px;top:76px}
+  .guide-card{right:16px;top:76px;padding:6px 10px 6px 6px}
+  .guide-card .txt small,.guide-card>.i{display:none}
+  .avatar{width:34px;height:34px}
+  .blist{left:16px;right:16px;width:auto;bottom:84px}
+  .toolbar{left:16px;right:16px;transform:none;bottom:16px;justify-content:center}
+  .tb .hide-sm{display:none}
+  #minimap{left:16px;bottom:84px;width:160px;height:160px}
+  #prompt{bottom:84px}
+  #chat{left:12px;right:12px;top:auto;bottom:12px;height:min(560px,calc(100dvh - 90px));width:auto}
+  .card{padding:26px 22px}
+  #toast{top:auto;bottom:150px}
+}
+@media (max-width:600px){
+  .top{gap:6px;padding:12px}
+  .lang{display:none}
+  .lang-sm{display:grid}
+  .top-l,.top-r{flex:none;gap:6px}
+  .icon-btn,.logo{width:40px;height:40px;border-radius:12px}
+  .logo b{width:26px;height:26px;font-size:13px}
+  .pill{padding:3px}
+  .pill button{padding:8px 8px;font-size:12.5px}
+  .pill .hide-sm{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important;animation:none!important}}
+</style>
+</head>
+<body data-view="room" data-stop="desk">
+<a class="skip" href="#roomUI" data-i18n="skip">Мазмұнға өту</a>
+<canvas id="gl" tabindex="-1" aria-label="ÖZGERIS 3D сахна"></canvas>
+<div id="fade"></div>
+
+<div id="loader" role="status" aria-live="polite">
+  <div class="ld">
+    <div class="ld-eyebrow"><span data-i18n="load.eyebrow">Бөлме</span><span>ÖZGERIS</span></div>
+    <div class="ld-pct" id="ldPct">0%</div>
+    <div class="ld-bar"><i id="ldBar"></i></div>
+    <div class="ld-title" data-i18n="load.title">Бөлмені жинап жатырмыз</div>
+    <div class="ld-step" id="ldStep"></div>
+  </div>
+</div>
+
+<header class="top">
+  <div class="top-l">
+    <a class="logo" href="/" aria-label="ÖZGERIS"><b>Ö</b></a>
+  </div>
+  <nav class="pill room-only" aria-label="Бөлме">
+    <button data-stop-btn="board" data-i18n="nav.board">Манифест</button>
+    <button data-stop-btn="desk" data-i18n="nav.desk">Үстел</button>
+    <button data-stop-btn="shelf" data-i18n="nav.shelf">Бөлімдер</button>
+  </nav>
+  <nav class="pill city-only" aria-label="Қала">
+    <button id="nList" class="on" data-i18n="cnav.list">Бөлімдер</button>
+    <button id="nGuide" data-i18n="cnav.guide">Гид</button>
+    <button id="nMan" class="hide-sm" data-i18n="nav.board">Манифест</button>
+    <button id="nPrice" data-i18n="cnav.price">Баға</button>
+  </nav>
+  <div class="top-r">
+    <div class="lang" role="group" aria-label="Тіл"><button data-lang="kk">ҚАЗ</button><button data-lang="ru">РУС</button></div>
+    <button class="icon-btn lang-sm" id="langSm" aria-label="Тіл"></button>
+    <button class="icon-btn" id="themeBtn" aria-label="Тақырып"></button>
+    <a class="cta grad" href="/"><span data-i18n="cta.start">Бастау</span><svg class="i"><use href="#i-ur"/></svg></a>
+    <div class="pill seg-view"><button data-view-btn="room" data-i18n="nav.room">Бөлме</button><button data-view-btn="city" data-i18n="nav.city">Қала</button></div>
+  </div>
+</header>
+
+<!-- ============ ROOM UI ============ -->
+<main id="roomUI" class="ui">
+  <section class="pane desk hero">
+    <div class="eyebrow" data-i18n="hero.eyebrow">Өзгеріс бөлмесі</div>
+    <h1>ÖZGERIS</h1>
+    <div class="sub" data-i18n="hero.sub">әдет · мақсат · қаржы трекері</div>
+    <p data-i18n="hero.text">Өміріңді саналы басқар: әдеттерді, мақсаттарды, ұйқыны және ақшаны бір жерде бақыла.</p>
+    <div class="row">
+      <button class="btn" data-go="board"><svg class="i"><use href="#i-l"/></svg><span data-i18n="nav.board">Манифест</span></button>
+      <button class="btn solid" data-go="shelf"><span data-i18n="nav.shelf">Бөлімдер</span><svg class="i"><use href="#i-r"/></svg></button>
+    </div>
+    <div class="hint" data-i18n="hero.hint">Сөрелер оңда, манифест солда · ← →</div>
+  </section>
+  <button id="screenBtn"><span data-i18n="screen.enter">Қалаға кіру</span><svg class="i"><use href="#i-ur"/></svg></button>
+
+  <section class="pane board board-bar">
+    <button class="btn solid" id="readBtn"><span data-i18n="board.read">Толық оқу</span><svg class="i"><use href="#i-ur"/></svg></button>
+    <button class="btn" data-open-price><svg class="i"><use href="#i-tag"/></svg><span data-i18n="board.price">Бағасы</span></button>
+  </section>
+  <section class="pane board side-link board-next"><button class="side-link" style="position:static" data-go="desk"><span data-i18n="nav.desk">Үстел</span><svg class="i"><use href="#i-r"/></svg></button></section>
+
+  <section class="pane shelf shelf-panel" aria-live="polite">
+    <button class="back-link" data-go="desk"><svg class="i"><use href="#i-l"/></svg><span data-i18n="nav.desk">Үстел</span></button>
+    <div class="sp-body">
+      <div class="sp-head">
+        <div class="sp-count" id="spCount">01<small>/ 07</small></div>
+        <div class="arrows">
+          <button class="round" id="spPrev" aria-label="←"><svg class="i"><use href="#i-l"/></svg></button>
+          <button class="round" id="spNext" aria-label="→"><svg class="i"><use href="#i-r"/></svg></button>
+        </div>
+      </div>
+      <h2 class="sp-title" id="spTitle"></h2>
+      <div class="sp-meta" id="spMeta"></div>
+      <p class="sp-desc" id="spDesc"></p>
+      <div class="sp-stats" id="spStats"></div>
+      <div class="chips" id="spTags"></div>
+      <div class="sp-actions">
+        <a class="btn solid" href="/"><span data-i18n="shelf.open">Қосымшада ашу</span><svg class="i"><use href="#i-ur"/></svg></a>
+        <button class="btn" id="spCity"><span data-i18n="shelf.city">Қалада көру</span><svg class="i"><use href="#i-r"/></svg></button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ============ CITY UI ============ -->
+<div id="cityUI">
+  <div class="city-l"><button class="chip-btn" data-view-btn="room"><svg class="i"><use href="#i-l"/></svg><span data-i18n="city.back">Бөлмеге</span></button></div>
+  <button class="guide-card" id="guideCard">
+    <span class="avatar" id="guideAvatar"></span>
+    <span class="txt"><b data-i18n="guide.title">Қала гиді</b><small data-i18n="guide.sub">Сөйлесейік?</small></span>
+    <svg class="i"><use href="#i-chat"/></svg>
+  </button>
+  <div class="blist" id="blist"></div>
+  <canvas id="minimap" class="hide" width="400" height="400" aria-label="Карта"></canvas>
+  <button id="prompt"><kbd>E</kbd><span id="promptTxt"></span></button>
+  <div class="toolbar">
+    <div class="tb">
+      <button id="tMap"><svg class="i"><use href="#i-map"/></svg><span data-i18n="tb.map">Карта</span></button>
+      <button id="tLocate" aria-label="Locate"><svg class="i"><use href="#i-locate"/></svg></button>
+      <button id="tLabels" class="on" aria-label="Labels"><svg class="i"><use href="#i-eye"/></svg></button>
+      <button id="tHelp" class="hide-sm"><svg class="i"><use href="#i-kbd"/></svg>WASD · E</button>
+    </div>
+    <div class="tb">
+      <button id="tZo" aria-label="−"><svg class="i"><use href="#i-minus"/></svg></button>
+      <span class="zoom" id="tZoom">100%</span>
+      <button id="tZi" aria-label="+"><svg class="i"><use href="#i-plus"/></svg></button>
+    </div>
+  </div>
+  <div class="tags" id="tags">
+    <div class="tag" id="tagMe"></div>
+    <div class="tag" id="tagGuide"></div>
+  </div>
+</div>
+
+<aside id="chat" aria-label="Гид">
+  <div class="ch-head">
+    <span class="avatar" id="chatAvatar"></span>
+    <div><b data-i18n="guide.title">Қала гиді</b><small data-i18n="chat.online">Желіде</small></div>
+    <button class="x" id="chatClose" aria-label="×"><svg class="i"><use href="#i-x"/></svg></button>
+  </div>
+  <div class="ch-log" id="chatLog"></div>
+  <div class="ch-chips" id="chatChips"></div>
+  <form class="ch-form" id="chatForm"><input id="chatInput" autocomplete="off" data-i18n-ph="chat.ph"><button aria-label="→"><svg class="i"><use href="#i-send"/></svg></button></form>
+</aside>
+
+<div class="modal" id="mInfo"><div class="card" id="infoCard"></div></div>
+<div class="modal" id="mPrice"><div class="card" id="priceCard"></div></div>
+<div class="modal" id="mRead"><div class="card wide" id="readCard"></div></div>
+<div id="toast"></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-l" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+  <symbol id="i-r" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-ur" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></symbol>
+  <symbol id="i-map" viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/></symbol>
+  <symbol id="i-locate" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-kbd" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M8.5 12h.01M12 12h.01M15.5 12h.01"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-tag" viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8L3 12z"/><circle cx="7.5" cy="8.5" r="1.5"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></symbol>
+  <symbol id="i-wa" viewBox="0 0 24 24"><path d="M20 11.6A8.3 8.3 0 0 1 7.8 19L3.5 20.4l1.4-4.1A8.3 8.3 0 1 1 20 11.6z"/><path d="M9 8.6c.3 2.8 2.6 5.3 5.6 6l1.3-1.4-2-1-1 .8c-1-.5-1.9-1.4-2.4-2.4l.8-1-1-2L9 8.6z"/></symbol>
+  <symbol id="m-health" viewBox="0 0 24 24"><path d="M12 20s-7-4.3-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.7-7 10-7 10z"/></symbol>
+  <symbol id="m-edu" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5zM4 20.5A2.5 2.5 0 0 0 6.5 23H20"/></symbol>
+  <symbol id="m-goal" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".8"/></symbol>
+  <symbol id="m-finance" viewBox="0 0 24 24"><path d="M3 7h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12v4"/><path d="M16 13.5h.01"/></symbol>
+  <symbol id="m-sport" viewBox="0 0 24 24"><path d="M6 7v10M3.5 9.5v5M18 7v10M20.5 9.5v5M6 12h12"/></symbol>
+  <symbol id="m-gratitude" viewBox="0 0 24 24"><path d="M12 21c-4-3-8-6-8-11a8 8 0 0 1 8-6 8 8 0 0 1 8 6c0 5-4 8-8 11z"/><path d="M12 8v6M9 11h6"/></symbol>
+  <symbol id="m-other" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/></symbol>
+</svg>
+
+<script type="module">
+import * as THREE from 'three';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+
+/* =========================================================
+   I18N
+   ========================================================= */
+const I18N = {
+  kk:{
+    'skip':'Мазмұнға өту','load.eyebrow':'Бөлме','load.title':'Бөлмені жинап жатырмыз',
+    'load.s1':'Қаріптер мен фактураларды жүктеп жатырмыз','load.s2':'Жиһазды орналастырып, манифесті іліп жатырмыз','load.s3':'Қаланы салып жатырмыз','load.s4':'Шамдарды жағып жатырмыз',
+    'nav.board':'Манифест','nav.desk':'Үстел','nav.shelf':'Бөлімдер','nav.room':'Бөлме','nav.city':'Қала',
+    'cnav.list':'Бөлімдер','cnav.guide':'Гид','cnav.price':'Баға',
+    'cta.start':'Бастау',
+    'hero.eyebrow':'Өзгеріс бөлмесі','hero.sub':'әдет · мақсат · қаржы трекері',
+    'hero.text':'Өміріңді саналы басқар: әдеттерді, мақсаттарды, ұйқыны және ақшаны бір жерде бақыла.',
+    'hero.hint':'Сөрелер оңда, манифест солда · ← →',
+    'screen.enter':'Қалаға кіру','board.read':'Толық оқу','board.price':'Бағасы',
+    'shelf.open':'Қосымшада ашу','shelf.city':'Қалада көру','shelf.soon':'Жақында',
+    'city.back':'Бөлмеге','guide.title':'Қала гиді','guide.sub':'Сөйлесейік?','chat.online':'Желіде','chat.ph':'Сұрағыңды жаз…',
+    'tb.map':'Карта','prompt.enter':'Ішіне кіру','prompt.talk':'Гидпен сөйлесу',
+    'label.you':'Сіз · Зерттеп жүрмін','label.guide':'Гид · сөйлесейік?',
+    'help':'WASD / көрсеткілер — жүру, Shift — жүгіру, E — кіру. Жерді бассаң — сол жерге барасың, тінтуірмен сүйресең — камера бұрылады.',
+    'help.touch':'Жерді бассаң — сол жерге барасың, саусақпен сүйресең — камера бұрылады. Ғимаратты не гидті бассаң — ішіне кіресің.',
+    'info.inside':'Ішінде не бар','info.open':'Қосымшада ашу','info.price':'Бағасы',
+    'price.eyebrow':'Толық доступ','price.title':'Барлық бөлім — бір бағамен',
+    'price.lead':'Бір рет төлейсің — барлық трекер, қаржы модулі және AI кеңесші ашылады.',
+    'price.f':['7 бөлім: денсаулық, білім, мақсат, қаржы, спорт, шүкіршілік, өз әдеттерің','Қаржы: кіріс, шығын, міндетті төлемдер, қарыздар, Cash Flow','Деректер серверде сақталады — кез келген құрылғыдан кіресің','Қазақ және орыс тілдері, түнгі және күндізгі тақырып'],
+    'price.buy':'WhatsApp арқылы сатып алу','price.trial':'Тегін байқап көру','price.note':'WhatsApp ашылады, хабарлама дайын тұрады — жіберу өз қолыңда.',
+    'wa.text':'Сәлем! ÖZGERIS қосымшасына доступ сатып алғым келеді.',
+    'read.eyebrow':'Манифест','read.title':'Өміріңнің жаңа беті',
+    'paper1.k':'Манифест · 2026','paper1.sec':'Басты ой','paper1.foot':'ÖZGERIS · манифест · 1 / 2',
+    'paper2.title':'Ішінде не бар','paper2.price':'Баға','paper2.foot':'ÖZGERIS · бөлімдер · 2 / 2',
+    'chat.hello':'Сәлем! Мен — ÖZGERIS қаласының гидімін. Мұндағы әр ғимарат — қосымшаның бір бөлімі. Не білгің келеді?',
+    'chat.fallback':'Мұны әзірге түсінбедім. Төмендегі сұрақтардың бірін таңда, не WhatsApp-қа жаз — тірі адам жауап береді.',
+    'chat.go':'Апарып тастайын','chat.tourPick':'Қайсысына апарайын?'
+  },
+  ru:{
+    'skip':'Перейти к содержимому','load.eyebrow':'Комната','load.title':'Обставляем комнату',
+    'load.s1':'Загружаем шрифты и фактуры','load.s2':'Расставляем мебель и вешаем манифест','load.s3':'Строим город','load.s4':'Зажигаем фонари',
+    'nav.board':'Манифест','nav.desk':'Стол','nav.shelf':'Разделы','nav.room':'Комната','nav.city':'Город',
+    'cnav.list':'Разделы','cnav.guide':'Гид','cnav.price':'Цена',
+    'cta.start':'Начать',
+    'hero.eyebrow':'Комната перемен','hero.sub':'трекер привычек, целей и финансов',
+    'hero.text':'Управляй жизнью осознанно: привычки, цели, сон и деньги — в одном месте.',
+    'hero.hint':'Полки справа, манифест слева · ← →',
+    'screen.enter':'Войти в город','board.read':'Читать полностью','board.price':'Стоимость',
+    'shelf.open':'Открыть в приложении','shelf.city':'Смотреть в городе','shelf.soon':'Скоро',
+    'city.back':'В комнату','guide.title':'Гид по городу','guide.sub':'Поговорим?','chat.online':'В сети','chat.ph':'Напиши вопрос…',
+    'tb.map':'Карта','prompt.enter':'Войти','prompt.talk':'Поговорить с гидом',
+    'label.you':'Вы · Исследую','label.guide':'Гид · поговорим?',
+    'help':'WASD / стрелки — ходить, Shift — бег, E — войти. Нажми на землю — пойдёшь туда, потяни мышью — повернёшь камеру.',
+    'help.touch':'Нажми на землю — пойдёшь туда, потяни пальцем — повернёшь камеру. Нажми на здание или гида — войдёшь.',
+    'info.inside':'Что внутри','info.open':'Открыть в приложении','info.price':'Стоимость',
+    'price.eyebrow':'Полный доступ','price.title':'Все разделы — одна цена',
+    'price.lead':'Платишь один раз — открываются все трекеры, финансовый модуль и AI-советник.',
+    'price.f':['7 разделов: здоровье, обучение, цели, финансы, спорт, благодарность, свои привычки','Финансы: доходы, расходы, обязательные платежи, долги, Cash Flow','Данные хранятся на сервере — заходи с любого устройства','Казахский и русский языки, тёмная и светлая тема'],
+    'price.buy':'Купить через WhatsApp','price.trial':'Попробовать бесплатно','price.note':'Откроется WhatsApp с готовым сообщением — отправка в твоих руках.',
+    'wa.text':'Привет! Хочу купить доступ к приложению ÖZGERIS.',
+    'read.eyebrow':'Манифест','read.title':'Новая страница твоей жизни',
+    'paper1.k':'Манифест · 2026','paper1.sec':'Главная мысль','paper1.foot':'ÖZGERIS · манифест · 1 / 2',
+    'paper2.title':'Что внутри','paper2.price':'Цена','paper2.foot':'ÖZGERIS · разделы · 2 / 2',
+    'chat.hello':'Привет! Я — гид города ÖZGERIS. Каждое здание здесь — раздел приложения. Что хочешь узнать?',
+    'chat.fallback':'Пока не понял вопрос. Выбери один из вариантов ниже или напиши в WhatsApp — ответит живой человек.',
+    'chat.go':'Проводить','chat.tourPick':'Куда тебя проводить?'
+  }
+};
+const MANIFEST = {
+  kk:[
+    'Сәлем! Егер сен осы жобаға тіркелген болсаң — бұл жай қызығушылық емес, бұл ішкі дауыстың «өзімді өзгерткім келеді» деген белгісі. Өз өмірін өзгертуді армандайтын адам өте көп, бірақ алғашқы қадамды шын мәнінде жасайтындар өте аз. Сен сол аздың бірі болдың.',
+    'Бұл күнделік саған өз өміріңді ретке келтірудің жолын көрсетеді. Ол сені шектемейді, керісінше бағыт береді. Күн сайын небәрі бірнеше минут өз ойыңмен жұмыс істеу арқылы сен өміріңнің бағытын өзгертесің, өйткені адам сыртқы жағдайды емес, ең алдымен ішкі жүйесін басқаруды үйренуі керек. Ал ішкі жүйе — ой, ниет, әдет және тұрақтылықтан тұрады.',
+    '#Жобаның басты мақсаты не?',
+    '«ÖZGERIS» басты мақсаты — саған жаңа өмір сыйлау емес, өз өміріңді саналы түрде басқаруға мүмкіндік беру. Себебі адамның тағдыры кездейсоқтықтан емес, күн сайынғы таңдау мен қайталанатын әдеттерден құралады. Көп адам тыныштық пен береке іздейді, бірақ оны сырттан табуға тырысады. Ал шын мәнінде бәрі ішкі тәртіптен басталады.',
+    'Кедейлік пен берекесіз өмір — ақшаның жетпеуінен емес, назардың бөлінуінен және энергияның шашырауынан туындайды. Сол сияқты депрессия мен күйзеліс те нақты бағыт пен мағына болмаған кезде пайда болады. Адам не үшін өмір сүріп жатқанын, қайда бара жатқанын білмесе, оның күндері сырттай толы, бірақ іштей бос болып өтеді.',
+    'ÖZGERIS — сенің жолкөрсеткішің. Ол саған мақсатыңды айқындауға, өміріңді жоспарлауға және ең бастысы — өзіңді қайта табуға көмектеседі. Мұндағы әр әдіс бір-бірімен байланысты: бір трекер ойыңды тазартады, екіншісі фокус береді, үшіншісі нақты әрекетке итермелейді. Ал олардың барлығының түпкі нәтижесі — ішкі тыныштық, жүйелілік пен береке.',
+    '>ÖZGERIS сенен мінсіз болуды талап етпейді. Ол тек бір нәрсені сұрайды — тоқтама. Кейде сенің ең үлкен жетістігің бүгін тағы бір парақ ашқаныңда жатыр. Аз жазсаң да, жазғаныңның өзі — жеңіс. Себебі дамудың сыры көлемде емес, тұрақтылықта.'
+  ],
+  ru:[
+    'Привет! Если ты зарегистрировался в этом проекте — это не простое любопытство, а знак внутреннего голоса: «я хочу изменить себя». Людей, которые мечтают изменить свою жизнь, очень много, но тех, кто действительно делает первый шаг, — единицы. Ты стал одним из них.',
+    'Этот дневник покажет тебе путь к порядку в собственной жизни. Он не ограничивает, а наоборот — даёт направление. Работая со своими мыслями всего несколько минут в день, ты меняешь направление жизни, ведь человеку прежде всего нужно научиться управлять не внешними обстоятельствами, а своей внутренней системой. А внутренняя система — это мысли, намерения, привычки и постоянство.',
+    '#Какова главная цель проекта?',
+    'Главная цель «ÖZGERIS» — не подарить тебе новую жизнь, а дать возможность осознанно управлять своей. Судьба человека складывается не из случайностей, а из ежедневного выбора и повторяющихся привычек. Многие ищут покой и достаток, но пытаются найти их снаружи. На самом деле всё начинается с внутренней дисциплины.',
+    'Бедность и жизнь без достатка возникают не от нехватки денег, а от рассеянного внимания и распылённой энергии. Так же депрессия и стресс появляются, когда нет ясного направления и смысла. Если человек не знает, ради чего живёт и куда идёт, его дни снаружи полны, а внутри пусты.',
+    'ÖZGERIS — твой путеводитель. Он помогает определить цель, спланировать жизнь и, главное, — заново найти себя. Все методы здесь связаны: один трекер очищает мысли, другой даёт фокус, третий подталкивает к действию. А итог их всех — внутренний покой, системность и достаток.',
+    '>ÖZGERIS не требует от тебя быть идеальным. Он просит лишь одного — не останавливайся. Иногда твоё самое большое достижение — в том, что сегодня ты снова открыл страницу. Пусть написал немного — сам факт уже победа. Ведь секрет развития не в объёме, а в постоянстве.'
+  ]
+};
+
+/* Бөлімдер — қосымшадағы CATEGORIES-ке сәйкес (сөредегі реті) */
+const MODS = [
+  {id:'health', color:'#f2637e',
+    name:{kk:'Денсаулық',ru:'Здоровье'}, sign:{kk:'ДЕНСАУЛЫҚ',ru:'ЗДОРОВЬЕ'}, place:{kk:'Клиника',ru:'Клиника'},
+    line:{kk:'Ұйқы, су, витамин, көңіл-күй',ru:'Сон, вода, витамины, настроение'},
+    desc:{kk:'Ұйқы, су, витаминдер, көңіл-күй және мазасыздық — дене мен жан саулығының күнделікті әдеттері.',ru:'Сон, вода, витамины, настроение и тревожность — ежедневные привычки здоровья тела и души.'},
+    tags:{kk:['ҰЙҚЫ','СУ','ВИТАМИН','GAD-7'],ru:['СОН','ВОДА','ВИТАМИНЫ','GAD-7']},
+    stats:[{v:'8',kk:'стакан су / күн',ru:'стаканов воды / день'},{v:'GAD-7',kk:'мазасыздық тесті',ru:'тест тревожности'}],
+    feats:{kk:['Ұйқы трекері — жату/ояну уақыты мен сапасы','Су нормасы — күніне 8 стакан','Көңіл-күй және эмоция күнделігі','GAD-7 мазасыздық тесті және витаминдер'],ru:['Трекер сна — время отбоя, подъёма и качество','Норма воды — 8 стаканов в день','Дневник настроения и эмоций','Тест тревожности GAD-7 и витамины']}},
+  {id:'edu', color:'#6c8dff',
+    name:{kk:'Білім',ru:'Обучение'}, sign:{kk:'БІЛІМ',ru:'ОБУЧЕНИЕ'}, place:{kk:'Кітапхана',ru:'Библиотека'},
+    line:{kk:'Ағылшын, кітап, подкаст',ru:'Английский, книги, подкасты'},
+    desc:{kk:'Ағылшын сөздері, кітап оқу, подкаст және курс роудмапы — күн сайын жаңа дағды.',ru:'Английские слова, чтение, подкасты и роудмап курса — каждый день новый навык.'},
+    tags:{kk:['АҒЫЛШЫН','КІТАП','ПОДКАСТ'],ru:['АНГЛИЙСКИЙ','КНИГИ','ПОДКАСТЫ']},
+    stats:[{v:'EN',kk:'бизнес сөздік',ru:'бизнес-лексика'},{v:'30',kk:'күндік тор',ru:'дней в сетке'}],
+    feats:{kk:['Ағылшын: күн сайын жаңа бизнес сөздер','Кітап оқу трекері','Подкаст тізімі мен жазбалары','Курс роудмапы — кезең-кезеңімен'],ru:['Английский: новые бизнес-слова каждый день','Трекер чтения книг','Список подкастов и заметки','Роудмап курса — по этапам']}},
+  {id:'goal', color:'#f0ab52',
+    name:{kk:'Мақсаттар',ru:'Цели'}, sign:{kk:'МАҚСАТ',ru:'ЦЕЛИ'}, place:{kk:'Мұнара',ru:'Башня'},
+    line:{kk:'Үлкен мақсат пен жоспарлар',ru:'Большие цели и планы'},
+    desc:{kk:'Үлкен және кіші мақсаттар, айлық, апталық, күндік жоспарлар — арманнан нақты қадамға.',ru:'Большие и малые цели, планы на месяц, неделю и день — от мечты к конкретному шагу.'},
+    tags:{kk:['МАҚСАТ','ЖОСПАР','ПРОГРЕСС'],ru:['ЦЕЛИ','ПЛАНЫ','ПРОГРЕСС']},
+    stats:[{v:'3',kk:'жоспар деңгейі',ru:'уровня планов'},{v:'2',kk:'мақсат түрі',ru:'типа целей'}],
+    feats:{kk:['Үлкен және кіші мақсаттар','Айлық · апталық · күндік жоспар','Әр қадамның прогресі','Кездейсоқ тапсырма — жалқаулыққа қарсы'],ru:['Большие и малые цели','Планы на месяц · неделю · день','Прогресс каждого шага','Случайное задание — против лени']}},
+  {id:'finance', color:'#2ecfa8',
+    name:{kk:'Қаржы',ru:'Финансы'}, sign:{kk:'ҚАРЖЫ',ru:'ФИНАНСЫ'}, place:{kk:'Банк',ru:'Банк'},
+    line:{kk:'Кіріс, шығын, мақсат, қарыз',ru:'Доходы, расходы, цели, долги'},
+    desc:{kk:'Кіріс, шығын, міндетті төлемдер, қарыз бен жинақ мақсаттары — ақшаң бір жерде.',ru:'Доходы, расходы, обязательные платежи, долги и цели накоплений — все деньги в одном месте.'},
+    tags:{kk:['КІРІС','ШЫҒЫН','CASH FLOW','AI'],ru:['ДОХОДЫ','РАСХОДЫ','CASH FLOW','AI']},
+    stats:[{v:'9',kk:'қаржы бөлімі',ru:'финансовых разделов'},{v:'AI',kk:'қаржы кеңесшісі',ru:'финансовый советник'}],
+    feats:{kk:['Кіріс пен шығын — санат, іздеу, чек суреті','Міндетті төлемдер мен қарыздар','Жинақ мақсаттары және Cash Flow','AI кеңесші — шығындарыңды талдайды'],ru:['Доходы и расходы — категории, поиск, фото чека','Обязательные платежи и долги','Цели накоплений и Cash Flow','AI-советник анализирует твои расходы']}},
+  {id:'sport', color:'#f2895f',
+    name:{kk:'Спорт',ru:'Спорт'}, sign:{kk:'СПОРТ',ru:'СПОРТ'}, place:{kk:'Спортзал',ru:'Спортзал'},
+    line:{kk:'Жаттығу, қозғалыс, серия',ru:'Тренировки, движение, серии'},
+    desc:{kk:'Жаттығу, қозғалыс және дене шынықтыру — 30 күндік тормен прогресті көріп отыр.',ru:'Тренировки, движение и физкультура — прогресс виден в 30-дневной сетке.'},
+    tags:{kk:['ЖАТТЫҒУ','ҚАДАМ','СЕРИЯ'],ru:['ТРЕНИРОВКИ','ШАГИ','СЕРИИ']},
+    stats:[{v:'30',kk:'күндік тор',ru:'дней в сетке'},{v:'3',kk:'өлшеу түрі',ru:'типа замера'}],
+    feats:{kk:['Белгі, сан немесе мән — 3 өлшеу түрі','Үздіксіз серия және рекорд','Жетістік белгілері','Айды ұзартып, жалғастыру'],ru:['Отметка, число или значение — 3 типа замера','Серия и личный рекорд','Значки достижений','Продление трекера на новый месяц']}},
+  {id:'gratitude', color:'#ec6bb8',
+    name:{kk:'Шүкіршілік',ru:'Благодарность'}, sign:{kk:'ШҮКІРШІЛІК',ru:'БЛАГОДАРНОСТЬ'}, place:{kk:'Бақ',ru:'Сад'},
+    line:{kk:'Күнделікті шүкіршілік',ru:'Ежедневная благодарность'},
+    desc:{kk:'Күнделікті шүкіршілік сұрақтары — ішкі тыныштыққа арналған бірнеше минут.',ru:'Ежедневные вопросы благодарности — несколько минут для внутреннего покоя.'},
+    tags:{kk:['КҮНДЕЛІК','ТЫНЫШТЫҚ'],ru:['ДНЕВНИК','СПОКОЙСТВИЕ']},
+    stats:[],
+    feats:{kk:['Күн сайынғы шүкіршілік сұрақтары','Жазбалар мұрағаты','Көңіл-күймен байланыс','Бірнеше минут — тыныш ой'],ru:['Ежедневные вопросы благодарности','Архив записей','Связь с настроением','Несколько минут — спокойные мысли']}},
+  {id:'other', color:'#8b7cff',
+    name:{kk:'Басқа әдеттер',ru:'Другие привычки'}, sign:{kk:'ӘДЕТТЕР',ru:'ПРИВЫЧКИ'}, place:{kk:'Шеберхана',ru:'Мастерская'},
+    line:{kk:'Өз әдетіңді құр',ru:'Создай свою привычку'},
+    desc:{kk:'Өз әдетіңді қолмен жаз — күн сайын орындалды/орындалмады деп белгіле.',ru:'Создай свою привычку и отмечай каждый день: выполнено или нет.'},
+    tags:{kk:['ӨЗ ӘДЕТІҢ','30 КҮН'],ru:['СВОЯ ПРИВЫЧКА','30 ДНЕЙ']},
+    stats:[{v:'∞',kk:'өз трекерің',ru:'своих трекеров'}],
+    feats:{kk:['Кез келген әдетке жеке трекер','Өз шаблоныңды сақтау','Мұрағат — ескі трекерлерді қайтару','Досыңмен бөлісу'],ru:['Свой трекер для любой привычки','Сохранение своих шаблонов','Архив — возврат старых трекеров','Поделиться с другом']}},
+];
+
+let LANG = 'kk';
+try{ const s = localStorage.getItem('oz3d-lang'); if(s==='ru'||s==='kk') LANG = s; }catch(e){}
+const t = k => (I18N[LANG][k] ?? I18N.kk[k] ?? k);
+const L = o => o[LANG] ?? o.kk;
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const nextFrame = () => new Promise(r => requestAnimationFrame(() => r()));
+const V = (x,y,z) => new THREE.Vector3(x,y,z);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const icon = id => `<svg class="i"><use href="#${id}"/></svg>`;
+const APP_URL = '/';
+const TOUCH = matchMedia('(pointer:coarse)').matches;
+const TRIAL_URL = '/trial';
+const waLink = () => `https://wa.me/77473608356?text=${encodeURIComponent(t('wa.text'))}`;
+
+/* =========================================================
+   RENDERER & SHARED MATERIALS
+   ========================================================= */
+const canvas = $('#gl');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true, powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+const MAT = {
+  std: new THREE.MeshStandardMaterial({vertexColors:true, roughness:.82, metalness:0}),
+  glow: new THREE.MeshBasicMaterial({vertexColors:true, toneMapped:false}),
+};
+
+/* Воксель құрастырушы: көп текшені бір геометрияға біріктіреді (draw call аз) */
+const _col = new THREE.Color();
+class Vox{
+  constructor(){ this.std = []; this.glow = []; }
+  box(x,y,z,w,h,d,color,o={}){
+    const g = new THREE.BoxGeometry(w,h,d);
+    if(o.rx) g.rotateX(o.rx);
+    if(o.rz) g.rotateZ(o.rz);
+    if(o.ry) g.rotateY(o.ry);
+    g.translate(x, y+h/2, z);
+    _col.set(color);
+    if(o.j) _col.multiplyScalar(1 + (Math.random()-.5)*o.j);
+    const n = g.attributes.position.count, a = new Float32Array(n*3);
+    for(let i=0;i<n;i++){ a[i*3]=_col.r; a[i*3+1]=_col.g; a[i*3+2]=_col.b; }
+    g.setAttribute('color', new THREE.BufferAttribute(a,3));
+    (o.glow ? this.glow : this.std).push(g);
+    return this;
+  }
+  build({cast=true, receive=true}={}){
+    const grp = new THREE.Group();
+    if(this.std.length){ const m = new THREE.Mesh(mergeGeometries(this.std), MAT.std); m.castShadow = cast; m.receiveShadow = receive; grp.add(m); }
+    if(this.glow.length){ const m = new THREE.Mesh(mergeGeometries(this.glow), MAT.glow); grp.add(m); }
+    this.std.forEach(g=>g.dispose()); this.glow.forEach(g=>g.dispose());
+    this.std = []; this.glow = [];
+    return grp;
+  }
+}
+
+/* Canvas текстуралары */
+function canvasTex(w, h, draw, {repeat=null, srgb=true}={}){
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const x = c.getContext('2d');
+  draw(x, w, h);
+  const tx = new THREE.CanvasTexture(c);
+  if(srgb) tx.colorSpace = THREE.SRGBColorSpace;
+  tx.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  if(repeat){ tx.wrapS = tx.wrapT = THREE.RepeatWrapping; tx.repeat.set(repeat[0], repeat[1]); }
+  tx.userData = {c, x, draw};
+  return tx;
+}
+function redraw(tx){ const {c,x,draw} = tx.userData; x.clearRect(0,0,c.width,c.height); draw(x,c.width,c.height); tx.needsUpdate = true; }
+function rnd(a,b){ return a + Math.random()*(b-a); }
+function shade(hex, k){ const c = new THREE.Color(hex); c.multiplyScalar(k); return '#'+c.getHexString(); }
+function rr(x, X, Y, W, H, R){ x.beginPath(); x.roundRect(X,Y,W,H,R); }
+function wrap(x, text, X, Y, maxW, lh){
+  const words = text.split(' '); let line = '';
+  for(const w of words){
+    const test = line ? line+' '+w : w;
+    if(x.measureText(test).width > maxW && line){ x.fillText(line, X, Y); Y += lh; line = w; }
+    else line = test;
+  }
+  if(line){ x.fillText(line, X, Y); Y += lh; }
+  return Y;
+}
+function fitText(x, text, maxW, size, weight, family){
+  let s = size;
+  do{ x.font = `${weight} ${s}px ${family}`; s -= 2; } while(x.measureText(text).width > maxW && s > 10);
+}
+
+/* =========================================================
+   BUILDINGS (бөлме сөресі мен қала үшін ортақ)
+   ========================================================= */
+const P = .25; // іргетас биіктігі
+const signs = []; // тіл ауысқанда қайта сызылады
+function makeSign(mod, w, h){
+  const tx = canvasTex(512, Math.round(512*h/w), (x,W,H)=>{
+    rr(x,0,0,W,H,H*.18); x.fillStyle = mod.color; x.fill();
+    x.fillStyle = 'rgba(0,0,0,.18)'; x.fillRect(0,H-H*.12,W,H*.12);
+    const txt = L(mod.sign);
+    fitText(x, txt, W*.84, Math.round(H*.56), 800, 'Unbounded');
+    x.fillStyle = '#fff'; x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.fillText(txt, W/2, H*.47);
+  });
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w,h), new THREE.MeshBasicMaterial({map:tx, toneMapped:false}));
+  m.material.color.setScalar(.92);
+  signs.push(tx);
+  return m;
+}
+function plinth(v,w,d){ v.box(0,0,0,w,P,d,'#cdbba2',{j:.03}); }
+function windows(v,{cx=0,cz=0,y0,w,h,d,floors,cols,ww=.9,wh=1.2,glow='#ffe2b0',frame='#3b3b3b',sides='fblr',door=false,dark=.18}){
+  const fh = h/floors;
+  for(let f=0; f<floors; f++){
+    const wy = y0 + fh*f + fh*.5 - wh/2 + (f===0 ? .12 : 0);
+    for(const s of sides){
+      const fb = s==='f'||s==='b';
+      const Ln = fb ? w : d;
+      const n = fb ? cols : Math.max(1, Math.round(cols*d/w));
+      for(let c=0;c<n;c++){
+        const u = -Ln/2 + Ln/n*(c+.5);
+        if(door && s==='f' && f===0 && Math.abs(u) < 1.1) continue;
+        const lit = Math.random() > dark;
+        const col = lit ? glow : '#262b38';
+        if(s==='f'){ v.box(cx+u, wy-.09, cz+d/2+.02, ww+.18, wh+.18, .05, frame); v.box(cx+u, wy, cz+d/2+.05, ww, wh, .04, col, {glow:lit, j:.3}); }
+        if(s==='b'){ v.box(cx+u, wy-.09, cz-d/2-.02, ww+.18, wh+.18, .05, frame); v.box(cx+u, wy, cz-d/2-.05, ww, wh, .04, col, {glow:lit, j:.3}); }
+        if(s==='l'){ v.box(cx-w/2-.02, wy-.09, cz+u, .05, wh+.18, ww+.18, frame); v.box(cx-w/2-.05, wy, cz+u, .04, wh, ww, col, {glow:lit, j:.3}); }
+        if(s==='r'){ v.box(cx+w/2+.02, wy-.09, cz+u, .05, wh+.18, ww+.18, frame); v.box(cx+w/2+.05, wy, cz+u, .04, wh, ww, col, {glow:lit, j:.3}); }
+      }
+    }
+  }
+}
+function door(v, zf, x=0, glass='#ffe6b8'){
+  v.box(x, P, zf+.02, 1.6, 2.4, .1, '#2a2a30');
+  v.box(x, P, zf+.08, 1.3, 2.2, .04, glass, {glow:true});
+  v.box(x, P, zf+.11, .06, 2.2, .03, '#2a2a30');
+}
+
+const BUILDERS = {
+  health(v){
+    plinth(v,7.6,6.8);
+    v.box(0,P,0,6,5.6,5,'#ece6db',{j:.03});
+    v.box(0,P+2.72,0,6.12,.26,5.12,'#f2637e');
+    v.box(0,P+5.6,0,6.3,.35,5.3,'#d4cbbe');
+    windows(v,{y0:P,w:6,h:5.6,d:5,floors:2,cols:3,glow:'#fff0d4',frame:'#c9c0b3',door:true});
+    door(v,2.5,0,'#d8eeff');
+    v.box(0,P+2.42,2.95,2.6,.14,.9,'#f2637e');
+    v.box(-1.8,P+5.95,-1,1,.6,.8,'#9aa0aa'); v.box(1.6,P+5.95,-1.2,.8,.5,.8,'#9aa0aa');
+    v.box(0,P+5.95,0,.25,.8,.25,'#777');
+    v.box(0,P+6.6,0,.55,1.9,.3,'#ff5f7e',{glow:true});
+    v.box(0,P+7.28,0,1.9,.55,.3,'#ff5f7e',{glow:true});
+    return {sign:{y:P+2.86,z:2.62,w:3.6,h:.72}, front:2.5};
+  },
+  edu(v){
+    plinth(v,7.8,7.4);
+    v.box(0,P,-.4,6.4,5.2,4.6,'#8b4a36',{j:.05});
+    v.box(0,P+5.2,-.4,6.6,.3,4.8,'#5a2f24');
+    windows(v,{cz:-.4,y0:P,w:6.4,h:5.2,d:4.6,floors:2,cols:4,ww:.8,wh:1.5,glow:'#ffcf86',frame:'#e8dcc4',door:true});
+    door(v,1.9,0,'#ffd99a');
+    v.box(0,P,2.6,6.4,.3,1.4,'#e3d6bf');
+    for(const x of [-2.4,-.8,.8,2.4]) v.box(x,P+.3,2.95,.42,3.6,.42,'#efe6d2');
+    v.box(0,P+3.9,2.55,6.7,.5,1.6,'#e8dcc4');
+    v.box(0,P+4.4,2.5,5.6,.35,1.3,'#e8dcc4');
+    v.box(0,P+4.75,2.45,3.9,.32,1.0,'#e8dcc4');
+    v.box(0,P+5.07,2.4,2.0,.28,.7,'#e8dcc4');
+    v.box(-2.2,P+5.5,-1.2,1.4,.25,1.0,'#6c8dff'); v.box(-2.2,P+5.75,-1.2,1.2,.22,.9,'#f0ab52'); v.box(-2.2,P+5.97,-1.2,1.3,.22,.95,'#3ecf93');
+    return {sign:{y:P+4.15,z:3.37,w:3.6,h:.48}, front:3.4};
+  },
+  goal(v){
+    plinth(v,7.2,6.6);
+    v.box(0,P,0,5.8,3.4,5,'#efe3cc',{j:.03});
+    windows(v,{y0:P,w:5.8,h:3.4,d:5,floors:1,cols:3,glow:'#ffe2a6',frame:'#d8c6a4',door:true});
+    door(v,2.5);
+    v.box(0,P+3.4,0,6.0,.25,5.2,'#f0ab52');
+    v.box(0,P+3.65,0,4.4,3.0,3.8,'#e8d9bd',{j:.03});
+    windows(v,{y0:P+3.65,w:4.4,h:3.0,d:3.8,floors:1,cols:2,glow:'#ffe2a6',frame:'#d8c6a4'});
+    v.box(0,P+6.65,0,4.6,.22,4.0,'#f0ab52');
+    v.box(0,P+6.87,0,3.0,2.4,2.6,'#e2d1b0',{j:.03});
+    windows(v,{y0:P+6.87,w:3.0,h:2.4,d:2.6,floors:1,cols:1,ww:1.1,glow:'#ffe2a6',frame:'#d8c6a4'});
+    v.box(0,P+9.27,0,3.2,.22,2.8,'#f0ab52');
+    v.box(0,P+9.49,0,.14,1.1,.14,'#444');
+    const c = P+11.4;
+    v.box(0,c-1.0,.05,2.0,2.0,.12,'#e8473f');
+    v.box(0,c-.72,.1,1.44,1.44,.12,'#fbf3e6');
+    v.box(0,c-.46,.15,.92,.92,.12,'#e8473f');
+    v.box(0,c-.2,.2,.4,.4,.12,'#ffd36a',{glow:true});
+    v.box(.45,c-.05,.55,.08,.08,.9,'#6b4a2f',{ry:.5});
+    return {sign:{y:P+2.75,z:2.56,w:3.2,h:.56}, front:2.5};
+  },
+  finance(v){
+    plinth(v,7.8,7.2);
+    v.box(0,P,-.3,6.6,4.8,4.8,'#ddd3c2',{j:.03});
+    v.box(0,P+4.8,-.3,6.8,.3,5.0,'#cfc4b1');
+    windows(v,{cz:-.3,y0:P,w:6.6,h:4.8,d:4.8,floors:2,cols:4,ww:.8,wh:1.4,glow:'#ffe2a6',frame:'#bfb4a0',door:true,sides:'flr'});
+    door(v,2.1,0,'#d6fff2');
+    v.box(0,P,3.0,5.2,.16,1.0,'#d9d0c0'); v.box(0,P+.16,2.8,5.2,.16,.7,'#d9d0c0');
+    for(const x of [-2.6,-1.56,-.52,.52,1.56,2.6]) v.box(x,P+.32,2.55,.38,3.6,.38,'#f3ede2');
+    v.box(0,P+3.92,2.2,6.9,.5,1.25,'#e9e1d2');
+    v.box(0,P+4.42,2.05,5.8,.35,1.0,'#e9e1d2');
+    v.box(0,P+4.77,1.95,4.2,.3,.8,'#e9e1d2');
+    v.box(0,P+5.07,1.85,2.4,.25,.6,'#e9e1d2');
+    v.box(0,P+5.1,-.8,.3,.5,.3,'#888');
+    v.box(0,P+5.6,-.8,1.9,1.3,.3,'#f0c04a'); v.box(0,P+5.4,-.8,1.3,1.7,.3,'#f0c04a');
+    v.box(0,P+5.75,-.62,.9,1.0,.08,'#ffe08a',{glow:true});
+    return {sign:{y:P+4.17,z:2.84,w:3.8,h:.46}, front:3.4};
+  },
+  sport(v){
+    plinth(v,7.8,6.8);
+    v.box(0,P,0,6.8,4.6,5.4,'#3a3f4a',{j:.04});
+    v.box(0,P+.15,2.71,6.2,2.2,.08,'#c4e6ff',{glow:true});
+    for(const x of [-3.1,-1.55,0,1.55,3.1]) v.box(x,P+.15,2.77,.1,2.2,.06,'#22262e');
+    v.box(0,P+2.42,0,6.9,.62,5.5,'#f2895f');
+    v.box(0,P+3.3,2.71,6.2,.9,.06,'#9fd0ff',{glow:true,j:.2});
+    v.box(3.41,P+3.3,0,.06,.9,4.6,'#9fd0ff',{glow:true,j:.2}); v.box(-3.41,P+3.3,0,.06,.9,4.6,'#9fd0ff',{glow:true,j:.2});
+    v.box(0,P+4.6,0,7,.25,5.6,'#2b2f38');
+    for(const s of [-1,1]){ v.box(s*.7,P+4.85,0,.22,.65,.22,'#555'); v.box(s*1.6,P+4.95,0,.42,1.4,1.4,'#f2895f'); v.box(s*1.2,P+5.1,0,.3,1.1,1.1,'#2b2f38'); }
+    v.box(0,P+5.53,0,3.6,.24,.24,'#c4c8d0');
+    return {sign:{y:P+2.73,z:2.79,w:3.6,h:.6}, front:2.7};
+  },
+  gratitude(v){
+    plinth(v,7.6,6.8);
+    v.box(0,P,0,6.6,.4,5.6,'#a8744a',{j:.05});
+    v.box(0,P+.4,-2.4,6.2,3,.4,'#efe4d0');
+    for(const s of [-1,1]) v.box(s*2.9,P+.4,-1.4,.4,3,2.4,'#efe4d0');
+    windows(v,{cz:-2.4,y0:P+.4,w:6.2,h:3,d:.4,floors:1,cols:3,glow:'#ffd6ea',frame:'#d8c5a8',sides:'f',dark:0});
+    for(const x of [-3,3]) v.box(x,P+.4,2.5,.35,3.0,.35,'#7a4f30');
+    v.box(0,P+3.4,0,7.4,.35,6.4,'#3e8f63',{j:.04});
+    v.box(0,P+3.75,0,6.2,.35,5.2,'#46a06f');
+    v.box(0,P+4.1,0,4.8,.35,3.8,'#3e8f63');
+    v.box(0,P+4.45,0,3.2,.35,2.4,'#46a06f');
+    v.box(0,P+4.8,0,.5,.6,.5,'#f0ab52');
+    for(const x of [-2.2,2.2]){ v.box(x,P+2.7,1.9,.04,.7,.04,'#444'); v.box(x,P+2.25,1.9,.38,.5,.38,'#ffb3d9',{glow:true}); }
+    v.box(0,P+.4,-.5,.35,1.5,.35,'#6b4a2f');
+    for(let i=0;i<9;i++) v.box(rnd(-1,1),P+1.6+rnd(0,.9),-.5+rnd(-.8,.6),rnd(.6,1.1),rnd(.5,.8),rnd(.6,1),Math.random()<.5?'#f7a8cf':'#ec6bb8',{j:.1});
+    for(let i=0;i<16;i++){ const x = -3.4 + i*.45; v.box(x,P,3.05,.3,rnd(.2,.4),.3,['#ec6bb8','#ffffff','#f0ab52','#ff7aa8'][i%4]); }
+    return {sign:{y:P+2.9,z:2.76,w:3.8,h:.52}, front:2.8};
+  },
+  other(v){
+    plinth(v,7.8,6.8);
+    v.box(0,P,0,6.6,3.8,5.2,'#e4e0f7',{j:.03});
+    for(const k of [-1,0,1]){
+      const x = k*2.2;
+      for(let s=0;s<4;s++){ const ww = 2.2-s*.5; v.box(x-1.1+ww/2,P+3.8+s*.3,0,ww,.3,5.3,'#8b7cff'); }
+      v.box(x-1.05,P+3.8,0,.08,1.15,4.9,'#d9d2ff',{glow:true});
+    }
+    v.box(-1.4,P,2.62,2.9,2.7,.1,'#3a3550');
+    v.box(-1.4,P+.05,2.68,2.5,2.45,.05,'#ffd9a8',{glow:true});
+    for(let k=0;k<5;k++) v.box(-1.4,P+.4+k*.45,2.72,2.5,.06,.04,'#5a5470');
+    door(v,2.6,1.8,'#e7e2ff');
+    windows(v,{y0:P,w:6.6,h:3.8,d:5.2,floors:1,cols:3,glow:'#e2dcff',frame:'#b9b0e8',sides:'lrb'});
+    v.box(2.2,P+5.2,0,.25,1.1,.25,'#fff2a8',{glow:true});
+    v.box(2.2,P+5.62,0,1.1,.25,.25,'#fff2a8',{glow:true});
+    return {sign:{y:P+3.08,z:2.69,w:3.4,h:.56}, front:2.6};
+  }
+};
+function makeBuilding(mod, {cast=true}={}){
+  const v = new Vox();
+  const info = BUILDERS[mod.id](v);
+  const g = v.build({cast});
+  const s = makeSign(mod, info.sign.w, info.sign.h);
+  s.position.set(0, info.sign.y, info.sign.z);
+  g.add(s);
+  g.userData.front = info.front;
+  return g;
+}
+
+/* =========================================================
+   VOXEL PEOPLE
+   ========================================================= */
+function makePerson(p){
+  const g = new THREE.Group();
+  const mats = {};
+  const m = c => mats[c] || (mats[c] = new THREE.MeshStandardMaterial({color:c, roughness:.85}));
+  const B = (w,h,d,c,x,y,z,parent=g) => { const me = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), m(c)); me.position.set(x,y,z); me.castShadow = true; parent.add(me); return me; };
+  const limb = (x,y) => { const piv = new THREE.Group(); piv.position.set(x,y,0); g.add(piv); return piv; };
+  const hipL = limb(-.14,.82), hipR = limb(.14,.82);
+  for(const h of [hipL,hipR]){ B(.24,.72,.28,p.pants,0,-.36,0,h); B(.26,.12,.36,'#1b1b20',0,-.78,.03,h); }
+  B(.6,.66,.34,p.shirt,0,1.15,0);
+  if(p.vest) B(.62,.3,.36,p.vest,0,1.32,0);
+  const armL = limb(-.39,1.42), armR = limb(.39,1.42);
+  for(const a of [armL,armR]){ B(.18,.58,.22,p.shirt,0,-.27,0,a); B(.16,.13,.18,p.skin,0,-.62,0,a); }
+  B(.46,.46,.44,p.skin,0,1.73,0);
+  B(.5,.16,.48,p.hair,0,1.98,-.01);
+  B(.5,.34,.12,p.hair,0,1.82,-.2);
+  if(p.long) B(.5,.5,.1,p.hair,0,1.55,-.25);
+  B(.07,.08,.02,'#16121c',-.1,1.76,.225); B(.07,.08,.02,'#16121c',.1,1.76,.225);
+  g.userData = {hipL,hipR,armL,armR,phase:Math.random()*6,speed:0};
+  return g;
+}
+function animPerson(pp, speed, dt){
+  const u = pp.userData;
+  u.phase += dt * (4 + speed*1.6);
+  const k = Math.min(1, speed/2.5);
+  const s = Math.sin(u.phase) * .7 * k;
+  u.hipL.rotation.x = THREE.MathUtils.lerp(u.hipL.rotation.x, s, .3);
+  u.hipR.rotation.x = THREE.MathUtils.lerp(u.hipR.rotation.x, -s, .3);
+  u.armL.rotation.x = THREE.MathUtils.lerp(u.armL.rotation.x, -s*.85, .3);
+  if(!u.waving) u.armR.rotation.x = THREE.MathUtils.lerp(u.armR.rotation.x, s*.85, .3);
+}
+const SKIN = ['#e0ac85','#c98e66','#f1c6a2','#a8714d'];
+const HAIR = ['#2a1b14','#4a2f1d','#111014','#7b4a24','#c9a26a'];
+const SHIRT = ['#2f5fa8','#3e8f63','#c45a4a','#e2d6c2','#36384a','#d08a3a','#6a4fb8','#2a7f86'];
+const PANTS = ['#26233a','#2e3a55','#3b3328','#1d1d22','#4a4f5c'];
+const pick = a => a[Math.floor(Math.random()*a.length)];
+
+/* =========================================================
+   ROOM
+   ========================================================= */
+const room = {scene:new THREE.Scene(), cam:new THREE.PerspectiveCamera(42, innerWidth/innerHeight, .05, 60), minis:[], pick:[]};
+const R = {}; // жарық сілтемелері
+
+function texBrick(night=true){
+  return canvasTex(512,512,(x,W,H)=>{
+    x.fillStyle = '#100d0c'; x.fillRect(0,0,W,H);
+    const bw = 128, bh = 52;
+    for(let r=0;r<H/bh;r++){
+      const off = (r%2)*bw/2;
+      for(let c=-1;c<W/bw+1;c++){
+        const l = 26 + Math.random()*10;
+        x.fillStyle = `hsl(${12+Math.random()*10},${14+Math.random()*8}%,${l*.55}%)`;
+        x.fillRect(c*bw+off+3, r*bh+3, bw-6, bh-6);
+        x.fillStyle = 'rgba(255,255,255,.025)'; x.fillRect(c*bw+off+3, r*bh+3, bw-6, 6);
+      }
+    }
+  },{repeat:[4,2.6]});
+}
+function texWood(){
+  return canvasTex(512,512,(x,W,H)=>{
+    const pw = 64;
+    for(let i=0;i<W/pw;i++){
+      const base = 20 + Math.random()*8;
+      x.fillStyle = `hsl(24,30%,${base}%)`; x.fillRect(i*pw,0,pw,H);
+      for(let k=0;k<26;k++){ x.fillStyle = `rgba(0,0,0,${Math.random()*.12})`; x.fillRect(i*pw+Math.random()*pw, 0, 1+Math.random()*2, H); }
+      x.fillStyle = 'rgba(0,0,0,.5)'; x.fillRect(i*pw,0,2,H);
+      const cut = Math.random()*H; x.fillRect(i*pw, cut, pw, 2);
+    }
+  },{repeat:[3,3]});
+}
+function texCork(){
+  return canvasTex(512,512,(x,W,H)=>{
+    x.fillStyle = '#a8703f'; x.fillRect(0,0,W,H);
+    for(let i=0;i<9000;i++){ x.fillStyle = Math.random()<.5 ? `rgba(70,35,10,${Math.random()*.35})` : `rgba(240,190,120,${Math.random()*.25})`; x.fillRect(Math.random()*W, Math.random()*H, 1+Math.random()*3, 1+Math.random()*3); }
+  },{repeat:[2,1.2]});
+}
+function texCurtain(){
+  return canvasTex(512,512,(x,W,H)=>{
+    const g = x.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,'#120a06'); g.addColorStop(.45,'#3b2416'); g.addColorStop(.7,'#55321b'); g.addColorStop(1,'#1a0f08');
+    x.fillStyle = g; x.fillRect(0,0,W,H);
+    const r = x.createRadialGradient(W/2,H*.55,10,W/2,H*.55,W*.6);
+    r.addColorStop(0,'rgba(255,160,80,.35)'); r.addColorStop(1,'rgba(255,170,90,0)');
+    x.fillStyle = r; x.fillRect(0,0,W,H);
+  });
+}
+const PAPER_W = 1024, PAPER_H = 1448;
+function drawPaper1(x,W,H){
+  x.fillStyle = '#f5f1e8'; x.fillRect(0,0,W,H);
+  for(let i=0;i<2500;i++){ x.fillStyle = `rgba(120,100,70,${Math.random()*.05})`; x.fillRect(Math.random()*W,Math.random()*H,2,2); }
+  x.fillStyle = '#16131f'; x.textBaseline = 'alphabetic';
+  x.font = '800 92px Unbounded'; x.fillText('ÖZGERIS', 80, 170);
+  const g = x.createLinearGradient(80,0,700,0); g.addColorStop(0,'#7c5cff'); g.addColorStop(.6,'#c045e8'); g.addColorStop(1,'#ff5da2');
+  x.fillStyle = g; x.font = '500 30px "JetBrains Mono"'; x.fillText(t('read.title'), 82, 224);
+  x.fillStyle = '#6d6680'; x.font = '500 20px "JetBrains Mono"'; x.textAlign = 'right'; x.fillText(t('paper1.k').toUpperCase(), W-80, 120); x.fillText('ozgeris.asia', W-80, 152); x.textAlign = 'left';
+  x.fillStyle = '#16131f'; x.fillRect(80,262,W-160,3);
+  x.fillStyle = '#7d7891'; x.font = '600 19px "JetBrains Mono"'; x.fillText(t('paper1.sec').toUpperCase().split('').join(' '), 80, 318);
+  x.fillStyle = '#26222f'; x.font = '500 27px Manrope';
+  let y = 370;
+  const paras = MANIFEST[LANG].filter(p=>!p.startsWith('#'));
+  for(const p of [paras[1], paras[2], paras[4]]) { y = wrap(x, p, 80, y, W-160, 40); y += 22; }
+  const q = paras[paras.length-1].slice(1).split('. ').slice(0,2).join('. ');
+  x.fillStyle = 'rgba(124,92,255,.08)'; x.fillRect(80, y, W-160, 190);
+  x.fillStyle = '#7c5cff'; x.fillRect(80, y, 6, 190);
+  x.fillStyle = '#2b1f55'; x.font = '700 30px Unbounded';
+  wrap(x, q, 112, y+58, W-220, 44);
+  x.fillStyle = '#16131f'; x.fillRect(80,H-110,W-160,2);
+  x.fillStyle = '#7d7891'; x.font = '500 18px "JetBrains Mono"'; x.fillText(t('paper1.foot').toUpperCase(), 80, H-70);
+}
+function drawPaper2(x,W,H){
+  x.fillStyle = '#f5f1e8'; x.fillRect(0,0,W,H);
+  for(let i=0;i<2500;i++){ x.fillStyle = `rgba(120,100,70,${Math.random()*.05})`; x.fillRect(Math.random()*W,Math.random()*H,2,2); }
+  x.fillStyle = '#16131f'; x.font = '800 62px Unbounded'; x.fillText(t('paper2.title'), 80, 160);
+  x.fillRect(80,205,W-160,3);
+  let y = 290;
+  MODS.forEach((m,i)=>{
+    rr(x,80,y-34,44,44,10); x.fillStyle = m.color; x.fill();
+    x.fillStyle = '#fff'; x.font = '700 20px "JetBrains Mono"'; x.textAlign = 'center'; x.fillText(String(i+1).padStart(2,'0'), 102, y-4); x.textAlign = 'left';
+    x.fillStyle = '#16131f'; x.font = '800 32px Manrope'; x.fillText(L(m.name), 146, y);
+    x.fillStyle = '#5d5870'; x.font = '500 25px Manrope'; x.fillText(L(m.line), 146, y+38);
+    x.fillStyle = 'rgba(0,0,0,.08)'; x.fillRect(80, y+66, W-160, 2);
+    y += 124;
+  });
+  y += 30;
+  x.fillStyle = '#7d7891'; x.font = '600 19px "JetBrains Mono"'; x.fillText(t('paper2.price').toUpperCase().split('').join(' '), 80, y);
+  y += 84;
+  const g = x.createLinearGradient(80,0,480,0); g.addColorStop(0,'#7c5cff'); g.addColorStop(1,'#ff5da2');
+  x.fillStyle = g; x.font = '800 72px Unbounded'; x.fillText('4 990 ₸', 80, y);
+  const pw = x.measureText('4 990 ₸').width;
+  x.fillStyle = '#8d87a3'; x.font = '600 30px Manrope'; x.fillText('9 990 ₸', 110+pw, y-6);
+  const sw = x.measureText('9 990 ₸').width; x.fillRect(110+pw, y-17, sw, 3);
+  rr(x, 130+pw+sw, y-46, 96, 44, 10); x.fill();
+  x.fillStyle = '#fff'; x.font = '700 22px "JetBrains Mono"'; x.fillText('−50%', 144+pw+sw, y-16);
+  x.fillStyle = '#16131f'; x.fillRect(80,H-110,W-160,2);
+  x.fillStyle = '#7d7891'; x.font = '500 18px "JetBrains Mono"'; x.fillText(t('paper2.foot').toUpperCase(), 80, H-70);
+}
+function drawNeon(x,W,H){
+  x.clearRect(0,0,W,H);
+  x.font = '800 150px Unbounded'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  const g = x.createLinearGradient(W*.15,0,W*.85,0); g.addColorStop(0,'#9b7cff'); g.addColorStop(.55,'#d95cff'); g.addColorStop(1,'#ff6fb0');
+  x.shadowColor = '#c045e8'; x.shadowBlur = 50; x.fillStyle = g;
+  x.fillText('ÖZGERIS', W/2, H/2); x.shadowBlur = 22; x.fillText('ÖZGERIS', W/2, H/2);
+  x.shadowBlur = 0; x.fillStyle = 'rgba(255,255,255,.75)'; x.font = '800 150px Unbounded'; x.globalAlpha = .35; x.fillText('ÖZGERIS', W/2, H/2); x.globalAlpha = 1;
+}
+function drawPlate(i){
+  return (x,W,H)=>{
+    x.fillStyle = '#e9dfcb'; x.fillRect(0,0,W,H);
+    x.fillStyle = 'rgba(0,0,0,.12)'; x.fillRect(0,H-6,W,6);
+    const m = MODS[i];
+    const txt = m ? L(m.name) : t('shelf.soon');
+    fitText(x, txt, W*.8, 28, 700, 'Manrope');
+    x.fillStyle = '#3b3326'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(txt, W/2, H/2);
+  };
+}
+
+let paper1, paper2, neonTex, plates = [];
+function buildRoom(){
+  const S = room.scene;
+  S.background = new THREE.Color('#07060b');
+  S.fog = new THREE.Fog('#07060b', 7, 14);
+
+  const brick = texBrick();
+  const wallMat = new THREE.MeshStandardMaterial({map:brick, roughness:.95});
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(8,8), new THREE.MeshStandardMaterial({map:texWood(), roughness:.7}));
+  floor.rotation.x = -Math.PI/2; floor.position.set(0,0,.8); floor.receiveShadow = true; S.add(floor);
+  const back = new THREE.Mesh(new THREE.PlaneGeometry(6.4,3.3), wallMat); back.position.set(0,1.65,-2.2); back.receiveShadow = true; S.add(back);
+  const sideMat = wallMat.clone(); sideMat.map = brick.clone(); sideMat.map.repeat.set(4.4,2.6); sideMat.map.needsUpdate = true;
+  const left = new THREE.Mesh(new THREE.PlaneGeometry(6.4,3.3), sideMat); left.rotation.y = Math.PI/2; left.position.set(-3.2,1.65,1); left.receiveShadow = true; S.add(left);
+  const right = left.clone(); right.rotation.y = -Math.PI/2; right.position.x = 3.2; S.add(right);
+  const ceil = new THREE.Mesh(new THREE.PlaneGeometry(6.4,6.4), new THREE.MeshStandardMaterial({color:'#0c0a0e'})); ceil.rotation.x = Math.PI/2; ceil.position.set(0,3.3,1); S.add(ceil);
+
+  // перде (артынан жарық түсіп тұр)
+  const cg = new THREE.PlaneGeometry(2.9, 3.0, 160, 1);
+  const pos = cg.attributes.position;
+  for(let i=0;i<pos.count;i++){ const px = pos.getX(i); pos.setZ(i, Math.sin(px*21)*.045 + Math.sin(px*6.3)*.02); }
+  cg.computeVertexNormals();
+  const ctex = texCurtain();
+  R.curtain = new THREE.MeshStandardMaterial({map:ctex, emissiveMap:ctex, emissive:new THREE.Color('#ff9a50'), emissiveIntensity:.2, roughness:.9, side:THREE.DoubleSide});
+  const curtain = new THREE.Mesh(cg, R.curtain); curtain.position.set(0,1.62,-2.08); curtain.receiveShadow = true; S.add(curtain);
+  const rod = new THREE.Mesh(new THREE.CylinderGeometry(.015,.015,3.1,8), new THREE.MeshStandardMaterial({color:'#1a1a1e',metalness:.6,roughness:.4}));
+  rod.rotation.z = Math.PI/2; rod.position.set(0,3.13,-2.04); S.add(rod);
+
+  // үстел + заттар
+  const v = new Vox();
+  v.box(0,.74,-1.62,2.5,.05,.92,'#e7e2d9');
+  for(const sx of [-1,1]){ v.box(sx*1.12,0,-1.62,.05,.74,.06,'#dedad3',{rz:sx*.12}); v.box(sx*1.12,.02,-1.62,.06,.06,.84,'#dedad3'); }
+  v.box(-.8,.5,-1.62,.55,.24,.82,'#d6d1c8'); v.box(-.8,.6,-1.2,.2,.03,.02,'#9a948a');
+  // клавиатура + кілемше
+  v.box(.05,.79,-1.42,1.15,.008,.44,'#16151a');
+  v.box(-.05,.798,-1.4,.64,.03,.21,'#1e1d24');
+  for(let r=0;r<5;r++) for(let c=0;c<15;c++){
+    const accent = (r===0&&c===0) ? '#e86a45' : (r===2&&c===13) ? '#8b7cff' : (r===4&&c>=4&&c<=10) ? null : '#2c2b35';
+    if(accent===null){ if(c===4) v.box(-.05,.828,-1.4+(r-2)*.038,.24,.014,.032,'#2c2b35'); continue; }
+    v.box(-.05+(c-7)*.04,.828,-1.4+(r-2)*.038,.034,.014,.032,accent);
+  }
+  v.box(.45,.798,-1.38,.07,.032,.11,'#1c1b22'); v.box(.45,.83,-1.405,.03,.004,.02,'#8b7cff',{glow:true});
+  // монитор
+  v.box(0,.79,-1.95,.34,.02,.22,'#141418'); v.box(0,.81,-2.0,.06,.2,.04,'#141418');
+  v.box(0,.96,-1.93,1.18,.68,.045,'#0b0b0e');
+  // кітаптар
+  v.box(-1.0,.79,-1.78,.34,.06,.25,'#7c5cff',{ry:.08}); v.box(-1.0,.85,-1.78,.32,.05,.23,'#e9e4dc',{ry:-.05}); v.box(-1.0,.9,-1.78,.3,.055,.22,'#2ecfa8',{ry:.1});
+  // құлаққап тұғыры
+  v.box(1.0,.79,-1.5,.18,.02,.16,'#141418'); v.box(1.0,.81,-1.5,.03,.38,.03,'#141418'); v.box(1.0,1.18,-1.5,.12,.03,.05,'#141418');
+  // гүл
+  v.box(1.85,0,-1.3,.42,.46,.42,'#b4643c'); v.box(1.85,.46,-1.3,.46,.06,.46,'#c27046');
+  for(let i=0;i<14;i++) v.box(1.85+rnd(-.28,.28),.5+rnd(0,.75),-1.3+rnd(-.28,.28),rnd(.12,.26),rnd(.25,.5),rnd(.12,.26),Math.random()<.5?'#2f6b3a':'#3f8a48',{j:.2});
+  const desk = v.build(); S.add(desk);
+
+  // монитор экраны — қаланың тірі көрінісі
+  room.rt = new THREE.WebGLRenderTarget(1280, 720, {samples:4});
+  const screen = new THREE.Mesh(new THREE.PlaneGeometry(1.12,.62), new THREE.MeshBasicMaterial({map:room.rt.texture}));
+  screen.position.set(0,1.3,-1.905); screen.userData.act = 'city'; S.add(screen); room.pick.push(screen); room.screen = screen;
+
+  // кружка
+  const mug = new THREE.Group();
+  const mm = new THREE.MeshStandardMaterial({color:'#ece7de', roughness:.5});
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(.048,.044,.11,24,1,true), mm); body.castShadow = true; mug.add(body);
+  const bottom = new THREE.Mesh(new THREE.CircleGeometry(.044,24), mm); bottom.rotation.x = -Math.PI/2; bottom.position.y = -.054; mug.add(bottom);
+  const coffee = new THREE.Mesh(new THREE.CircleGeometry(.045,24), new THREE.MeshStandardMaterial({color:'#2a160c', roughness:.2})); coffee.rotation.x = -Math.PI/2; coffee.position.y = .035; mug.add(coffee);
+  const handle = new THREE.Mesh(new THREE.TorusGeometry(.028,.008,8,16,Math.PI), mm); handle.rotation.z = -Math.PI/2; handle.position.x = .05; mug.add(handle);
+  const inner = new THREE.Mesh(new THREE.CylinderGeometry(.044,.044,.1,24,1,true), new THREE.MeshStandardMaterial({color:'#d9d3c8',side:THREE.BackSide})); mug.add(inner);
+  mug.position.set(-.72,.845,-1.35); S.add(mug);
+
+  // құлаққап
+  const hp = new THREE.Group();
+  const hpm = new THREE.MeshStandardMaterial({color:'#d9d6d0', roughness:.4});
+  const band = new THREE.Mesh(new THREE.TorusGeometry(.11,.016,10,24,Math.PI), new THREE.MeshStandardMaterial({color:'#1d1c22',roughness:.6})); band.position.y = 0; hp.add(band);
+  for(const s of [-1,1]){ const cup = new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,.04,20), hpm); cup.rotation.z = Math.PI/2; cup.position.set(s*.11,-.03,0); cup.castShadow = true; hp.add(cup);
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(.04,.005,6,20), new THREE.MeshStandardMaterial({color:'#4a4458',roughness:.5})); ring.rotation.y = Math.PI/2; ring.position.set(s*.132,-.03,0); hp.add(ring); }
+  hp.position.set(1.0,1.21,-1.5); hp.rotation.y = .3; S.add(hp);
+
+  // үстел шамы
+  const lamp = new THREE.Group();
+  const lm = new THREE.MeshStandardMaterial({color:'#121216', roughness:.45, metalness:.4});
+  const lb = new THREE.Mesh(new THREE.CylinderGeometry(.09,.1,.025,24), lm); lb.position.set(0,.012,0); lamp.add(lb);
+  const a1 = new THREE.Mesh(new THREE.CylinderGeometry(.012,.012,.5,8), lm); a1.position.set(0,.25,0); a1.rotation.z = .25; lamp.add(a1);
+  const a2 = new THREE.Mesh(new THREE.CylinderGeometry(.012,.012,.42,8), lm); a2.position.set(-.18,.55,0); a2.rotation.z = 1.1; lamp.add(a2);
+  const head = new THREE.Mesh(new THREE.ConeGeometry(.085,.15,24,1,true), new THREE.MeshStandardMaterial({color:'#121216', roughness:.4, metalness:.4, side:THREE.DoubleSide})); head.position.set(-.38,.6,0); head.rotation.z = .75; lamp.add(head);
+  const bulb = new THREE.Mesh(new THREE.SphereGeometry(.026,12,8), new THREE.MeshBasicMaterial({color:'#fff1d6', toneMapped:false})); bulb.position.set(-.41,.555,0); lamp.add(bulb);
+  lamp.position.set(1.05,.79,-1.88); lamp.traverse(o=>{ if(o.isMesh) o.castShadow = true; }); S.add(lamp);
+  R.bulb = bulb;
+
+  // ---------- жарық ----------
+  R.hemi = new THREE.HemisphereLight('#6b5a99','#1a120c',.35); S.add(R.hemi);
+  R.lamp = new THREE.SpotLight('#ffc48a', 14, 4.5, .85, .65, 1.6);
+  R.lamp.position.set(.65,1.35,-1.88); R.lamp.target.position.set(.1,.78,-1.45);
+  R.lamp.castShadow = true; R.lamp.shadow.mapSize.set(1024,1024); R.lamp.shadow.bias = -.0004; R.lamp.shadow.normalBias = .02;
+  S.add(R.lamp, R.lamp.target);
+  R.bias = new THREE.PointLight('#9d6bff', 1.8, 2.0, 1.5); R.bias.position.set(0,1.3,-2.05); S.add(R.bias);
+  R.screenLight = new THREE.PointLight('#c9b8ff', 1.4, 2.4, 1.6); R.screenLight.position.set(0,1.25,-1.55); S.add(R.screenLight);
+  R.window = new THREE.PointLight('#ff9d55', 1.2, 3.2, 1.4); R.window.position.set(0,1.8,-1.7); S.add(R.window);
+
+  // ---------- сол қабырға: тақта ----------
+  const board = new THREE.Group();
+  const bv = new Vox();
+  const BW = 2.5, BH = 1.5;
+  bv.box(0,-BH/2-.07,0,BW+.14,.1,.08,'#6e4126'); bv.box(0,BH/2-.03,0,BW+.14,.1,.08,'#6e4126');
+  bv.box(-BW/2-.02,-BH/2-.07,0,.1,BH+.14,.08,'#6e4126'); bv.box(BW/2+.02,-BH/2-.07,0,.1,BH+.14,.08,'#6e4126');
+  bv.box(0,-BH/2-.07,-.03,BW,BH+.1,.02,'#3a2416');
+  board.add(bv.build());
+  const cork = new THREE.Mesh(new THREE.PlaneGeometry(BW,BH), new THREE.MeshStandardMaterial({map:texCork(), roughness:1})); cork.position.z = .012; cork.receiveShadow = true; board.add(cork);
+  paper1 = canvasTex(PAPER_W,PAPER_H,drawPaper1); paper2 = canvasTex(PAPER_W,PAPER_H,drawPaper2);
+  [[paper1,-.44,.03],[paper2,.44,-.02]].forEach(([tx,x,rz])=>{
+    const p = new THREE.Mesh(new THREE.PlaneGeometry(.74,.74*PAPER_H/PAPER_W), new THREE.MeshStandardMaterial({map:tx, roughness:.95}));
+    p.position.set(x,-.02,.02); p.rotation.z = rz; p.castShadow = true; p.receiveShadow = true; p.userData.act = 'read'; board.add(p); room.pick.push(p);
+    for(const sx of [-.33,.33]){ const pin = new THREE.Mesh(new THREE.SphereGeometry(.014,10,8), new THREE.MeshStandardMaterial({color:'#c9a24a',metalness:.6,roughness:.3})); pin.position.set(x+sx,.47,.03); board.add(pin); }
+  });
+  board.position.set(-3.13,1.42,.25); board.rotation.y = Math.PI/2; S.add(board);
+  R.boardSpot = new THREE.SpotLight('#ffd6a0', 10, 3.2, .85, .75, 1.3); R.boardSpot.position.set(-2.5,2.9,.25); R.boardSpot.target.position.set(-3.2,1.4,.25); S.add(R.boardSpot, R.boardSpot.target);
+  neonTex = canvasTex(1024,256,drawNeon);
+  const neon = new THREE.Mesh(new THREE.PlaneGeometry(1.2,.3), new THREE.MeshBasicMaterial({map:neonTex, transparent:true, blending:THREE.AdditiveBlending, depthWrite:false, toneMapped:false}));
+  neon.position.set(-3.17,2.53,.25); neon.rotation.y = Math.PI/2; S.add(neon); R.neon = neon;
+  R.neonLight = new THREE.PointLight('#c45cff', 1.6, 2.5, 1.5); R.neonLight.position.set(-2.95,2.53,.25); S.add(R.neonLight);
+
+  // ---------- оң қабырға: сөре + кішкентай ғимараттар ----------
+  const shelf = new THREE.Group();
+  const sv = new Vox();
+  const SH = [.95,1.88];
+  for(const y of SH){ sv.box(0,y-.04,.22,3.0,.04,.44,'#2a2420'); sv.box(-1.35,y-.24,.04,.04,.2,.06,'#151315'); sv.box(1.35,y-.24,.04,.04,.2,.06,'#151315'); }
+  sv.box(0,2.72,.1,2.7,.04,.06,'#18161a'); sv.box(0,2.705,.13,2.6,.015,.03,'#fff0d0',{glow:true});
+  sv.box(0,1.82,.38,2.8,.012,.02,'#ffd9a8',{glow:true});
+  shelf.add(sv.build());
+  const order = [0,1,2,3,4,5,6,-1];
+  order.forEach((mi,k)=>{
+    const row = k<4 ? 1 : 0, col = k%4;
+    const x = -1.05 + col*.7, y = SH[row];
+    const ptx = canvasTex(256,48,drawPlate(mi));
+    plates.push(ptx);
+    const plate = new THREE.Mesh(new THREE.PlaneGeometry(.44,.083), new THREE.MeshStandardMaterial({map:ptx, roughness:.8}));
+    plate.position.set(x, y+.01, .458); plate.rotation.x = -.25; shelf.add(plate);
+    if(mi<0){ const base = new Vox(); base.box(0,0,0,.5,.015,.42,'#8a6a4a'); const b = base.build(); b.position.set(x,y,.22); shelf.add(b); return; }
+    const b = makeBuilding(MODS[mi], {cast:true});
+    b.scale.setScalar(.062); b.position.set(x,y,.21);
+    b.userData.idx = mi; b.userData.baseY = y;
+    b.traverse(o=>{ if(o.isMesh){ o.userData.idx = mi; room.pick.push(o); } });
+    shelf.add(b); room.minis[mi] = b;
+  });
+  shelf.position.set(3.17,0,.3); shelf.rotation.y = -Math.PI/2; S.add(shelf);
+  R.shelfTop = new THREE.SpotLight('#ffd6a0', 12, 3, 1.1, .8, 1.2); R.shelfTop.position.set(2.9,2.68,.3); R.shelfTop.target.position.set(3.0,1.88,.3);
+  R.shelfLow = new THREE.SpotLight('#ffd6a0', 9, 2.2, 1.2, .8, 1.2); R.shelfLow.position.set(2.85,1.8,.3); R.shelfLow.target.position.set(3.0,.95,.3);
+  R.shelfLow.castShadow = true; R.shelfLow.shadow.mapSize.set(512,512); R.shelfLow.shadow.bias = -.0005;
+  S.add(R.shelfTop, R.shelfTop.target, R.shelfLow, R.shelfLow.target);
+  R.shelfFill = new THREE.PointLight('#ffcf9a', 1.6, 3.2, 1.4); R.shelfFill.position.set(2.1,1.5,.3); S.add(R.shelfFill);
+}
+
+/* =========================================================
+   CITY
+   ========================================================= */
+const city = {scene:new THREE.Scene(), cam:new THREE.PerspectiveCamera(35, innerWidth/innerHeight, .5, 260), buildings:[], obstacles:[], npcs:[], pick:[]};
+const CITY_R = 21, WORLD_R = 29;
+let skyNight, skyDay, logoCube, water;
+
+function texPavers(){
+  return canvasTex(512,512,(x,W,H)=>{
+    x.fillStyle = '#7a4c44'; x.fillRect(0,0,W,H);
+    const bw = 64, bh = 32;
+    for(let r=0;r<H/bh;r++){
+      const off = (r%2)*bw/2;
+      for(let c=-1;c<W/bw+1;c++){
+        x.fillStyle = `hsl(${8+Math.random()*10},${26+Math.random()*10}%,${46+Math.random()*12}%)`;
+        x.fillRect(c*bw+off+2, r*bh+2, bw-4, bh-4);
+      }
+    }
+  },{repeat:[16,16]});
+}
+function texSky(stops){
+  return canvasTex(4,512,(x,W,H)=>{ const g = x.createLinearGradient(0,0,0,H); stops.forEach(([o,c])=>g.addColorStop(o,c)); x.fillStyle = g; x.fillRect(0,0,W,H); });
+}
+function tree(v,x,z,s=1,planter=true){
+  if(planter){ v.box(x,0,z,1.9,.5,1.9,'#8a5a35',{j:.08}); v.box(x,.5,z,1.6,.06,1.6,'#3b2a1e'); }
+  const y0 = planter ? .5 : 0;
+  v.box(x,y0,z,.42*s,2.1*s,.42*s,'#6b4a2f',{j:.1});
+  const greens = ['#4f8a3a','#5f9a45','#3f7a32','#6aa64c'];
+  for(let i=0;i<11;i++){
+    const w = rnd(.9,1.6)*s;
+    v.box(x+rnd(-.9,.9)*s, y0+rnd(1.7,3.4)*s, z+rnd(-.9,.9)*s, w, rnd(.8,1.3)*s, rnd(.9,1.6)*s, pick(greens), {j:.15});
+  }
+}
+function lampPost(v,x,z){
+  v.box(x,0,z,.4,.3,.4,'#1d1d22'); v.box(x,.3,z,.14,3.0,.14,'#1d1d22');
+  v.box(x,3.25,z,.5,.08,.5,'#1d1d22'); v.box(x,3.33,z,.38,.42,.38,'#ffe2a8',{glow:true}); v.box(x,3.75,z,.56,.12,.56,'#1d1d22');
+}
+function bench(v,x,z,ry){
+  const c = Math.cos(ry), s = Math.sin(ry);
+  const P2 = (lx,lz) => [x + lx*c + lz*s, z - lx*s + lz*c];
+  let [a,b] = P2(0,0); v.box(a,.45,b,1.9,.1,.55,'#a8744a',{ry});
+  [a,b] = P2(0,-.25); v.box(a,.55,b,1.9,.5,.1,'#a8744a',{ry});
+  for(const lx of [-.8,.8]){ [a,b] = P2(lx,0); v.box(a,0,b,.1,.45,.5,'#2a2a30',{ry}); }
+}
+function flowerBed(v,x,z,ry=0){
+  v.box(x,0,z,2.2,.4,1.0,'#9c958a',{ry});
+  v.box(x,.4,z,2.0,.05,.8,'#3b2a1e',{ry});
+  const cols = ['#ff7aa8','#ffffff','#f0ab52','#c45cff','#ff5f5f'];
+  const c = Math.cos(ry), s = Math.sin(ry);
+  for(let i=0;i<14;i++){ const lx = rnd(-.9,.9), lz = rnd(-.32,.32); v.box(x+lx*c+lz*s,.45,z-lx*s+lz*c,.18,rnd(.12,.3),.18,pick(cols)); }
+  for(let i=0;i<6;i++){ const lx = rnd(-.9,.9), lz = rnd(-.32,.32); v.box(x+lx*c+lz*s,.45,z-lx*s+lz*c,.3,.18,.3,'#4f8a3a'); }
+}
+function makeLogoCube(){
+  const tx = canvasTex(256,256,(x,W,H)=>{
+    const g = x.createLinearGradient(0,0,W,H); g.addColorStop(0,'#7c5cff'); g.addColorStop(.55,'#c045e8'); g.addColorStop(1,'#ff5da2');
+    x.fillStyle = g; x.fillRect(0,0,W,H);
+    x.fillStyle = '#fff'; x.font = '800 150px Unbounded'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('Ö', W/2, H/2+8);
+  });
+  return new THREE.Mesh(new THREE.BoxGeometry(1.5,1.5,1.5), new THREE.MeshBasicMaterial({map:tx, toneMapped:false}));
+}
+
+function buildCity(){
+  const S = city.scene;
+  skyNight = texSky([[0,'#2b2560'],[.45,'#7a4c9a'],[.75,'#e0789a'],[1,'#ffb98a']]);
+  skyDay = texSky([[0,'#4a86e8'],[.6,'#9cc6ff'],[1,'#e6f1ff']]);
+  S.background = skyNight;
+  S.fog = new THREE.Fog('#e89a98', 55, 130);
+
+  const grass = new THREE.Mesh(new THREE.PlaneGeometry(320,320), new THREE.MeshStandardMaterial({color:'#4d7a3a', roughness:1}));
+  grass.rotation.x = -Math.PI/2; grass.receiveShadow = true; S.add(grass);
+  const pave = new THREE.Mesh(new THREE.CircleGeometry(30,72), new THREE.MeshStandardMaterial({map:texPavers(), roughness:.95}));
+  pave.rotation.x = -Math.PI/2; pave.position.y = .02; pave.receiveShadow = true; S.add(pave); city.ground = [grass, pave];
+  const curb = new THREE.Mesh(new THREE.RingGeometry(29.8,30.4,72), new THREE.MeshStandardMaterial({color:'#9c958a'}));
+  curb.rotation.x = -Math.PI/2; curb.position.y = .04; S.add(curb);
+
+  // ғимараттар шеңбер бойымен, бетімен орталыққа қарап тұр
+  MODS.forEach((m,i)=>{
+    const a = -Math.PI/2 + i*Math.PI*2/MODS.length;
+    const x = Math.cos(a)*CITY_R, z = Math.sin(a)*CITY_R;
+    const b = makeBuilding(m);
+    b.position.set(x,0,z);
+    b.rotation.y = Math.atan2(-x,-z);
+    b.userData.idx = i;
+    b.traverse(o=>{ if(o.isMesh){ o.userData.idx = i; city.pick.push(o); } });
+    S.add(b);
+    const dir = V(-x,0,-z).normalize();
+    const entrance = V(x,0,z).addScaledVector(dir, b.userData.front + 2.2);
+    city.buildings.push({mod:m, group:b, pos:V(x,0,z), entrance, angle:a, rot:b.rotation.y});
+    city.obstacles.push({x,z,r:4.4});
+  });
+
+  const v = new Vox();
+  const N = MODS.length;
+  for(let i=0;i<N;i++){
+    const a = -Math.PI/2 + i*Math.PI*2/N, ab = a + Math.PI/N;
+    const lx = Math.cos(ab)*15.5, lz = Math.sin(ab)*15.5; lampPost(v,lx,lz); city.obstacles.push({x:lx,z:lz,r:.35});
+    const tx = Math.cos(ab)*10.5, tz = Math.sin(ab)*10.5; tree(v,tx,tz); city.obstacles.push({x:tx,z:tz,r:1.25});
+    const bx = Math.cos(ab+.2)*10.6, bz = Math.sin(ab+.2)*10.6; bench(v,bx,bz,Math.atan2(-bx,-bz)); city.obstacles.push({x:bx,z:bz,r:.85});
+    const ox = Math.cos(ab)*24.5, oz = Math.sin(ab)*24.5; tree(v,ox,oz,1.15,false); city.obstacles.push({x:ox,z:oz,r:.9});
+    for(const sgn of [-1,1]){
+      const fa = a + sgn*.3, fx = Math.cos(fa)*17.2, fz = Math.sin(fa)*17.2;
+      flowerBed(v,fx,fz,Math.atan2(-fx,-fz)); city.obstacles.push({x:fx,z:fz,r:1.05});
+    }
+  }
+  // фонтан
+  for(let k=0;k<14;k++){ const a = k/14*Math.PI*2; v.box(Math.cos(a)*2.9,0,Math.sin(a)*2.9,1.45,.7,.5,'#bdb5a8',{ry:-a+Math.PI/2,j:.04}); }
+  v.box(0,0,0,1.3,2.2,1.3,'#cfc7ba'); v.box(0,2.2,0,1.7,.25,1.7,'#bdb5a8');
+  for(let k=0;k<4;k++){ const a = k*Math.PI/2; v.box(Math.cos(a)*.66,.9,Math.sin(a)*.66,.2,.2,.2,'#9fe3ff',{glow:true}); }
+  city.obstacles.push({x:0,z:0,r:3.4});
+  // сыртқы орман және төбелер
+  for(let i=0;i<70;i++){ const a = Math.random()*Math.PI*2, r = rnd(33,55); tree(v,Math.cos(a)*r,Math.sin(a)*r,rnd(1,1.7),false); }
+  for(let i=0;i<16;i++){ const a = i/16*Math.PI*2 + rnd(-.1,.1), r = rnd(78,95); v.box(Math.cos(a)*r,0,Math.sin(a)*r,rnd(20,34),rnd(5,13),rnd(16,24),'#5c7d4a',{ry:-a,j:.15}); }
+  const deco = v.build(); S.add(deco);
+
+  water = new THREE.Mesh(new THREE.CylinderGeometry(2.75,2.75,.1,40), new THREE.MeshStandardMaterial({color:'#3aa6d0', emissive:'#1b6f9a', emissiveIntensity:.5, roughness:.15, metalness:.1}));
+  water.position.y = .5; S.add(water);
+  logoCube = makeLogoCube(); logoCube.position.set(0,3.4,0); S.add(logoCube);
+  R.logoLight = new THREE.PointLight('#c45cff', 9, 10, 1.6); R.logoLight.position.set(0,3.4,0); S.add(R.logoLight);
+
+  // жарық
+  R.cHemi = new THREE.HemisphereLight('#ffd7c2','#3d2f4a',.75); S.add(R.cHemi);
+  R.sun = new THREE.DirectionalLight('#ffb37a', 2.6);
+  R.sun.castShadow = true; R.sun.shadow.mapSize.set(2048,2048);
+  const sc = R.sun.shadow.camera; sc.left = -30; sc.right = 30; sc.top = 30; sc.bottom = -30; sc.near = 1; sc.far = 140;
+  R.sun.shadow.bias = -.0006; R.sun.shadow.normalBias = .05;
+  S.add(R.sun, R.sun.target);
+
+  // ойыншы, гид, тұрғындар
+  city.player = makePerson({skin:'#e0ac85', hair:'#2a1b14', shirt:'#7c5cff', pants:'#26233a'});
+  city.player.position.set(0,0,9.5); city.player.rotation.y = Math.PI; S.add(city.player);
+  const ring = new THREE.Mesh(new THREE.RingGeometry(.55,.7,32), new THREE.MeshBasicMaterial({color:'#ffffff', transparent:true, opacity:.85, toneMapped:false}));
+  ring.rotation.x = -Math.PI/2; ring.position.y = .05; city.player.add(ring);
+  city.guide = makePerson({skin:'#c98e66', hair:'#111014', shirt:'#2ecfa8', pants:'#26233a', vest:'#1f8f74'});
+  city.guide.position.set(3.2,0,6.2); city.guide.rotation.y = Math.atan2(-3.2, 3.3); S.add(city.guide);
+  const gring = ring.clone(); gring.material = ring.material.clone(); gring.material.color.set('#2ecfa8'); city.guide.add(gring);
+  city.obstacles.push({x:3.2,z:6.2,r:.6, guide:true});
+  city.guide.traverse(o=>{ if(o.isMesh) o.userData.guide = true; });
+  for(let i=0;i<10;i++){
+    const p = makePerson({skin:pick(SKIN), hair:pick(HAIR), shirt:pick(SHIRT), pants:pick(PANTS), long:Math.random()<.3});
+    const a = Math.random()*Math.PI*2, r = rnd(6,14);
+    p.position.set(Math.cos(a)*r,0,Math.sin(a)*r);
+    S.add(p);
+    city.npcs.push({p, target:null, wait:rnd(0,3), speed:rnd(1.1,1.6)});
+  }
+
+  city.rtCam = new THREE.PerspectiveCamera(38, 16/9, .5, 200);
+  city.rtCam.position.set(0, 24, 40); city.rtCam.lookAt(0, 3, 0);
+}
+
+/* =========================================================
+   THEME & LANGUAGE
+   ========================================================= */
+let THEME = document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+function applyTheme(){
+  const day = THEME === 'light';
+  document.documentElement.dataset.theme = day ? 'light' : '';
+  if(!day) delete document.documentElement.dataset.theme;
+  $('#themeBtn').innerHTML = icon(day ? 'i-moon' : 'i-sun');
+  document.querySelector('meta[name=theme-color]').content = day ? '#f3f1fa' : '#0a0a14';
+  MAT.glow.color.setScalar(day ? .62 : 1);
+  if(!R.hemi) return;
+  // бөлме
+  R.hemi.intensity = day ? 1.25 : .35;
+  R.hemi.color.set(day ? '#dfe6ff' : '#6b5a99');
+  R.curtain.emissiveIntensity = day ? 1.1 : .2;
+  R.curtain.emissive.set(day ? '#ffe2b8' : '#ff9a50');
+  R.window.intensity = day ? 4 : 1.2; R.window.color.set(day ? '#fff0d8' : '#ff9d55');
+  R.lamp.intensity = day ? 5 : 14;
+  room.scene.background.set(day ? '#2a2420' : '#07060b'); room.scene.fog.color.set(day ? '#2a2420' : '#07060b');
+  renderer.toneMappingExposure = day ? 1.15 : 1.05;
+  // қала
+  city.scene.background = day ? skyDay : skyNight;
+  city.scene.fog.color.set(day ? '#dceaff' : '#e89a98');
+  R.cHemi.color.set(day ? '#e6f0ff' : '#ffd7c2'); R.cHemi.groundColor.set(day ? '#5d6b45' : '#3d2f4a'); R.cHemi.intensity = day ? 1.1 : .75;
+  R.sun.color.set(day ? '#fff4e0' : '#ffb37a'); R.sun.intensity = day ? 3.0 : 2.6;
+  city.sunOffset = day ? V(18,40,14) : V(34,15,10);
+  R.logoLight.intensity = day ? 3 : 9;
+  water.material.emissiveIntensity = day ? .15 : .5;
+}
+function applyLang(){
+  document.documentElement.lang = LANG;
+  $$('[data-i18n]').forEach(el => { const v = t(el.dataset.i18n); if(typeof v === 'string') el.textContent = v; });
+  $$('[data-i18n-ph]').forEach(el => el.placeholder = t(el.dataset.i18nPh));
+  $$('[data-lang]').forEach(b => b.classList.toggle('on', b.dataset.lang === LANG));
+  $('#langSm').textContent = LANG === 'kk' ? 'РУС' : 'ҚАЗ';
+  document.title = LANG === 'ru' ? 'ÖZGERIS — 3D мир' : 'ÖZGERIS — 3D әлем';
+  if(paper1){ redraw(paper1); redraw(paper2); }
+  signs.forEach(redraw); plates.forEach(redraw);
+  renderShelf(); renderBList(); renderChips();
+  $('#tagMe').textContent = t('label.you'); $('#tagGuide').textContent = t('label.guide');
+  if($('#mPrice').classList.contains('open')) openPrice();
+  if($('#mRead').classList.contains('open')) openRead();
+  if($('#mInfo').classList.contains('open') && infoIdx != null) openInfo(infoIdx);
+}
+
+/* =========================================================
+   ROOM NAVIGATION
+   ========================================================= */
+const STOPS = ['board','desk','shelf'];
+const SLOT = MODS.map((_,k)=>({z:.3 + (-1.05 + (k%4)*.7), y:k<4 ? 1.88 : .95}));
+let stop = 'desk', sel = 0;
+const cam = {pos:V(0,1.5,.75), tgt:V(0,1.1,-1.9), fov:44};
+let tween = null;
+const mouse = {x:0, y:0, sx:0, sy:0};
+function stopParams(name){
+  const asp = innerWidth/innerHeight, port = asp < .9, mid = !port && innerWidth < 900;
+  if(name==='desk'){
+    if(port) return {pos:V(0,1.62,1.25), tgt:V(0,.86,-1.9), fov:56};
+    if(mid) return {pos:V(0,1.52,.9), tgt:V(0,1.0,-1.9), fov:48};
+    return {pos:V(0,1.5,.72), tgt:V(-.42,1.06,-1.9), fov:44};
+  }
+  if(name==='board'){
+    if(port) return {pos:V(.9,1.45,.25), tgt:V(-3.2,1.6,.25), fov:50};
+    return {pos:V(.3,1.5,.25), tgt:V(-3.2,1.52,.25), fov:41};
+  }
+  // сөре: телефонда камера таңдалған ғимаратқа қарай жылжиды
+  const k = SLOT[sel] || SLOT[0];
+  if(port) return {pos:V(-.6,1.5,k.z), tgt:V(3.2,k.y-.1,k.z), fov:46};
+  if(mid) return {pos:V(-1.4,1.45,.3), tgt:V(3.2,1.42,.3), fov:44};
+  return {pos:V(-1.2,1.45,.3), tgt:V(3.2,1.42,-.55), fov:40};
+}
+function goStop(name, instant=false){
+  if(!STOPS.includes(name)) name = 'desk';
+  stop = name; document.body.dataset.stop = name;
+  $$('[data-stop-btn]').forEach(b => b.classList.toggle('on', b.dataset.stopBtn === name));
+  const p = stopParams(name);
+  if(instant){ cam.pos.copy(p.pos); cam.tgt.copy(p.tgt); cam.fov = p.fov; tween = null; }
+  else tween = {t:0, dur:1.25, from:{pos:cam.pos.clone(), tgt:cam.tgt.clone(), fov:cam.fov}, to:p};
+  setURL();
+}
+const ease = k => k<.5 ? 4*k*k*k : 1 - Math.pow(-2*k+2,3)/2;
+function updateRoom(dt, now){
+  if(tween){
+    tween.t += dt/tween.dur; const k = ease(Math.min(1,tween.t));
+    cam.pos.lerpVectors(tween.from.pos, tween.to.pos, k);
+    cam.tgt.lerpVectors(tween.from.tgt, tween.to.tgt, k);
+    cam.fov = THREE.MathUtils.lerp(tween.from.fov, tween.to.fov, k);
+    if(tween.t >= 1) tween = null;
+  }
+  mouse.sx += (mouse.x - mouse.sx)*.05; mouse.sy += (mouse.y - mouse.sy)*.05;
+  const c = room.cam;
+  const fwd = cam.tgt.clone().sub(cam.pos).normalize();
+  const right = fwd.clone().cross(V(0,1,0)).normalize();
+  c.position.copy(cam.pos).addScaledVector(right, mouse.sx*.07).add(V(0, -mouse.sy*.04, 0));
+  c.lookAt(cam.tgt);
+  if(c.fov !== cam.fov){ c.fov = cam.fov; c.updateProjectionMatrix(); }
+  room.minis.forEach((b,i)=>{
+    if(!b) return;
+    const on = stop === 'shelf' && i === sel;
+    const ty = b.userData.baseY + (on ? .03 : 0);
+    b.position.y += (ty - b.position.y)*.12;
+    const tr = on ? Math.sin(now*.0012)*.35 : (hoverIdx === i && stop === 'shelf' ? .15 : 0);
+    b.rotation.y += (tr - b.rotation.y)*.08;
+  });
+  R.neon.material.opacity = .92 + Math.sin(now*.013)*.03 + (Math.random()<.004 ? -.5 : 0);
+  // экрандағы батырма
+  const btn = $('#screenBtn');
+  const showBtn = stop === 'desk' && !tween && document.body.dataset.view === 'room';
+  if(showBtn){
+    const p = V(0,1.12,-1.9).project(c);
+    btn.style.left = ((p.x+1)/2*innerWidth)+'px'; btn.style.top = ((1-p.y)/2*innerHeight)+'px';
+  }
+  btn.classList.toggle('show', showBtn);
+  btn.tabIndex = showBtn ? 0 : -1;
+}
+function renderShelf(){
+  const m = MODS[sel];
+  $('#spCount').innerHTML = `${String(sel+1).padStart(2,'0')}<small>/ ${String(MODS.length).padStart(2,'0')}</small>`;
+  $('#spTitle').textContent = L(m.name);
+  $('#spMeta').innerHTML = `<i style="background:${m.color}"></i>${esc(L(m.place))} · ${esc(L(m.line))}`;
+  $('#spDesc').textContent = L(m.desc);
+  $('#spStats').innerHTML = m.stats.map(s=>`<div><b>${esc(s.v)}</b><span>${esc(s[LANG])}</span></div>`).join('');
+  $('#spTags').innerHTML = L(m.tags).map(x=>`<span class="chip">${esc(x)}</span>`).join('');
+}
+function selectMod(i){ sel = (i + MODS.length) % MODS.length; renderShelf(); if(stop === 'shelf' && innerWidth/innerHeight < .9) goStop('shelf'); }
+
+/* =========================================================
+   CITY CONTROL
+   ========================================================= */
+const keys = {};
+const DEF_DIST = innerWidth/innerHeight < .9 ? 38 : 28;
+const camC = {yaw:.55, pitch:.8, dist:DEF_DIST, tyaw:.55, tdist:DEF_DIST, tgt:V(0,0,9.5)};
+let auto = null, near = null, showLabels = true, mapOpen = false;
+const player = () => city.player;
+function pushOut(p, r, skipGuide=false){
+  for(const o of city.obstacles){
+    if(skipGuide && o.guide) continue;
+    const dx = p.x-o.x, dz = p.z-o.z, d = Math.hypot(dx,dz), min = o.r + r;
+    if(d < min && d > 1e-5){ p.x = o.x + dx/d*min; p.z = o.z + dz/d*min; }
+  }
+  const d = Math.hypot(p.x,p.z);
+  if(d > WORLD_R){ p.x *= WORLD_R/d; p.z *= WORLD_R/d; }
+}
+function wrapAng(d){ d = (d + Math.PI) % (Math.PI*2); if(d < 0) d += Math.PI*2; return d - Math.PI; }
+function angLerp(a, b, k){ let d = ((b - a + Math.PI) % (Math.PI*2)) - Math.PI; if(d < -Math.PI) d += Math.PI*2; return a + d*k; }
+function updateCity(dt, now, controlled){
+  // NPC
+  for(const n of city.npcs){
+    if(!n.target){ n.wait -= dt; if(n.wait <= 0){ const a = Math.random()*Math.PI*2, r = rnd(5,14.5); n.target = V(Math.cos(a)*r,0,Math.sin(a)*r); } animPerson(n.p,0,dt); continue; }
+    const d = n.target.clone().sub(n.p.position); d.y = 0;
+    const dist = d.length();
+    if(dist < .3){ n.target = null; n.wait = rnd(1,5); continue; }
+    d.normalize();
+    n.p.position.addScaledVector(d, n.speed*dt);
+    pushOut(n.p.position, .35);
+    n.p.rotation.y = angLerp(n.p.rotation.y, Math.atan2(d.x,d.z), .12);
+    animPerson(n.p, n.speed, dt);
+  }
+  // гид қол бұлғайды
+  const gu = city.guide.userData;
+  const wave = (now % 5200) < 1400;
+  gu.waving = wave;
+  gu.armR.rotation.x = THREE.MathUtils.lerp(gu.armR.rotation.x, wave ? -2.6 + Math.sin(now*.012)*.35 : 0, .15);
+  gu.armR.rotation.z = THREE.MathUtils.lerp(gu.armR.rotation.z, wave ? .25 : 0, .15);
+  animPerson(city.guide, 0, dt);
+  logoCube.rotation.y += dt*.6; logoCube.position.y = 3.4 + Math.sin(now*.0015)*.15;
+
+  const pl = player();
+  if(controlled){
+    let ix = (keys.KeyD||keys.ArrowRight?1:0) - (keys.KeyA||keys.ArrowLeft?1:0);
+    let iz = (keys.KeyS||keys.ArrowDown?1:0) - (keys.KeyW||keys.ArrowUp?1:0);
+    const mv = V(0,0,0);
+    const run = keys.ShiftLeft || keys.ShiftRight;
+    if(ix || iz){
+      auto = null;
+      const fwd = V(-Math.sin(camC.yaw),0,-Math.cos(camC.yaw)), right = V(Math.cos(camC.yaw),0,-Math.sin(camC.yaw));
+      mv.addScaledVector(fwd,-iz).addScaledVector(right,ix).normalize().multiplyScalar(run ? 8.5 : 5.2);
+    } else if(auto){
+      const d = auto.pos.clone().sub(pl.position); d.y = 0;
+      const dist = d.length();
+      if(dist < .45){ const cb = auto.onArrive; auto = null; cb && cb(); }
+      else mv.copy(d.normalize().multiplyScalar(Math.min(6.5, dist*3+1.5)));
+    }
+    const sp = mv.length();
+    if(sp > 0){
+      const before = pl.position.clone();
+      pl.position.addScaledVector(mv, dt);
+      pushOut(pl.position, .45);
+      if(auto && pl.position.distanceTo(before) < sp*dt*.15) auto.stuck = (auto.stuck||0) + dt;
+      if(auto && auto.stuck > .6){ const cb = auto.onArrive; auto = null; cb && cb(); }
+      pl.rotation.y = angLerp(pl.rotation.y, Math.atan2(mv.x,mv.z), .2);
+    }
+    animPerson(pl, sp, dt);
+    // жақын нысан
+    let best = null, bd = 3;
+    city.buildings.forEach((b,i)=>{ const d = b.entrance.distanceTo(pl.position); if(d < bd){ bd = d; best = {type:'b', i}; } });
+    if(pl.position.distanceTo(city.guide.position) < 2.8) best = {type:'g'};
+    near = best;
+    const pr = $('#prompt');
+    if(near && !anyModalOpen()){
+      $('#promptTxt').textContent = near.type === 'g' ? t('prompt.talk') : `${t('prompt.enter')} — ${L(MODS[near.i].name)}`;
+      pr.classList.add('show');
+    } else pr.classList.remove('show');
+  }
+  // камера
+  camC.yaw += (camC.tyaw - camC.yaw)*.12;
+  camC.dist += (camC.tdist - camC.dist)*.12;
+  camC.tgt.lerp(V(pl.position.x, 1.2, pl.position.z), .1);
+  const c = city.cam, cp = Math.cos(camC.pitch);
+  c.position.set(camC.tgt.x + Math.sin(camC.yaw)*cp*camC.dist, camC.tgt.y + Math.sin(camC.pitch)*camC.dist, camC.tgt.z + Math.cos(camC.yaw)*cp*camC.dist);
+  c.lookAt(camC.tgt);
+  // күн көлеңкесі ойыншыға еріп жүреді
+  R.sun.position.copy(pl.position).add(city.sunOffset || V(34,15,10));
+  R.sun.target.position.copy(pl.position);
+}
+function updateTags(){
+  const c = city.cam, W = innerWidth, H = innerHeight;
+  [[city.player,'#tagMe'],[city.guide,'#tagGuide']].forEach(([o,id])=>{
+    const p = o.position.clone().add(V(0,2.55,0)).project(c);
+    const el = $(id);
+    const vis = p.z < 1 && Math.abs(p.x) < 1.1 && Math.abs(p.y) < 1.1;
+    el.style.display = vis ? '' : 'none';
+    if(vis) el.style.transform = `translate(${(p.x+1)/2*W}px,${(1-p.y)/2*H}px) translate(-50%,-100%)`;
+  });
+}
+function walkTo(pos, onArrive){ auto = {pos:pos.clone(), onArrive}; }
+function goBuilding(i, open=true){
+  closeAll();
+  const b = city.buildings[i];
+  // камера ғимаратқа алаң жақтан қарайтындай бұрылады (ғимарат ойыншыны жауып қалмауы үшін)
+  camC.tyaw = camC.yaw + wrapAng(Math.atan2(-Math.cos(b.angle), -Math.sin(b.angle)) - camC.yaw);
+  walkTo(b.entrance, open ? () => { player().rotation.y = b.rot + Math.PI; openInfo(i); } : null);
+}
+function goGuide(){ closeAll(); const g = city.guide.position; const d = player().position.clone().sub(g).setY(0).normalize().multiplyScalar(1.6); walkTo(g.clone().add(d), openChat); }
+function interact(){
+  if(!near) return;
+  if(near.type === 'g') openChat(); else openInfo(near.i);
+}
+function renderBList(){
+  $('#blist').innerHTML = MODS.map((m,i)=>`<button class="bitem" data-b="${i}"><span class="n">${String(i+1).padStart(2,'0')}</span><span class="dot" style="background:${m.color}">${icon('m-'+m.id)}</span><span class="nm">${esc(L(m.name))}</span><span class="go">${icon('i-ur')}</span></button>`).join('');
+}
+function drawMap(){
+  const cv = $('#minimap'), x = cv.getContext('2d'), S = cv.width, k = (S/2-14)/31;
+  const light = THEME === 'light';
+  x.clearRect(0,0,S,S);
+  x.save(); x.translate(S/2,S/2);
+  x.beginPath(); x.arc(0,0,S/2-8,0,Math.PI*2); x.fillStyle = light ? '#cfe3c0' : '#2c3b26'; x.fill();
+  x.beginPath(); x.arc(0,0,30*k,0,Math.PI*2); x.fillStyle = light ? '#e7c3b7' : '#6a4640'; x.fill();
+  x.beginPath(); x.arc(0,0,3*k,0,Math.PI*2); x.fillStyle = '#3aa6d0'; x.fill();
+  city.buildings.forEach((b,i)=>{
+    x.save(); x.translate(b.pos.x*k, b.pos.z*k); x.rotate(-b.rot);
+    x.fillStyle = b.mod.color; x.beginPath(); x.roundRect(-3.3*k,-2.6*k,6.6*k,5.2*k,6); x.fill();
+    x.restore();
+    x.fillStyle = '#fff'; x.font = '700 22px "JetBrains Mono"'; x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.fillText(String(i+1), b.pos.x*k, b.pos.z*k);
+  });
+  const g = city.guide.position; x.beginPath(); x.arc(g.x*k, g.z*k, 9, 0, Math.PI*2); x.fillStyle = '#2ecfa8'; x.fill();
+  const p = player().position, r = player().rotation.y;
+  x.save(); x.translate(p.x*k, p.z*k); x.rotate(-r + Math.PI);
+  x.beginPath(); x.moveTo(0,-16); x.lineTo(11,12); x.lineTo(0,6); x.lineTo(-11,12); x.closePath();
+  x.fillStyle = '#fff'; x.strokeStyle = '#7c5cff'; x.lineWidth = 4; x.fill(); x.stroke();
+  x.restore(); x.restore();
+}
+
+/* =========================================================
+   MODALS, CHAT
+   ========================================================= */
+let infoIdx = null;
+const anyModalOpen = () => !!document.querySelector('.modal.open') || $('#chat').classList.contains('open');
+function openModal(id){ $$('.modal.open').forEach(m=>{ if(m.id!==id) m.classList.remove('open'); }); $('#'+id).classList.add('open'); setTimeout(()=>$('#'+id+' .x')?.focus(), 50); }
+function closeAll(){ $$('.modal.open').forEach(m=>m.classList.remove('open')); infoIdx = null; }
+function openInfo(i){
+  infoIdx = i; const m = MODS[i];
+  $('#infoCard').innerHTML = `<button class="x" data-close aria-label="×">${icon('i-x')}</button>
+    <span class="mod-badge" style="background:${m.color};box-shadow:0 10px 30px -10px ${m.color}">${icon('m-'+m.id)}</span>
+    <h2>${esc(L(m.name))}</h2>
+    <div class="sp-meta"><i style="background:${m.color}"></i>${esc(L(m.place))} · ${String(i+1).padStart(2,'0')} / ${String(MODS.length).padStart(2,'0')}</div>
+    <p class="lead" style="margin-top:14px">${esc(L(m.desc))}</p>
+    <h3>${esc(t('info.inside'))}</h3>
+    <ul>${L(m.feats).map(f=>`<li>${icon('i-check')}<span>${esc(f)}</span></li>`).join('')}</ul>
+    <div class="acts"><a class="btn solid" href="${APP_URL}">${esc(t('info.open'))}${icon('i-ur')}</a><button class="btn" data-open-price>${icon('i-tag')}${esc(t('info.price'))}</button></div>`;
+  openModal('mInfo');
+}
+function openPrice(){
+  $('#priceCard').innerHTML = `<button class="x" data-close aria-label="×">${icon('i-x')}</button>
+    <div class="eyebrow">${esc(t('price.eyebrow'))}</div>
+    <h2>${esc(t('price.title'))}</h2>
+    <div class="price"><b>4 990 ₸</b><s>9 990 ₸</s><em>−50%</em></div>
+    <p class="lead">${esc(t('price.lead'))}</p>
+    <ul>${t('price.f').map(f=>`<li>${icon('i-check')}<span>${esc(f)}</span></li>`).join('')}</ul>
+    <div class="acts"><a class="btn grad" href="${waLink()}" target="_blank" rel="noopener">${icon('i-wa')}${esc(t('price.buy'))}</a><a class="btn" href="${TRIAL_URL}">${esc(t('price.trial'))}${icon('i-r')}</a></div>
+    <p class="lead" style="font-size:13px;margin:16px 0 0">${esc(t('price.note'))}</p>`;
+  openModal('mPrice');
+}
+function openRead(){
+  const body = MANIFEST[LANG].map(p => p.startsWith('#') ? `<h3>${esc(p.slice(1))}</h3>` : p.startsWith('>') ? `<div class="quote">${esc(p.slice(1))}</div>` : `<p>${esc(p)}</p>`).join('');
+  $('#readCard').innerHTML = `<button class="x" data-close aria-label="×">${icon('i-x')}</button>
+    <div class="eyebrow">${esc(t('read.eyebrow'))}</div><h2>ÖZGERIS — ${esc(t('read.title'))}</h2>${body}
+    <div class="acts" style="margin-top:8px"><a class="btn grad" href="${APP_URL}">${esc(t('cta.start'))}${icon('i-ur')}</a><button class="btn" data-open-price>${icon('i-tag')}${esc(t('board.price'))}</button></div>`;
+  openModal('mRead');
+}
+
+const CHAT = {
+  kk:{
+    chips:[['what','ÖZGERIS деген не?'],['price','Бағасы қанша?'],['start','Қалай бастаймын?'],['safe','Деректерім қауіпсіз бе?'],['tour','Қалада не бар?']],
+    what:'ÖZGERIS — әдет, мақсат, денсаулық және қаржы трекері. Күн сайын бірнеше минут белгі қойып, өміріңді жүйеге келтіресің. Бұл қаладағы әр ғимарат — қосымшаның бір бөлімі.',
+    price:'Қазір жеңілдікпен 4 990 ₸ (әдетте 9 990 ₸). Сатып алу WhatsApp арқылы: батырманы бассаң, хабарлама дайын тұрады.',
+    start:'Үш қадам: 1) email мен парольмен тіркел. 2) Поштаңа келген 6 таңбалы кодпен раста. 3) Бөлімді таңдап, алғашқы трекеріңді аш. Барлығы бір-екі минут.',
+    safe:'Иә. Пароль bcrypt-пен хэштеледі, байланыс HTTPS арқылы жүреді, деректерің жарнамаға сатылмайды және үшінші тарапқа берілмейді. Аккаунтыңды кез келген уақытта толық өшіруді сұрай аласың.',
+    trial:'Иә, тегін сынама нұсқасы бар — тіркелмей-ақ қосымшаны көріп шығасың.',
+    tour:'Мұнда 7 ғимарат бар: Клиника (денсаулық), Кітапхана (білім), Мұнара (мақсаттар), Банк (қаржы), Спортзал, Бақ (шүкіршілік) және Шеберхана (өз әдеттерің).'
+  },
+  ru:{
+    chips:[['what','Что такое ÖZGERIS?'],['price','Сколько стоит?'],['start','Как начать?'],['safe','Мои данные в безопасности?'],['tour','Что есть в городе?']],
+    what:'ÖZGERIS — трекер привычек, целей, здоровья и финансов. Пара минут в день — и жизнь становится системной. Каждое здание в этом городе — раздел приложения.',
+    price:'Сейчас со скидкой 4 990 ₸ (обычно 9 990 ₸). Покупка через WhatsApp: нажми кнопку — сообщение уже готово.',
+    start:'Три шага: 1) зарегистрируйся по email и паролю. 2) Подтверди 6-значным кодом из почты. 3) Выбери раздел и создай первый трекер. Всё займёт пару минут.',
+    safe:'Да. Пароль хэшируется bcrypt, соединение идёт по HTTPS, данные не продаются для рекламы и не передаются третьим лицам. Аккаунт можно полностью удалить в любой момент.',
+    trial:'Да, есть бесплатная пробная версия — можно посмотреть приложение без регистрации.',
+    tour:'Здесь 7 зданий: Клиника (здоровье), Библиотека (обучение), Башня (цели), Банк (финансы), Спортзал, Сад (благодарность) и Мастерская (свои привычки).'
+  }
+};
+const KW = {
+  price:['баға','қанша','ақша','тенге','₸','төле','сатып','цен','сколько','стоит','купить','оплат','тариф'],
+  trial:['тегін','сынама','бесплат','проб','trial'],
+  start:['баста','тірке','кір','қалай','начать','регистр','войти','как'],
+  safe:['қауіпсіз','дерек','құпия','пароль','безопас','данн','приват'],
+  tour:['қала','ғимарат','бөлім','не бар','город','здан','раздел','что есть'],
+  what:['деген не','не ол','не үшін','что такое','зачем','özgeris','озгерис','өзгеріс']
+};
+let chatStarted = false;
+function bubble(cls, html){ const d = document.createElement('div'); d.className = 'msg '+cls; d.innerHTML = html; $('#chatLog').append(d); $('#chatLog').scrollTop = 1e6; return d; }
+function actsHtml(intent){
+  if(intent==='price') return `<div class="acts"><a href="${waLink()}" target="_blank" rel="noopener">${esc(t('price.buy'))}</a><button data-chat-act="price">${esc(t('board.price'))}</button></div>`;
+  if(intent==='start') return `<div class="acts"><a href="${APP_URL}">${esc(t('cta.start'))}</a></div>`;
+  if(intent==='trial') return `<div class="acts"><a href="${TRIAL_URL}">${esc(t('price.trial'))}</a></div>`;
+  if(intent==='tour') return `<div class="acts">${MODS.map((m,i)=>`<button data-chat-go="${i}">${esc(L(m.name))}</button>`).join('')}</div>`;
+  if(intent==='fallback') return `<div class="acts"><a href="${waLink()}" target="_blank" rel="noopener">WhatsApp</a></div>`;
+  return '';
+}
+function answer(intent){
+  const typing = bubble('bot','<span class="typing"><i></i><i></i><i></i></span>');
+  setTimeout(()=>{
+    const txt = intent==='fallback' ? t('chat.fallback') : CHAT[LANG][intent];
+    typing.innerHTML = esc(txt) + actsHtml(intent);
+    $('#chatLog').scrollTop = 1e6;
+  }, 550);
+}
+function classify(q){
+  const s = q.toLowerCase();
+  const mi = MODS.findIndex(m => [m.name.kk,m.name.ru,m.place.kk,m.place.ru].some(n => s.includes(n.toLowerCase().slice(0,5))));
+  if(mi >= 0) return {go:mi};
+  for(const k of ['price','trial','safe','tour','what','start']) if(KW[k].some(w => s.includes(w))) return {intent:k};
+  return {intent:'fallback'};
+}
+function ask(q, intent){
+  bubble('me', esc(q));
+  if(!intent){ const c = classify(q); if(c.go != null){ const m = MODS[c.go]; const d = bubble('bot', `${esc(L(m.desc))}<div class="acts"><button data-chat-go="${c.go}">${esc(t('chat.go'))}</button></div>`); return; } intent = c.intent; }
+  answer(intent);
+}
+function renderChips(){ $('#chatChips').innerHTML = CHAT[LANG].chips.map(([k,l])=>`<button data-chip="${k}">${esc(l)}</button>`).join(''); }
+function openChat(){
+  closeAll(); $('#toast').classList.remove('show');
+  $('#chat').classList.add('open');
+  if(!chatStarted){ chatStarted = true; bubble('bot', esc(t('chat.hello'))); }
+  setTimeout(()=>$('#chatInput').focus({preventScroll:true}), 300);
+}
+function closeChat(){ $('#chat').classList.remove('open'); }
+function toast(msg){ const el = $('#toast'); el.textContent = msg; el.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(()=>el.classList.remove('show'), 4200); }
+
+/* =========================================================
+   VIEW SWITCH, URL
+   ========================================================= */
+let view = 'room', switching = false, ready = false;
+const START = new URLSearchParams(location.search);
+function setURL(){
+  if(!ready) return;
+  const u = new URL(location.href);
+  u.searchParams.set('view', view);
+  if(view === 'room') u.searchParams.set('at', stop); else u.searchParams.delete('at');
+  history.replaceState(null, '', u);
+}
+async function setView(v, {fade=true, then=null}={}){
+  if(switching || (v === view && !then)) { then && then(); return; }
+  if(v !== view){
+    switching = true;
+    if(fade){ $('#fade').classList.add('on'); await sleep(450); }
+    view = v; document.body.dataset.view = v;
+    closeAll(); closeChat();
+    $$('[data-view-btn]').forEach(b => b.classList.toggle('on', b.dataset.viewBtn === v));
+    $('#prompt').classList.remove('show');
+    if(v === 'room') goStop(stop, true);
+    setURL();
+    if(fade){ await nextFrame(); $('#fade').classList.remove('on'); }
+    switching = false;
+    if(v === 'city' && !sessionStorage.getItem('oz3d-help')){ try{ sessionStorage.setItem('oz3d-help','1'); }catch(e){} setTimeout(()=>toast(t(TOUCH ? 'help.touch' : 'help')), 700); }
+  }
+  then && then();
+}
+
+/* =========================================================
+   INPUT
+   ========================================================= */
+const ray = new THREE.Raycaster();
+const ndc = new THREE.Vector2();
+let hoverIdx = null;
+let drag = null;
+function setNdc(e){ ndc.set(e.clientX/innerWidth*2-1, -(e.clientY/innerHeight)*2+1); }
+canvas.addEventListener('pointermove', e=>{
+  mouse.x = e.clientX/innerWidth*2-1; mouse.y = e.clientY/innerHeight*2-1;
+  if(view === 'room'){
+    setNdc(e); ray.setFromCamera(ndc, room.cam);
+    const hit = ray.intersectObjects(room.pick, false)[0];
+    hoverIdx = hit && hit.object.userData.idx != null ? hit.object.userData.idx : null;
+    const act = hit && (hit.object.userData.idx != null ? stop === 'shelf' : (hit.object.userData.act === 'city' && stop === 'desk') || (hit.object.userData.act === 'read' && stop === 'board'));
+    canvas.style.cursor = act ? 'pointer' : '';
+  } else if(drag){
+    const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    if(Math.abs(dx)+Math.abs(dy) > 6) drag.moved = true;
+    if(drag.moved){ camC.tyaw -= (e.clientX - drag.lx)*.006; camC.pitch = THREE.MathUtils.clamp(camC.pitch + (e.clientY - drag.ly)*.004, .45, 1.25); }
+    drag.lx = e.clientX; drag.ly = e.clientY;
+  }
+});
+canvas.addEventListener('pointerdown', e=>{ drag = {x:e.clientX, y:e.clientY, lx:e.clientX, ly:e.clientY, moved:false}; if(view==='city') canvas.setPointerCapture(e.pointerId); });
+canvas.addEventListener('pointerup', e=>{
+  const d = drag; drag = null;
+  if(!d || d.moved) return;
+  setNdc(e);
+  if(view === 'room'){
+    ray.setFromCamera(ndc, room.cam);
+    const hit = ray.intersectObjects(room.pick, false)[0];
+    if(!hit) return;
+    const u = hit.object.userData;
+    if(u.idx != null){ if(stop !== 'shelf') goStop('shelf'); selectMod(u.idx); }
+    else if(u.act === 'city' && stop === 'desk') setView('city');
+    else if(u.act === 'read'){ if(stop === 'board') openRead(); else goStop('board'); }
+    return;
+  }
+  ray.setFromCamera(ndc, city.cam);
+  const gh = ray.intersectObject(city.guide, true)[0];
+  if(gh){ goGuide(); return; }
+  const bh = ray.intersectObjects(city.pick, false)[0];
+  const gr = ray.intersectObjects(city.ground, false)[0];
+  if(bh && (!gr || bh.distance < gr.distance)){ goBuilding(bh.object.userData.idx); return; }
+  if(gr){ walkTo(V(gr.point.x,0,gr.point.z)); }
+});
+canvas.addEventListener('wheel', e=>{ if(view !== 'city') return; e.preventDefault(); camC.tdist = THREE.MathUtils.clamp(camC.tdist*(1+e.deltaY*.001), 12, 52); updateZoom(); }, {passive:false});
+function updateZoom(){ $('#tZoom').textContent = Math.round(DEF_DIST/camC.tdist*100)+'%'; }
+
+addEventListener('keydown', e=>{
+  const typing = e.target.closest('input,textarea');
+  if(e.key === 'Escape'){ if(anyModalOpen()){ closeAll(); closeChat(); return; } if(view==='room' && stop!=='desk') goStop('desk'); return; }
+  if(typing || anyModalOpen()) return;
+  if(view === 'room'){
+    if(e.key === 'ArrowLeft'){ if(stop==='shelf') sel>0 ? selectMod(sel-1) : goStop('desk'); else if(stop==='desk') goStop('board'); }
+    if(e.key === 'ArrowRight'){ if(stop==='shelf') selectMod(sel+1); else if(stop==='desk') goStop('shelf'); else goStop('desk'); }
+    if(e.key === 'Enter' && stop==='desk' && document.activeElement === document.body) setView('city');
+    return;
+  }
+  keys[e.code] = true;
+  if(e.code === 'KeyE') interact();
+  if(e.code.startsWith('Arrow') || e.code === 'Space') e.preventDefault();
+});
+addEventListener('keyup', e=>{ keys[e.code] = false; });
+addEventListener('blur', ()=>{ for(const k in keys) keys[k] = false; });
+
+document.addEventListener('click', e=>{
+  const el = e.target.closest('button,a'); if(!el) return;
+  if(el.dataset.go){ goStop(el.dataset.go); }
+  if(el.dataset.stopBtn){ goStop(el.dataset.stopBtn); }
+  if(el.dataset.viewBtn){ setView(el.dataset.viewBtn); }
+  if(el.dataset.lang){ LANG = el.dataset.lang; try{ localStorage.setItem('oz3d-lang', LANG); }catch(_){} applyLang(); }
+  if(el.dataset.b != null){ goBuilding(+el.dataset.b); if(innerWidth < 900) $('#blist').classList.add('hide'), $('#nList').classList.remove('on'); }
+  if(el.hasAttribute('data-close')) closeAll();
+  if(el.hasAttribute('data-open-price')) openPrice();
+  if(el.dataset.chip){ const c = CHAT[LANG].chips.find(x=>x[0]===el.dataset.chip); ask(c[1], c[0]); }
+  if(el.dataset.chatAct === 'price'){ closeChat(); openPrice(); }
+  if(el.dataset.chatGo != null){ closeChat(); goBuilding(+el.dataset.chatGo); }
+});
+$$('.modal').forEach(m => m.addEventListener('click', e => { if(e.target === m) closeAll(); }));
+$('#langSm').onclick = () => { LANG = LANG === 'kk' ? 'ru' : 'kk'; try{ localStorage.setItem('oz3d-lang', LANG); }catch(_){} applyLang(); };
+$('#themeBtn').onclick = () => { THEME = THEME === 'light' ? 'dark' : 'light'; try{ localStorage.setItem('oz3d-theme', THEME); }catch(_){} applyTheme(); };
+$('#screenBtn').onclick = () => setView('city');
+$('#readBtn').onclick = openRead;
+$('#spPrev').onclick = () => selectMod(sel-1);
+$('#spNext').onclick = () => selectMod(sel+1);
+$('#spCity').onclick = () => { const i = sel; setView('city', {then:()=>setTimeout(()=>goBuilding(i), 300)}); };
+$('#guideCard').onclick = openChat;
+$('#chatClose').onclick = closeChat;
+$('#chatForm').onsubmit = e => { e.preventDefault(); const q = $('#chatInput').value.trim(); if(!q) return; $('#chatInput').value = ''; ask(q); };
+$('#nList').onclick = () => { const h = $('#blist').classList.toggle('hide'); $('#nList').classList.toggle('on', !h); };
+$('#nGuide').onclick = openChat;
+$('#nMan').onclick = openRead;
+$('#nPrice').onclick = openPrice;
+$('#prompt').onclick = interact;
+$('#tMap').onclick = () => { mapOpen = !mapOpen; $('#minimap').classList.toggle('hide', !mapOpen); $('#tMap').classList.toggle('on', mapOpen); };
+$('#tLocate').onclick = () => { camC.tyaw = camC.yaw + wrapAng(.55 - camC.yaw); camC.tdist = DEF_DIST; camC.pitch = .8; updateZoom(); };
+$('#tLabels').onclick = () => { showLabels = !showLabels; $('#tags').classList.toggle('off', !showLabels); $('#tLabels').classList.toggle('on', showLabels); };
+$('#tHelp').onclick = () => toast(t(TOUCH ? 'help.touch' : 'help'));
+$('#tZi').onclick = () => { camC.tdist = Math.max(12, camC.tdist/1.2); updateZoom(); };
+$('#tZo').onclick = () => { camC.tdist = Math.min(52, camC.tdist*1.2); updateZoom(); };
+$('#minimap').addEventListener('click', e=>{
+  const r = e.currentTarget.getBoundingClientRect(), S = 400, k = (S/2-14)/31;
+  const mx = (e.clientX - r.left)/r.width*S - S/2, mz = (e.clientY - r.top)/r.height*S - S/2;
+  walkTo(V(mx/k, 0, mz/k));
+});
+addEventListener('resize', ()=>{
+  renderer.setSize(innerWidth, innerHeight);
+  for(const c of [room.cam, city.cam]){ c.aspect = innerWidth/innerHeight; c.updateProjectionMatrix(); }
+  if(ready && view === 'room') goStop(stop, true);
+});
+if(innerWidth < 900){ $('#blist').classList.add('hide'); $('#nList').classList.remove('on'); }
+
+/* avatar */
+function avatarSvg(){
+  return `<svg viewBox="0 0 16 16" width="100%" height="100%" shape-rendering="crispEdges"><rect width="16" height="16" fill="#2ecfa8" opacity=".25"/><rect x="4" y="3" width="8" height="8" fill="#c98e66"/><rect x="4" y="2" width="8" height="3" fill="#111014"/><rect x="6" y="7" width="1" height="1" fill="#16121c"/><rect x="9" y="7" width="1" height="1" fill="#16121c"/><rect x="3" y="11" width="10" height="5" fill="#2ecfa8"/><rect x="5" y="11" width="6" height="2" fill="#1f8f74"/></svg>`;
+}
+$('#guideAvatar').innerHTML = avatarSvg(); $('#chatAvatar').innerHTML = avatarSvg();
+
+/* =========================================================
+   LOOP & INIT
+   ========================================================= */
+let last = performance.now(), frame = 0;
+function loop(now){
+  requestAnimationFrame(loop);
+  const dt = Math.min(.05, (now - last)/1000); last = now; frame++;
+  if(view === 'room'){
+    updateRoom(dt, now);
+    const screenVisible = stop === 'desk' || tween;
+    updateCity(dt, now, false);
+    if(screenVisible && frame % 2 === 0){
+      renderer.setRenderTarget(room.rt); renderer.render(city.scene, city.rtCam); renderer.setRenderTarget(null);
+    }
+    renderer.render(room.scene, room.cam);
+  } else {
+    updateCity(dt, now, !anyModalOpen() || true);
+    renderer.render(city.scene, city.cam);
+    if(showLabels) updateTags();
+    if(mapOpen && frame % 2 === 0) drawMap();
+  }
+}
+function setLoad(p, key){
+  $('#ldPct').textContent = Math.round(p)+'%'; $('#ldBar').style.width = p+'%';
+  if(key) $('#ldStep').textContent = t(key);
+}
+async function init(){
+  applyLang();
+  setLoad(4,'load.s1');
+  await Promise.race([
+    Promise.all(['800 40px Unbounded','700 40px Unbounded','500 20px Manrope','700 20px Manrope','800 20px Manrope','500 20px "JetBrains Mono"','600 20px "JetBrains Mono"'].map(f=>document.fonts.load(f, 'ÖZGERIS қңүөәі'))),
+    sleep(3500)
+  ]);
+  setLoad(28,'load.s2'); await nextFrame();
+  buildRoom();
+  setLoad(58,'load.s3'); await nextFrame();
+  buildCity();
+  setLoad(86,'load.s4'); await nextFrame();
+  applyTheme(); applyLang(); updateZoom();
+  renderer.compile(room.scene, room.cam); renderer.compile(city.scene, city.cam);
+  setLoad(100);
+  const q = START;
+  const at = q.get('at');
+  ready = true;
+  goStop(STOPS.includes(at) ? at : 'desk', true);
+  if(q.get('view') === 'city'){ view = 'room'; await setView('city', {fade:false}); }
+  else { view = 'room'; document.body.dataset.view = 'room'; $$('[data-view-btn]').forEach(b => b.classList.toggle('on', b.dataset.viewBtn === 'room')); setURL(); }
+  requestAnimationFrame(loop);
+  await sleep(250);
+  $('#loader').classList.add('done');
+}
+init().catch(err => { console.error(err); $('#ldStep').textContent = 'WebGL error: ' + err.message; });
+</script>
+</body>
+</html>
