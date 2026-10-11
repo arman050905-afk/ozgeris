@@ -7,6 +7,13 @@ if (!process.env.JWT_SECRET) {
 }
 const SECRET = process.env.JWT_SECRET;
 
+// Сынама доступ тіркелген сәттен бастап 1 күнге ғана ашық, одан кейін жабылады
+const TRIAL_MS = 24 * 60 * 60 * 1000;
+function accessInfo(createdAt) {
+  const accessUntil = new Date(new Date(createdAt).getTime() + TRIAL_MS);
+  return { accessUntil, expired: Date.now() >= accessUntil.getTime() };
+}
+
 function sign(user) {
   return jwt.sign({ tuid: user.id, kind: 'trial' }, SECRET, { expiresIn: '180d' });
 }
@@ -47,18 +54,18 @@ module.exports = async (req, res) => {
     const phoneDigits = String(phone || '').replace(/\D/g, '');
     if (phoneDigits.length < 7) return res.status(400).json({ error: 'Телефон нөмірін дұрыс жаз' });
     try {
-      const existing = await sql`select id, name from trial_users where phone = ${phoneDigits}`;
+      const existing = await sql`select id, name, created_at from trial_users where phone = ${phoneDigits}`;
       let user;
       if (existing.length) {
         user = existing[0];
         await sql`update trial_users set last_seen_at = now() where id = ${user.id}`;
       } else {
-        const rows = await sql`insert into trial_users (name, phone, funnel_step, last_seen_at) values (${String(name).trim()}, ${phoneDigits}, 1, now()) returning id, name`;
+        const rows = await sql`insert into trial_users (name, phone, funnel_step, last_seen_at) values (${String(name).trim()}, ${phoneDigits}, 1, now()) returning id, name, created_at`;
         user = rows[0];
         await sql`insert into trial_data (user_id, data) values (${user.id}, '{}'::jsonb)`;
       }
       const token = sign(user);
-      return res.status(200).json({ token, user: { name: user.name } });
+      return res.status(200).json({ token, user: { name: user.name }, ...accessInfo(user.created_at) });
     } catch (e) {
       return res.status(500).json({ error: 'Сервер қатесі, кейінірек көр' });
     }
@@ -113,16 +120,24 @@ module.exports = async (req, res) => {
   try {
     if (req.method === 'GET') {
       const rows = await sql`
-        select td.data, tu.name, tu.offer_deadline, tu.whatsapp_clicked_at
+        select td.data, tu.name, tu.offer_deadline, tu.whatsapp_clicked_at, tu.created_at
         from trial_data td join trial_users tu on tu.id = td.user_id where td.user_id = ${payload.tuid}`;
       await sql`update trial_users set last_seen_at = now() where id = ${payload.tuid}`;
+      const access = rows[0] ? accessInfo(rows[0].created_at) : { accessUntil: null, expired: true };
       return res.status(200).json({
-        data: rows[0] ? rows[0].data : {}, name: rows[0] ? rows[0].name : '',
+        // Мерзім біткен соң деректі бермейміз — клиент «доступ жабылды» экранын көрсетеді
+        data: rows[0] && !access.expired ? rows[0].data : {}, name: rows[0] ? rows[0].name : '',
+        accessUntil: access.accessUntil, expired: access.expired,
         offerDeadline: rows[0] ? rows[0].offer_deadline : null,
         whatsappClicked: rows[0] ? !!rows[0].whatsapp_clicked_at : false
       });
     }
     if (req.method === 'PUT' || req.method === 'POST') {
+      const urows = await sql`select created_at from trial_users where id = ${payload.tuid}`;
+      const access = urows[0] ? accessInfo(urows[0].created_at) : { accessUntil: null, expired: true };
+      if (access.expired) {
+        return res.status(403).json({ error: 'Сынама доступ жабылды', expired: true, accessUntil: access.accessUntil });
+      }
       const data = (req.body && req.body.data) || {};
       await sql`
         insert into trial_data (user_id, data, updated_at)

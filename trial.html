@@ -1111,16 +1111,248 @@
   </div>
 </section>
 
+<!-- ============ СЫНАМА ДОСТУП ЖАБЫЛДЫ (1 күн өткен соң) ============ -->
+<div id="pendingScreen" style="display:none">
+  <div class="pending-card">
+    <div class="pe"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='5' y='11' width='14' height='10' rx='2'/><path d='M8,11 V7 a4,4 0 0 1 8,0 V11'/></svg></div>
+    <h2 data-i18n="trial.expiredTitle">Сынама доступ жабылды</h2>
+    <p data-i18n="trial.expiredDesc">1 күндік тегін кезең аяқталды. ÖZGERIS-ті әрі қарай қолдану үшін толық нұсқаны ал — WhatsApp-қа жаз, доступ жылдам беріледі.</p>
+    <div class="offer-price"><span class="old">9 990 ₸</span><span class="new">4 990 ₸</span><span class="off">−50%</span></div>
+    <button class="wa-btn" style="margin:12px 0 10px" onclick="openWhatsappOffer()">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.6.1-.2.3-.7.9-.9 1-.2.2-.3.2-.6.1-.9-.4-1.9-1-2.7-1.9-.8-.8-1.3-1.7-1.6-2.3-.1-.2 0-.4.1-.5.2-.2.4-.4.5-.6.1-.2.1-.4 0-.5-.1-.2-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.3-.9 1-.9 2.3s1 2.7 1.1 2.9c.1.2 2 3.1 4.9 4.2 2.9 1.1 2.9.7 3.4.7.5 0 1.6-.6 1.8-1.2.2-.6.2-1.1.1-1.2-.1-.1-.3-.2-.5-.3z"/></svg>
+      <span data-i18n="trial.offerWaBtn">WhatsApp арқылы жеңілдік алу</span>
+    </button>
+    <button class="btn ghost" onclick="logout()" data-i18n="nav.logout">Шығу</button>
+  </div>
+</div>
+
 <!-- ============ FINANCE (umbrella: Dashboard/Кірістер/Шығыстар/Аналитика/Бюджет/
      Мақсаттар/Cash Flow/Инвестициялар/Қарыздар/AI көмекші) ============ -->
 <section id="finance" class="view">
   <div class="container">
-    <h1 class="page-title"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='3' y='7' width='18' height='12' rx='2'/><line x1='3' y1='10.5' x2='21' y2='10.5'/><circle cx='17' cy='14' r='1.3' fill='currentColor' stroke='none'/></svg> <span data-i18n="nav.finance">Қаржы</span></h1>
-    <div class="box" style="text-align:center;padding:48px 24px">
-      <div style="font-size:52px;margin-bottom:16px">🔒</div>
-      <h2 style="margin-bottom:10px" data-i18n="trial.finLockedTitle">Қаржы басқару толық нұсқада ашылады</h2>
-      <p style="color:var(--muted);font-size:14.5px;line-height:1.6;max-width:440px;margin:0 auto 24px" data-i18n="trial.finLockedDesc">Кіріс-шығын, міндетті төлемдер, қарыздар, қаржылық мақсаттар және сауаттылық материалдары — бәрі толық нұсқада қолжетімді. Бұл сынама нұсқада тек әдет трекерлерін көре аласың.</p>
-      <button class="btn" style="width:auto" onclick="window.open('https://www.ozgeris.asia/','_blank')"><span data-i18n="trial.getFull">Толық нұсқаны алу</span></button>
+    <h1 class="page-title"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='3' y='7' width='18' height='12' rx='2'/><line x1='3' y1='10.5' x2='21' y2='10.5'/><circle cx='17' cy='14' r='1.3' fill='currentColor' stroke='none'/></svg> Қаржы</h1>
+    <p class="page-sub">Кіріс, шығын, бюджет, инвестиция, мақсат — бәрі бір жерде.</p>
+
+    <div class="tabs" id="finTabs"></div>
+
+    <!-- ---------- DASHBOARD ---------- -->
+    <div id="fp-dash" class="fin-panel active">
+      <div class="box" style="margin-bottom:20px">
+        <label data-i18n="fin.balance">Жалпы баланс</label>
+        <div class="balance" id="dashBalance">0 ₸</div>
+        <div style="display:flex;gap:20px;font-size:13px;color:var(--muted);flex-wrap:wrap">
+          <span><span data-i18n="fin.monthIn">Осы айдағы кіріс:</span> <b style="color:var(--good)" id="dashMonthIn">0 ₸</b></span>
+          <span><span data-i18n="fin.monthOut">Осы айдағы шығыс:</span> <b style="color:#f0a5a5" id="dashMonthOut">0 ₸</b></span>
+          <span><span data-i18n="fin.netProfit">Таза пайда:</span> <b id="dashMonthNet">0 ₸</b></span>
+        </div>
+      </div>
+      <div id="dashWarnings"></div>
+      <div class="kpis" id="dashKpis"></div>
+      <div class="charts">
+        <div class="chart-box">
+          <h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><polyline points='3,17 9,11 13,15 21,5'/><polyline points='15,5 21,5 21,11'/></svg> <span data-i18n="fin.last6mChart">Соңғы 6 айдың кіріс/шығыны</span></h3>
+          <div class="cd" data-i18n="fin.monthlyCompare">Ай сайынғы салыстыру</div>
+          <canvas id="dashCfChart" width="560" height="260"></canvas>
+        </div>
+        <div class="chart-box">
+          <h3 data-i18n="fin.whereMoneyWent">Ақша қайда кетті (осы ай)</h3>
+          <div class="cd" data-i18n="fin.expenseStructure">Шығын құрылымы</div>
+          <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap">
+            <canvas id="dashPie" width="200" height="200" style="max-width:200px"></canvas>
+            <div class="legend" id="dashLegend" style="flex-direction:column;gap:8px"></div>
+          </div>
+        </div>
+      </div>
+      <div class="box" style="margin-top:20px">
+        <div class="box-head"><h3 data-i18n="fin.recentTx">Соңғы транзакциялар</h3></div>
+        <div class="tx-list" id="dashRecentTx"></div>
+      </div>
+      <div class="box" style="margin-top:20px">
+        <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='8'/><circle cx='12' cy='12' r='4.5'/><circle cx='12' cy='12' r='1.3' fill='currentColor' stroke='none'/></svg> <span data-i18n="fin.goalsProgress">Қаржылық мақсаттар прогресі</span></h3></div>
+        <div id="dashGoalsMini"></div>
+      </div>
+    </div>
+
+    <!-- ---------- INCOME ---------- -->
+    <div id="fp-income" class="fin-panel">
+      <div class="box" style="margin-bottom:20px">
+        <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='9'/><polyline points='8,13 12,9 16,13'/><line x1='12' y1='16' x2='12' y2='9'/></svg> <span data-i18n="fin.addIncome">Табыс қосу</span></h3><span class="sum-badge in" id="incSum">0 ₸</span></div>
+        <div class="row">
+          <div><label data-i18n="fin.dateLabel">Күні</label><input type="date" id="incDate"></div>
+          <div><label data-i18n="fin.amountLabel">Сома</label><input type="number" id="incAmount" placeholder="0" min="0"></div>
+        </div>
+        <label data-i18n="fin.nameLabel">Атауы</label>
+        <input type="text" id="incName" data-i18n-ph="fin.namePhIncome" placeholder="Мысалы: Жалақы" list="incNames">
+        <datalist id="incNames"></datalist>
+        <label data-i18n="fin.descLabel">Сипаттама (қаласаң)</label>
+        <input type="text" id="incDesc" data-i18n-ph="fin.descPh" placeholder="Қосымша ескертпе">
+        <button class="btn" onclick="addIncome()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='5' x2='12' y2='19'/><line x1='5' y1='12' x2='19' y2='12'/></svg> <span data-i18n="fin.addIncome">Табыс қосу</span></button>
+      </div>
+      <div class="box">
+        <div class="box-head"><h3 data-i18n="fin.list">Тізім</h3></div>
+        <div class="row">
+          <input type="text" id="incSearch" data-i18n-ph="fin.searchPh" placeholder="Іздеу..." oninput="renderTxLists()">
+          <select id="incFilterCat" onchange="renderTxLists()"><option value="" data-i18n="fin.allCat">Барлық категория</option></select>
+        </div>
+        <div class="tx-list" id="incList"></div>
+      </div>
+    </div>
+
+    <!-- ---------- EXPENSE ---------- -->
+    <div id="fp-expense" class="fin-panel">
+      <div class="box" style="margin-bottom:20px">
+        <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='9'/><polyline points='8,11 12,15 16,11'/><line x1='12' y1='8' x2='12' y2='15'/></svg> <span data-i18n="fin.addExpense">Шығын қосу</span></h3><span class="sum-badge out" id="expSum">0 ₸</span></div>
+        <div class="row">
+          <div><label data-i18n="fin.dateLabel">Күні</label><input type="date" id="expDate"></div>
+          <div><label data-i18n="fin.amountLabel">Сома</label><input type="number" id="expAmount" placeholder="0" min="0"></div>
+        </div>
+        <label data-i18n="fin.catLabel">Категория</label>
+        <input type="text" id="expName" data-i18n-ph="fin.namePhExpense" placeholder="Мысалы: Тамақ" list="expNames">
+        <datalist id="expNames"></datalist>
+        <label data-i18n="fin.descLabel">Сипаттама (қаласаң)</label>
+        <input type="text" id="expDesc" data-i18n-ph="fin.descPh" placeholder="Қосымша ескертпе">
+        <label data-i18n="fin.receiptLabel">Чек суреті (қаласаң, 300KB-тан аз)</label>
+        <label for="expReceipt" class="file-btn"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='6' y='4' width='12' height='18' rx='2'/><rect x='9' y='2' width='6' height='4' rx='1'/><line x1='9' y1='11' x2='15' y2='11'/><line x1='9' y1='15' x2='15' y2='15'/></svg> <span id="expReceiptText" data-i18n="fin.chooseFile">Файл таңдау</span></label>
+        <input type="file" id="expReceipt" accept="image/*" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden" onchange="updateFileLabel(this,'expReceiptText')">
+        <button class="btn" onclick="addExpense()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='5' x2='12' y2='19'/><line x1='5' y1='12' x2='19' y2='12'/></svg> <span data-i18n="fin.addExpense">Шығын қосу</span></button>
+      </div>
+      <div class="box">
+        <div class="box-head"><h3 data-i18n="fin.list">Тізім</h3></div>
+        <div class="row">
+          <input type="text" id="expSearch" data-i18n-ph="fin.searchPh" placeholder="Іздеу..." oninput="renderTxLists()">
+          <select id="expFilterCat" onchange="renderTxLists()"><option value="" data-i18n="fin.allCat">Барлық категория</option></select>
+        </div>
+        <div class="tx-list" id="expList"></div>
+      </div>
+    </div>
+
+    <!-- ---------- ANALYTICS ---------- -->
+    <div id="fp-analytics" class="fin-panel">
+      <div class="tabs" id="anaPeriodTabs"></div>
+      <div class="kpis" id="anaKpis"></div>
+      <div class="charts">
+        <div class="chart-box">
+          <h3 data-i18n="fin.catExpenseChart">Категория бойынша шығын</h3>
+          <div class="cd" id="anaPeriodLabel"></div>
+          <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap">
+            <canvas id="anaPie" width="220" height="220" style="max-width:220px"></canvas>
+            <div class="legend" id="anaLegend" style="flex-direction:column;gap:8px"></div>
+          </div>
+        </div>
+        <div class="chart-box">
+          <h3 data-i18n="fin.comparePrevPeriod">Өткен периодпен салыстыру</h3>
+          <div class="cd" data-i18n="fin.incExpChange">Кіріс/шығын өзгерісі</div>
+          <div id="anaCompare"></div>
+        </div>
+      </div>
+      <div class="chart-box" id="dailyExpenseBox" style="margin-top:20px">
+        <h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='3' y='7' width='18' height='12' rx='2'/><line x1='3' y1='10.5' x2='21' y2='10.5'/><circle cx='17' cy='14' r='1.3' fill='currentColor' stroke='none'/></svg> <span data-i18n="ana.dailyExpense">Күндік шығын</span></h3>
+        <div class="cd" data-i18n="ana.dailyExpenseDesc">Соңғы 30 күн — бағанды бас, сол күнгі соманы көресің</div>
+        <canvas id="dailyExpenseChart" width="820" height="220" onclick="pickDailyExpenseBar(event)"></canvas>
+        <div id="dailyExpensePick" style="margin-top:10px;font-size:14px;color:var(--muted)"></div>
+      </div>
+      <div class="charts" style="margin-top:20px">
+        <div class="chart-box"><h3 data-i18n="fin.top5exp">Топ-5 шығын категориясы</h3><div id="anaTopExp"></div></div>
+        <div class="chart-box"><h3 data-i18n="fin.top5inc">Топ-5 кіріс категориясы</h3><div id="anaTopInc"></div></div>
+      </div>
+    </div>
+
+    <!-- ---------- МІНДЕТТІ ТӨЛЕМДЕР ---------- -->
+    <div id="fp-recurring" class="fin-panel">
+      <div class="box" style="margin-bottom:20px">
+        <div style="display:flex;gap:14px;flex-wrap:wrap">
+          <div class="stat" style="flex:1"><div class="num" id="recurMonthlySum">0 ₸</div><div class="lbl" data-i18n="recur.stat1">Айлық жалпы жүктеме</div></div>
+          <div class="stat" style="flex:1"><div class="num" style="color:var(--crit)" id="recurOverdueCount">0</div><div class="lbl" data-i18n="recur.stat2">Мерзімі өткен</div></div>
+        </div>
+      </div>
+      <div class="box" style="margin-bottom:20px">
+        <div class="box-head" id="recurFormToggle" onclick="toggleRecurForm()" style="cursor:pointer">
+          <h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='3' y='5' width='18' height='16' rx='2'/><line x1='3' y1='10' x2='21' y2='10'/><line x1='8' y1='3' x2='8' y2='7'/><line x1='16' y1='3' x2='16' y2='7'/></svg> <span data-i18n="recur.addTitle">Жаңа міндетті төлем қосу</span></h3>
+          <span class="settings-chevron" id="recurFormChevron"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><path d='M5,12 H19 M12,5 L19,12 L12,19'/></svg></span>
+        </div>
+        <div id="recurFormBody" style="display:none">
+          <label data-i18n="recur.whatLabel">Не төлейсің? (таңдау міндетті емес — тізімнен таңдасаң, атауы мен түрі өзі толады)</label>
+          <input type="text" id="recurPresetSearch" data-i18n-ph="recur.searchPh" placeholder="Іздеу: оператор, банк, коммуналка, подписка..." oninput="renderPresetList()">
+          <div id="recurPresetList" style="max-height:230px;overflow-y:auto;margin-bottom:16px"></div>
+          <label data-i18n="recur.nameLabel">Атауы</label>
+          <input type="text" id="recurName" data-i18n-ph="recur.namePh" placeholder="Мыс: Жалдау ақысы, Садақа, Yandex Plus">
+          <label data-i18n="recur.kindLabel">Түрі</label>
+          <select id="recurKind" onchange="onRecurKindChange()">
+            <option value="monthly" data-i18n="recur.kind.monthly">Айлық төлем</option>
+            <option value="daily" data-i18n="recur.kind.daily">Күндік міндетті (мыс. садақа)</option>
+            <option value="subscription" data-i18n="recur.kind.subscription">Подписка (Yandex, Apple, т.б.)</option>
+            <option value="installment" data-i18n="recur.kind.installment">Рассрочка</option>
+          </select>
+          <div class="row">
+            <div><label data-i18n="recur.amountLabel">Сомасы (₸)</label><input type="number" id="recurAmount" placeholder="0"></div>
+            <div id="recurDueDayWrap">
+              <label data-i18n="recur.dueDayLabel">Айдың нешесінде</label>
+              <input type="number" id="recurDueDay" min="1" max="31" data-i18n-ph="recur.dueDayPh" placeholder="1-31">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:8px">
+                <input type="checkbox" id="recurNoDueDay" onchange="onRecurKindChange()" style="width:auto;margin:0">
+                <span style="font-weight:400;font-size:13px;color:var(--muted)" data-i18n="recur.noDueDay">Күнін белгілемеймін</span>
+              </label>
+            </div>
+          </div>
+          <button class="btn" onclick="addRecurring()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='5' x2='12' y2='19'/><line x1='5' y1='12' x2='19' y2='12'/></svg> <span data-i18n="common.add">Қосу</span></button>
+        </div>
+      </div>
+      <div class="box" style="margin-bottom:20px"><div id="pushSection"></div></div>
+      <div class="box"><div class="tx-list" id="recurList" style="max-height:none"></div></div>
+    </div>
+
+    <!-- ---------- FINANCIAL GOALS ---------- -->
+    <div id="fp-goals" class="fin-panel">
+      <div class="box" style="margin-bottom:20px">
+        <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='5' x2='12' y2='19'/><line x1='5' y1='12' x2='19' y2='12'/></svg> <span data-i18n="fg.addTitle">Жаңа қаржылық мақсат</span></h3></div>
+        <label data-i18n="fg.nameLabel">Мақсат атауы</label>
+        <input type="text" id="fgName" data-i18n-ph="fg.namePh" placeholder="Мыс: iPhone 17, Дубайға саяхат">
+        <div class="row">
+          <div><label data-i18n="fg.targetLabel">Қажетті сома (₸)</label><input type="number" id="fgTarget" placeholder="100000"></div>
+          <div><label data-i18n="fg.deadlineLabel">Мерзімі</label><input type="date" id="fgDeadline"></div>
+        </div>
+        <label data-i18n="fg.descLabel">Сипаттама (қаласаң)</label>
+        <input type="text" id="fgDesc" data-i18n-ph="fg.descPh" placeholder="Қосымша ескертпе">
+        <button class="btn" onclick="addFinGoal()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><ellipse cx='10.5' cy='13' rx='9' ry='6.5'/><circle cx='19.3' cy='13.8' r='2.2'/><circle cx='20.1' cy='13' r='0.4' fill='currentColor' stroke='none'/><path d='M8,7.2 L9.3,4.5 L10.8,7'/><line x1='6' y1='19.3' x2='6' y2='21.5'/><line x1='13.5' y1='19.3' x2='13.5' y2='21.5'/><line x1='9' y1='7.3' x2='12.5' y2='7.3'/><path d='M1.3,12.5 C1,11 2,10.3 2.7,11.2 C3.3,12 2.6,13.3 1.3,12.5 Z'/></svg> <span data-i18n="fg.startBtn">Мақсат бастау</span></button>
+      </div>
+      <div class="grid" id="finGoalsList"></div>
+    </div>
+
+    <!-- ---------- CASH FLOW ---------- -->
+    <div id="fp-cashflow" class="fin-panel">
+      <div class="kpis" id="cfKpis"></div>
+      <div class="chart-box" style="margin-bottom:20px">
+        <h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><polyline points='3,17 9,11 13,15 21,5'/><polyline points='15,5 21,5 21,11'/></svg> <span data-i18n="cf.title">Ақша ағыны (соңғы 12 ай)</span></h3>
+        <div class="cd" data-i18n="cf.sub">Кіріс пен шығынды ай сайын салыстыр</div>
+        <canvas id="cfChart" width="900" height="300"></canvas>
+        <div class="legend" id="cfLegend"></div>
+      </div>
+      <div class="box"><div class="box-head"><h3 data-i18n="cf.table">Ай бойынша кесте</h3></div><div id="cfTable"></div></div>
+    </div>
+
+    <!-- ---------- ҚАРЫЗДАР ---------- -->
+    <div id="fp-debts" class="fin-panel">
+      <div class="box" style="margin-bottom:20px">
+        <div style="display:flex;gap:14px;flex-wrap:wrap">
+          <div class="stat" style="flex:1"><div class="num" style="color:var(--good)" id="debtOwedSum">0 ₸</div><div class="lbl" data-i18n="debt.owedToMe">Маған қарыз</div></div>
+          <div class="stat" style="flex:1"><div class="num" style="color:#f0a5a5" id="debtIoweSum">0 ₸</div><div class="lbl" data-i18n="debt.iOwe">Мен қарызбын</div></div>
+          <div class="stat" style="flex:1"><div class="num" id="debtNetSum">0 ₸</div><div class="lbl" data-i18n="debt.netBalance">Таза баланс</div></div>
+        </div>
+      </div>
+      <div class="top-bar" style="justify-content:space-between;align-items:center">
+        <div class="tabs" id="debtTabs"></div>
+        <button class="btn sm" onclick="openDebtModal()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><line x1='12' y1='5' x2='12' y2='19'/><line x1='5' y1='12' x2='19' y2='12'/></svg> <span data-i18n="debt.new">Жаңа қарыз</span></button>
+      </div>
+      <div id="debtList" class="grid"></div>
+      <div id="debtClosedWrap" style="margin-top:30px">
+        <h3 style="margin-bottom:14px;color:var(--muted);font-size:15px"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='9'/><polyline points='8,12 11,15 16,9'/></svg> <span data-i18n="debt.closed">Жабылған қарыздар</span></h3>
+        <div id="debtClosedList" class="grid"></div>
+      </div>
+    </div>
+
+    <!-- ---------- LITERACY (қаржылық сауаттылық, статикалық білім беру мазмұны) ---------- -->
+    <div id="fp-literacy" class="fin-panel">
+      <div id="literacyBody"></div>
     </div>
   </div>
 </section>
@@ -1150,12 +1382,6 @@
         <div class="cd" data-i18n="ana.dyn30Desc">Күніне неше әдет орындалды</div>
         <canvas id="lineChart" width="560" height="300"></canvas>
       </div>
-    </div>
-    <div class="chart-box" id="dailyExpenseBox" style="margin-top:20px">
-      <h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='3' y='7' width='18' height='12' rx='2'/><line x1='3' y1='10.5' x2='21' y2='10.5'/><circle cx='17' cy='14' r='1.3' fill='currentColor' stroke='none'/></svg> <span data-i18n="ana.dailyExpense">Күндік шығын</span></h3>
-      <div class="cd" data-i18n="ana.dailyExpenseDesc">Соңғы 30 күн — бағанды бас, сол күнгі соманы көресің</div>
-      <canvas id="dailyExpenseChart" width="820" height="220" onclick="pickDailyExpenseBar(event)"></canvas>
-      <div id="dailyExpensePick" style="margin-top:10px;font-size:14px;color:var(--muted)"></div>
     </div>
     <div id="streakLeaderboard" style="margin-top:20px"></div>
     <div class="chart-box" id="trackerOverviewBox" style="margin-top:20px">
@@ -1192,7 +1418,7 @@
 
     <div class="box" style="text-align:center;margin-bottom:20px;background:linear-gradient(135deg,var(--grad-1),var(--grad-2))">
       <div style="font-weight:800;font-size:17px;color:#fff;margin-bottom:6px">🔓 <span data-i18n="trial.promoTitle">Бұл — сынама нұсқа</span></div>
-      <p style="color:rgba(255,255,255,.85);font-size:14px;margin-bottom:14px" data-i18n="trial.promoDesc">Әдет трекерлерін толық көресің. Қаржы басқару және басқа функциялар толық нұсқада ашылады.</p>
+      <p style="color:rgba(255,255,255,.85);font-size:14px;margin-bottom:14px" data-i18n="trial.promoDesc">Барлық бөлім, қаржы да, 1 күнге ашық. Мерзім біткен соң доступ жабылады — толық нұсқаны WhatsApp арқылы аласың.</p>
       <button class="btn" style="width:auto;background:#fff;color:#5b3df0" onclick="window.open('https://www.ozgeris.asia/','_blank')"><span data-i18n="trial.getFull">Толық нұсқаны алу</span></button>
     </div>
     <div class="box" style="padding:6px 20px">
@@ -1492,14 +1718,16 @@ const I18N = {
     'home.randomTaskTitle':'Кездейсоқ тапсырма', 'home.checkinTitle':'Барлық check-типті трекерлерді бүгінге бекіту',
     'trial.sub':'Сәлем! Атыңды жаз, бірнеше сұраққа жауап бер, мен саған жеке жоспар көрсетемін',
     'trial.phoneLabel':'Телефон нөмірің', 'trial.enter':'Кіру', 'trial.next':'Жалғастыру',
-    'trial.note':'Бұл — сынама нұсқа, кейбір функциялар толық нұсқада ғана ашық.',
+    'trial.note':'Бұл — сынама нұсқа: барлық функция 1 күнге ғана ашық.',
     'trial.q2.title':'Сені қазір не мазалап жүр?', 'trial.q5.title':'Бұрын өзгеруге тырысып көрдің бе?',
     'trial.seeHow':'Қалай болатынын көру →',
     'trial.hookTitle':'ÖZGERIS-ті дәл қазір тегін байқап көр',
     'trial.hookDesc':'1 күндік тегін нұсқаға кіріп, өзіңе арналған трекерлерді дәл қазір баста — алғашқы өзгерісті бүгіннен сезесің.',
     'trial.hookBtn':'Тегін кіру',
     'trial.promoTitle':'Бұл — сынама нұсқа',
-    'trial.promoDesc':'Әдет трекерлерін толық көресің. Қаржы басқару және басқа функциялар толық нұсқада ашылады.',
+    'trial.promoDesc':'Барлық бөлім, қаржы да, 1 күнге ашық. Мерзім біткен соң доступ жабылады — толық нұсқаны WhatsApp арқылы аласың.',
+    'trial.expiredTitle':'Сынама доступ жабылды',
+    'trial.expiredDesc':'1 күндік тегін кезең аяқталды. ÖZGERIS-ті әрі қарай қолдану үшін толық нұсқаны ал — WhatsApp-қа жаз, доступ жылдам беріледі.',
     'trial.getFull':'Толық нұсқаны алу',
     'trial.finLockedTitle':'Қаржы басқару толық нұсқада ашылады',
     'trial.finLockedDesc':'Кіріс-шығын, міндетті төлемдер, қарыздар, қаржылық мақсаттар және сауаттылық материалдары — бәрі толық нұсқада қолжетімді. Бұл сынама нұсқада тек әдет трекерлерін көре аласың.',
@@ -1625,14 +1853,16 @@ const I18N = {
     'home.randomTaskTitle':'Случайное задание', 'home.checkinTitle':'Отметить все трекеры типа check на сегодня',
     'trial.sub':'Напиши своё имя и номер телефона, чтобы посмотреть пробную версию',
     'trial.phoneLabel':'Номер телефона', 'trial.enter':'Войти', 'trial.next':'Продолжить',
-    'trial.note':'Это пробная версия, некоторые функции открыты только в полной версии.',
+    'trial.note':'Это пробная версия: все функции открыты только на 1 день.',
     'trial.q2.title':'Что тебя сейчас больше всего беспокоит?', 'trial.q5.title':'Пробовал меняться раньше?',
     'trial.seeHow':'Посмотреть, как это будет →',
     'trial.hookTitle':'Попробуй ÖZGERIS бесплатно прямо сейчас',
     'trial.hookDesc':'Зайди в бесплатную пробную версию и начни свои трекеры прямо сейчас — первые изменения почувствуешь уже сегодня.',
     'trial.hookBtn':'Войти бесплатно',
     'trial.promoTitle':'Это пробная версия',
-    'trial.promoDesc':'Трекеры привычек доступны полностью. Управление финансами и другие функции открываются в полной версии.',
+    'trial.promoDesc':'Все разделы, включая финансы, открыты на 1 день. Потом доступ закроется — полную версию можно получить через WhatsApp.',
+    'trial.expiredTitle':'Пробный доступ закрыт',
+    'trial.expiredDesc':'Бесплатный период на 1 день закончился. Чтобы пользоваться ÖZGERIS дальше, получи полную версию — напиши в WhatsApp, доступ откроем быстро.',
     'trial.getFull':'Получить полную версию',
     'trial.finLockedTitle':'Управление финансами открывается в полной версии',
     'trial.finLockedDesc':'Доходы-расходы, обязательные платежи, долги, финансовые цели и материалы по грамотности — всё доступно в полной версии. В этой пробной версии можно смотреть только трекеры привычек.',
@@ -1741,6 +1971,10 @@ async function apiCall(method, body){
     throw new Error(e.name==='AbortError' ? (LANG==='ru'?'Сервер жауап бермеді, қайта көр':'Сервер жауап бермеді, қайта көр') : (LANG==='ru'?'Интернет байланысын тексер':'Интернет байланысын тексер'));
   }finally{ clearTimeout(timeoutId); }
   let json = {}; try{ json = await res.json(); }catch(e){}
+  if(res.status===403 && json.expired){
+    Store.setGlobal('trial_access_until', json.accessUntil || new Date().toISOString());
+    showTrialExpired();
+  }
   if(!res.ok) throw new Error(json.error || 'Қате шықты, қайта көр');
   return json;
 }
@@ -1751,6 +1985,7 @@ async function fetchCloud(){
     const data = r.data || {};
     DATA_KEYS.forEach(k=>{ if(data[k]!==undefined) Store.set(k, data[k]); });
     if(r.offerDeadline) Store.setGlobal('trial_offer_deadline', r.offerDeadline);
+    if(r.accessUntil) Store.setGlobal('trial_access_until', r.accessUntil);
     Store.setGlobal('trial_wa_clicked', !!r.whatsappClicked);
     cloudOk = true;
   }catch(e){ cloudOk = false; }
@@ -1897,7 +2132,16 @@ async function quizStep1Submit(){
     const r = await apiCall('POST', {action:'login', name, phone});
     Store.setGlobal('app_token', r.token);
     Store.setGlobal('app_name', r.user.name);
+    Store.setGlobal('trial_access_until', r.accessUntil || null);
     quizState.name = r.user.name;
+    if(r.expired){
+      // Бұл нөмірмен 1 күндік сынама бұрын өтіп кеткен — квизсіз бірден «доступ жабылды»
+      currentUser = r.user.name;
+      Store.setGlobal('app_session', r.user.name);
+      btn.disabled = false; btn.textContent = originalLabel;
+      showTrialExpired();
+      return;
+    }
     window._trialTrack = (step)=>{ apiCall('POST',{action:'track',step}).catch(()=>{}); };
     renderQ2();
     showQStep(2);
@@ -2049,6 +2293,8 @@ async function loginAs(name){
   document.getElementById('buyNavBtn').style.display='none';
 
   await fetchCloud();   // базадан деректі тартып, локал кэшке құяды
+  if(trialExpired()){ showTrialExpired(); return; }
+  watchTrialAccess();
   loadUserData();
   document.getElementById('userBadge').innerHTML=ic('user')+' '+name.replace(/</g,'&lt;');
   document.getElementById('heroName').textContent = (name||'').trim().split(/\s+/)[0] || (LANG==='ru'?'друг':'досым');
@@ -2063,7 +2309,7 @@ async function loginAs(name){
   }
 }
 const FIRST_TASKS = {
-  finance:'Бірінші қадам: бүгінгі бір шығыныңды «Трекерлер» бөлімінде белгілеп көр.',
+  finance:'Бірінші қадам: бүгінгі бір шығыныңды «Қаржы» бөлімінде жазып көр.',
   sport:'Бірінші қадам: 10 минуттық жаттығу трекерін аш да бүгінгі күнді белгіле.',
   health:'Бірінші қадам: ұйқы трекеріне бүгінгі жату/тұру уақытыңды жаз.',
   edu:'Бірінші қадам: жаңа трекер аш да бір кішкентай тапсырманы бүгін орында.'
@@ -2074,6 +2320,31 @@ function showFirstTaskPrompt(){
   const text = FIRST_TASKS[dir] || 'Бірінші қадам: өзіңе бір кішкентай трекер аш да бүгін белгіле.';
   toast(text);
 }
+/* ---------- 1 КҮНДІК ДОСТУП: тіркелгеннен 24 сағат өткен соң сынама жабылады ---------- */
+let _accessTimer = null;
+function trialExpired(){
+  const until = Store.getGlobal('trial_access_until', null);
+  if(!until) return false;
+  const t = new Date(until).getTime();
+  return isFinite(t) && Date.now() >= t;
+}
+function showTrialExpired(){
+  clearTimeout(_accessTimer);
+  document.getElementById('authScreen').style.display='none';
+  document.getElementById('pendingScreen').style.display='flex';
+}
+function watchTrialAccess(){
+  clearTimeout(_accessTimer);
+  const until = Store.getGlobal('trial_access_until', null);
+  if(!until) return;
+  const ms = new Date(until).getTime() - Date.now();
+  if(ms <= 0){ showTrialExpired(); return; }
+  _accessTimer = setTimeout(showTrialExpired, Math.min(ms, 2147483647));
+}
+// Телефон ұйықтап тұрса setTimeout кешігеді — бетке қайта оралғанда да тексереміз
+document.addEventListener('visibilitychange', ()=>{
+  if(!document.hidden && currentUser && trialExpired()) showTrialExpired();
+});
 let _offerTimerInt = null;
 function initOfferBanner(){
   const deadline = Store.getGlobal('trial_offer_deadline', null);
@@ -2167,10 +2438,14 @@ function logout(){
   Store.setGlobal('app_name', null);
   Store.setGlobal('app_active', null);
   Store.setGlobal('app_admin', null);
+  Store.setGlobal('trial_access_until', null);
+  clearTimeout(_accessTimer);
+  document.getElementById('pendingScreen').style.display='none';
   document.getElementById('adminNavLink').style.display='none';
   document.getElementById('authScreen').style.display='flex';
   document.getElementById('authErr').textContent='';
   ['trialName','trialPhone'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  showQStep(1);
 }
 
 /* ============================================================
@@ -2480,6 +2755,7 @@ function showView(v){
   const bnLink = document.querySelector(`#bottomNav a[data-view="${navKey}"]`);
   if(bnLink) bnLink.classList.add('active');
   if(v==='mine') renderMine();
+  if(v==='finance') renderFinance();
   if(v==='analytics') renderAnalytics();
   if(v==='archive') renderArchive();
   if(v==='profile') renderProfile();
@@ -4274,6 +4550,7 @@ function renderFinAnalytics(){
   };
   document.getElementById('anaTopExp').innerHTML = topList(byOut,'#f0a5a5');
   document.getElementById('anaTopInc').innerHTML = topList(byInc,'var(--good)');
+  drawDailyExpenseChart();
 }
 
 /* ---------- МІНДЕТТІ ТӨЛЕМДЕР (айлық/күндік/подписка/рассрочка) ---------- */
@@ -5588,7 +5865,6 @@ function renderAnalytics(){
   const kpi=document.getElementById('kpis');
   renderHealthPanel(); renderAchievements();
   renderAnalyticsInsights(); renderStreakLeaderboard(); renderOverview();
-  drawDailyExpenseChart();
   if(!trackers.length){
     kpi.innerHTML='';
     document.getElementById('derived').innerHTML=
