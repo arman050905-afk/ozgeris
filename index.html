@@ -967,7 +967,7 @@
     <nav class="nav-links" id="navLinks">
       <a data-view="home" class="active"><span data-i18n="nav.create">Трекер құру</span></a>
       <a data-view="mine"><span data-i18n="nav.mine">Менің трекерлерім</span></a>
-      <a data-view="course"><span data-i18n="nav.course">Курс</span></a>
+      <a data-view="course" id="courseNavLink" style="display:none"><span data-i18n="nav.course">Курс</span></a>
       <a class="rt-nav" onclick="randomTask()"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='4' y='4' width='16' height='16' rx='3'/><circle cx='8' cy='8' r='1.2' fill='currentColor' stroke='none'/><circle cx='16' cy='8' r='1.2' fill='currentColor' stroke='none'/><circle cx='12' cy='12' r='1.2' fill='currentColor' stroke='none'/><circle cx='8' cy='16' r='1.2' fill='currentColor' stroke='none'/><circle cx='16' cy='16' r='1.2' fill='currentColor' stroke='none'/></svg> <span data-i18n="nav.task">Тапсырма</span></a>
       <a data-view="finance"><span data-i18n="nav.finance">Қаржы</span></a>
       <a data-view="analytics"><span data-i18n="nav.analytics">Талдау</span></a>
@@ -2123,6 +2123,7 @@ async function loginAs(email){
   const active = me ? me.active : Store.getGlobal('app_active', false);
   isAdmin = me ? !!me.is_admin : Store.getGlobal('app_admin', false);
   document.getElementById('adminNavLink').style.display = isAdmin ? '' : 'none';
+  document.getElementById('courseNavLink').style.display = isAdmin ? '' : 'none'; // курс әзірге тек админге
   document.getElementById('buyNavBtn').style.display = active ? 'none' : '';
 
   if(!active){
@@ -2212,6 +2213,7 @@ function logout(){
   Store.setGlobal('app_admin', null);
   document.getElementById('pendingScreen').style.display='none';
   document.getElementById('adminNavLink').style.display='none';
+  document.getElementById('courseNavLink').style.display='none';
   document.getElementById('buyNavBtn').style.display='';
   document.getElementById('authScreen').style.display='flex';
   authSwitch('login');
@@ -2531,6 +2533,7 @@ document.querySelectorAll('.nav-links a[data-view], #bottomNav a[data-view]').fo
 function toggleNav(){ document.getElementById('navLinks').classList.toggle('open'); }
 function closeNav(){ document.getElementById('navLinks').classList.remove('open'); }
 function showView(v){
+  if((v==='course' || v==='admin') && !isAdmin) v='home';
   closeNav();
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nav-links a').forEach(a=>a.classList.remove('active'));
