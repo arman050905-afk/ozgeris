@@ -556,6 +556,18 @@
   .wallet-note{font-size:12.5px;color:var(--faint);margin-top:8px;line-height:1.5}
   .wallet-link{display:flex;gap:8px;align-items:center}
   .wallet-link input{margin:0;font-size:13px}
+  .stmt-list{max-height:min(52vh,520px);overflow-y:auto;margin:8px 0 0;border-top:1px solid var(--line)}
+  .stmt-row{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid var(--line);font-size:14px}
+  .stmt-row.off{opacity:.45}
+  .stmt-main{display:flex;align-items:center;gap:10px;flex:1;min-width:0;cursor:pointer;margin:0}
+  .stmt-main input[type="checkbox"]{width:18px;height:18px;min-width:18px;padding:0;margin:0;accent-color:var(--s7);cursor:pointer}
+  .stmt-desc{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .stmt-meta{display:block;font-size:12px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .stmt-row .mini-cat{max-width:34%;font-size:13px;color:var(--muted)}
+  .stmt-row .amt,#stmtSum .amt{font-weight:700;white-space:nowrap}
+  .stmt-row .amt.in,#stmtSum .amt.in{color:var(--good)}
+  .stmt-row .amt.out,#stmtSum .amt.out{color:#f0a5a5}
+  @media(max-width:520px){.stmt-row{flex-wrap:wrap;row-gap:2px}.stmt-main{flex-basis:calc(100% - 110px)}.stmt-row .mini-cat{order:3;margin-left:28px;max-width:60%}}
   .balance{font-size:34px;margin:4px 0 2px}
   .goal-line{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:6px}
 
@@ -1197,6 +1209,7 @@
     <!-- ---------- EXPENSE ---------- -->
     <div id="fp-expense" class="fin-panel">
       <div class="box" style="margin-bottom:20px;padding:2px 20px" id="walletBox"></div>
+      <input type="file" id="stmtFile" accept="application/pdf,.pdf" style="display:none" onchange="onStmtFile(this)">
       <div class="box" style="margin-bottom:20px">
         <div class="box-head"><h3><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><circle cx='12' cy='12' r='9'/><polyline points='8,11 12,15 16,11'/><line x1='12' y1='8' x2='12' y2='15'/></svg> <span data-i18n="fin.addExpense">Шығын қосу</span></h3><span class="sum-badge out" id="expSum">0 ₸</span></div>
         <div class="row">
@@ -1602,6 +1615,18 @@
     <div id="walletModalBody"></div>
     <div class="modal-actions">
       <button class="btn ghost" onclick="closeWalletModal()" data-i18n="common.close">Жабу</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ВЫПИСКА (STATEMENT) MODAL ============ -->
+<div class="modal-bg" id="stmtModal" onclick="if(event.target===this)closeStmtModal()">
+  <div class="modal" style="max-width:720px">
+    <h3 id="stmtTitle"></h3>
+    <div id="stmtBody"></div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeStmtModal()" data-i18n="common.cancel">Болдырмау</button>
+      <button class="btn" id="stmtImportBtn" onclick="importStmtRows()">Қосу</button>
     </div>
   </div>
 </div>
@@ -4833,10 +4858,10 @@ function addExpense(){
 function delTx(id){ txs=txs.filter(x=>x.id!==id); saveTx(); renderTxLists(); }
 function editTxDate(id,val){ const t=txs.find(x=>x.id===id); if(t){ t.date=val; saveTx(); updateFinBadges(); } }
 function txRow(t){
-  // Apple Pay-ден келген шығынның категориясы болжам — сол жерде ауыстыруға болады
-  const catHtml = t.src==='wallet'
-    ? `<select class="mini-cat" onchange="editTxCat('${t.id}',this.value)">${[...new Set([t.cat, ...finCats('out'), ...txs.filter(x=>x.type==='out').map(x=>x.cat)])]
-        .map(c=>`<option ${c===t.cat?'selected':''}>${c}</option>`).join('')}</select><span class="wallet-pill">${ic('apple')} Pay</span>`
+  // Apple Pay/выпискадан келген жазбаның категориясы болжам — сол жерде ауыстыруға болады
+  const catHtml = (t.src==='wallet' || t.src==='statement')
+    ? `<select class="mini-cat" onchange="editTxCat('${t.id}',this.value)">${[...new Set([t.cat, ...finCats(t.type), ...txs.filter(x=>x.type===t.type).map(x=>x.cat)])]
+        .map(c=>`<option ${c===t.cat?'selected':''}>${c}</option>`).join('')}</select>${t.src==='wallet'?`<span class="wallet-pill">${ic('apple')} Pay</span>`:''}`
     : t.cat;
   return `<div class="tx">
     <div style="flex:1;min-width:0">
@@ -4873,7 +4898,7 @@ function renderTxLists(){
   document.getElementById('expList').innerHTML = exp.length? exp.map(txRow).join('') : `<div style="color:var(--faint);padding:14px 0">${ruTx?'Пока нет расходов':'Әзірге шығын жоқ'}</div>`;
 }
 
-/* ---------- APPLE PAY → ШЫҒЫС (iPhone «Команды» → Транзакция автоматизациясы) ----------
+/* ---------- APPLE PAY → ШЫҒЫС (iPhone «Команды» → Wallet (Transaction) автоматизациясы) ----------
    Әр Apple Pay төлемінен кейін автоматизация жеке сілтемеге (/w/<token>) сома мен дүкен атын
    жібереді, сервер оны wallet_inbox-қа салады. Мұнда сол кезекті txs-ке қосамыз (id = 'w'+inbox id,
    қайталанбайды), базаға синхрондап, сосын серверге ack етеміз. Токен тек осы құрылғыда сақталады
@@ -4884,8 +4909,8 @@ let walletInfo = {linked:false, lastAt:null};
 let walletReady = false, walletPulling = false, walletPulledAt = 0;
 // Дүкен атына қарап категория: index — finCats('out') ішіндегі орны
 const WALLET_CAT_RULES = [
-  [0, /magnum|small|galmart|anvar|arbuz|ramstore|toimart|dixi|market|маркет|магазин|продукт|wolt|glovo|yandex ?eda|choco|kfc|mcdonald|burger|бургер|coffee|кофе|cafe|кафе|starbucks|pizza|пицца|doner|донер|bahandi|salam ?bro|restaurant|ресторан|асхана|столов|bakery|пекарн|food|еда|тамақ/i],
-  [1, /yandex ?go|taxi|такси|uber|indrive|onay|автобус|qazaq ?oil|helios|sinooil|gazprom|kmg|азс|petrol|fuel|parking|паркинг|air ?astana|fly ?arystan|ktzh|temir|бензин/i],
+  [0, /magnum|small|galmart|anvar|arbuz|ramstore|toimart|dixi|market|маркет|продукт|wolt|glovo|yandex[ .]?eda|choco|kfc|mcdonald|burger|бургер|coffee|кофе|cafe|кафе|starbucks|pizza|пицца|doner|донер|bahandi|salam ?bro|restaurant|ресторан|асхана|столов|bakery|пекарн|food|еда|тамақ/i],
+  [1, /yandex[ .]?go|taxi|такси|uber|indrive|onay|автобус|qazaq ?oil|helios|sinooil|gazprom|kmg|азс|petrol|fuel|parking|паркинг|air ?astana|fly ?arystan|ktzh|temir|бензин/i],
   [2, /kazakhtelecom|казахтелеком|beeline|kcell|tele2|altel|energo|энерго|alseco|алсеко|ерц|коммунал|almaty ?su/i],
   [3, /kino|cinema|кино|chaplin|netflix|spotify|steam|playstation|youtube|game|bowling|боулинг|karaoke|караоке/i],
   [4, /zara|h&m|waikiki|lcw|bershka|pull ?& ?bear|mango|adidas|nike|puma|reserved|colin|koton|defacto|massimo|stradivarius|uniqlo|sportmaster|спортмастер|shoes|обувь|одежд/i],
@@ -4954,11 +4979,19 @@ function renderWalletBox(){
   const sub = walletInfo.linked
     ? (walletInfo.lastAt ? L('Қосулы · соңғы сигнал: ','Включено · последний сигнал: ')+walletLastText() : L('Қосулы · әзірге төлем келмеді','Включено · платежей пока не было'))
     : L('iPhone-мен төлеген шығын өзі жазылсын — 2 минутта баптайсың','Расходы с iPhone будут записываться сами — настройка за 2 минуты');
-  el.innerHTML = `<div class="settings-row no-border" onclick="openWalletModal()">
+  el.innerHTML = `<div class="settings-row" onclick="openWalletModal()">
     <div class="settings-icon" style="color:var(--text)">${ic('apple')}</div>
     <div>
       <div class="settings-row-title">${L('Apple Pay-мен автожазу','Автозапись с Apple Pay')}</div>
       <div class="settings-row-sub">${sub}</div>
+    </div>
+    <div class="settings-chevron">${ic('arrowRight')}</div>
+  </div>
+  <div class="settings-row no-border" id="stmtRowBtn" onclick="document.getElementById('stmtFile').click()">
+    <div class="settings-icon" style="color:var(--s4)">${ic('clipboard')}</div>
+    <div>
+      <div class="settings-row-title">${L('Выпискадан жүктеу','Загрузить выписку')}</div>
+      <div class="settings-row-sub">${L('Kaspi Gold PDF — барлық шығын категорияға өзі бөлінеді','PDF Kaspi Gold — все расходы сами разложатся по категориям')}</div>
     </div>
     <div class="settings-chevron">${ic('arrowRight')}</div>
   </div>`;
@@ -4991,15 +5024,15 @@ function renderWalletModal(){
     ? `<ol class="wallet-steps">
         ${S(`<a href="${WALLET_SHORTCUT_URL}" target="_blank" rel="noopener"><b>«ÖZGERIS» командын қос</b></a> — сұрағанда 1-қадамдағы сілтемені қой.`,
             `<a href="${WALLET_SHORTCUT_URL}" target="_blank" rel="noopener"><b>Добавь команду «ÖZGERIS»</b></a> — когда спросит, вставь ссылку из шага 1.`)}
-        ${S(`«Команды» → төменде <b>«Автоматизация»</b> → <b>«+»</b> → <b>«Транзакция»</b> (Transaction) → карталарыңды белгіле → <b>«Запускать сразу»</b> (Run Immediately) → «Далее».`,
-            `«Команды» → внизу <b>«Автоматизация»</b> → <b>«+»</b> → <b>«Транзакция»</b> → отметь свои карты → <b>«Запускать сразу»</b> → «Далее».`)}
+        ${S(`«Команды» → төменде <b>«Автоматизация»</b> → <b>«+»</b> → <b>«Wallet»</b> → карталарыңды белгіле → <b>«Запускать сразу»</b> (Run Immediately) → «Далее».`,
+            `«Команды» → внизу <b>«Автоматизация»</b> → <b>«+»</b> → <b>«Wallet»</b> → отметь свои карты → <b>«Запускать сразу»</b> → «Далее».`)}
         ${S(`Тізімнен <b>«ÖZGERIS»</b> командын таңда. Болды!`, `Выбери из списка команду <b>«ÖZGERIS»</b>. Готово!`)}
       </ol>`
     : `<ol class="wallet-steps">
         ${S(`<b>«Команды»</b> (Shortcuts) қосымшасын аш → төменде <b>«Автоматизация»</b> → жоғарыда <b>«+»</b>.`,
             `Открой приложение <b>«Команды»</b> → внизу <b>«Автоматизация»</b> → вверху <b>«+»</b>.`)}
-        ${S(`<b>«Транзакция»</b> (Transaction) таңда → карталарыңды белгіле (Kaspi Gold т.б.) → <b>«Запускать сразу»</b> (Run Immediately) → «Далее».`,
-            `Выбери <b>«Транзакция»</b> → отметь свои карты (Kaspi Gold и др.) → <b>«Запускать сразу»</b> → «Далее».`)}
+        ${S(`<b>«Wallet»</b> таңда → карталарыңды белгіле (Kaspi Gold т.б.) → <b>«Запускать сразу»</b> (Run Immediately) → «Далее».`,
+            `Выбери <b>«Wallet»</b> → отметь свои карты (Kaspi Gold и др.) → <b>«Запускать сразу»</b> → «Далее».`)}
         ${S(`<b>«Новая пустая автоматизация»</b> → «Добавить действие» → іздеуге <code>URL</code> деп жазып, <b>«Получить содержимое URL»</b> (Get Contents of URL) таңда.`,
             `<b>«Новая пустая автоматизация»</b> → «Добавить действие» → в поиске напиши <code>URL</code> и выбери <b>«Получить содержимое URL»</b>.`)}
         ${S(`«URL» орнына 1-қадамдағы сілтемені қой. Көрсеткіні (›) басып: <b>Метод — POST</b>, <b>Тело запроса (Request Body) — JSON</b>.`,
@@ -5062,6 +5095,227 @@ function editTxCat(id, val){
   if(!t || !val) return;
   t.cat = val; saveTx();
   if(FIN_RENDERERS[finTab]) FIN_RENDERERS[finTab]();
+}
+
+/* ---------- ВЫПИСКА (Kaspi Gold PDF) → КІРІС/ШЫҒЫС ----------
+   PDF браузердің өзінде оқылады (pdf.js, «Выпискадан жүктеу» басылғанда ғана CDN-нен жүктеледі) —
+   выписка серверге жіберілмейді, базаға тек таңдалған жазбалар txs арқылы түседі. Әр жолдан күн,
+   ±сома, операция, атау алынады; алдын ала қарау терезесінде категорияны түзетіп, керегін белгілейсің.
+   id = 's'+хэш(күн|түр|сома|атау|реті) — сол выписканы қайта жүктесең, қайталанбайды. */
+const PDFJS_URL = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/';
+let pdfjsLib = null;
+let stmtRows = [];   // [{key,date,type,amount,currency,op,desc,cat,on,dup}]
+let stmtLines = [];  // соңғы PDF-тің жолдары (формат танылмаса тексеруге)
+const STMT_OPS = /^(Покупк[аи]|Переводы?|Пополнени[ея]|Сняти[ея]|Разное|Платеж[и]?|Платёж|Оплата|Погашение|Возврат|Комиссия|Бонусы?|Зарплата)(?=\s|$)\s*/i;  // \b кириллицада жұмыс істемейді
+const STMT_IN_OPS = /^(Пополнени|Возврат|Зарплата|Бонус)/i;
+// Өз шоттарыңның арасындағы ауыстыру — шығын/кіріс емес, әдепкіде белгіленбейді
+const STMT_SELF = /депозит|сво[йиеё]м?\s+сч|между\s+сво|собствен|kaspi\s*red|с\s+карты\s+kaspi|на\s+карту\s+kaspi/i;
+const STMT_ROW = /^(\d{2})\.(\d{2})\.(\d{2}|\d{4})\s+([+\-−–])?\s*(\d[\d\s ]*(?:[.,]\d{1,2})?)\s*(₸|KZT|тг|USD|EUR|RUB|\$|€|₽)?\s*(.*)$/;
+
+async function loadPdfJs(){
+  if(!pdfjsLib){
+    pdfjsLib = await import(PDFJS_URL+'pdf.min.mjs');
+    pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_URL+'pdf.worker.min.mjs';
+  }
+  return pdfjsLib;
+}
+// PDF мәтінін жолдарға жинаймыз: бір биіктіктегі (y) элементтер — бір жол, x бойынша сұрыпталған
+async function pdfLines(file){
+  const lib = await loadPdfJs();
+  const pdf = await lib.getDocument({data: new Uint8Array(await file.arrayBuffer())}).promise;
+  const lines = [];
+  for(let p=1; p<=pdf.numPages; p++){
+    const tc = await (await pdf.getPage(p)).getTextContent();
+    const rows = [];
+    tc.items.forEach(it=>{
+      if(!it.str || !it.str.trim()) return;
+      const x = it.transform[4], y = it.transform[5];
+      let row = rows.find(r=>Math.abs(r.y-y) < 3);
+      if(!row){ row = {y, items:[]}; rows.push(row); }
+      row.items.push({x, w: it.width||0, s: it.str});
+    });
+    rows.sort((a,b)=>b.y-a.y).forEach(r=>{
+      r.items.sort((a,b)=>a.x-b.x);
+      let text = '';
+      r.items.forEach((it,i)=>{ const prev = r.items[i-1]; text += (prev && it.x - (prev.x+prev.w) < 1.5) ? it.s : ' '+it.s; });
+      lines.push({x: r.items[0].x, y: r.y, page: p, text: text.replace(/\s+/g,' ').trim()});
+    });
+  }
+  return lines;
+}
+function parseStmtRow(text){
+  const m = text.match(STMT_ROW);
+  if(!m || (!m[4] && !m[6])) return null;  // белгісіз де, валютасыз да сан — операция емес
+  const amount = parseFloat(m[5].replace(/[\s ]/g,'').replace(',','.'));
+  if(!(amount>0)) return null;
+  let rest = m[7].trim(), op = '';
+  const om = rest.match(STMT_OPS);
+  if(om){ op = om[1]; rest = rest.slice(om[0].length).trim(); }
+  const type = m[4] ? (m[4]==='+' ? 'in' : 'out') : (STMT_IN_OPS.test(op) ? 'in' : 'out');
+  const currency = m[6] && !/₸|KZT|тг/i.test(m[6]) ? ({'$':'USD','€':'EUR','₽':'RUB'}[m[6]] || m[6]) : null;
+  return {date: `${m[3].length===2?'20'+m[3]:m[3]}-${m[2]}-${m[1]}`, type, amount, currency, op, desc: rest};
+}
+function parseStatementLines(lines){
+  const all = lines.map(l=>({l, r: parseStmtRow(l.text)}));
+  const rows = [];
+  [...new Set(lines.map(l=>l.page))].forEach(p=>{
+    const pageRows = all.filter(a=>a.l.page===p && a.r).map(a=>Object.assign(a.r, {x:a.l.x, y:a.l.y, parts:[]}));
+    if(!pageRows.length) return;
+    rows.push(...pageRows);
+    // Ұзын атау «Детали» бағанында бірнеше жолға бөлінсе: кесте ішіндегі, күн/сомасыз, сол жақ бағаннан
+    // оңдағы жолдар — сол атаудың жалғасы
+    const left = Math.min(...pageRows.map(r=>r.x));
+    const top = Math.max(...pageRows.map(r=>r.y)), bottom = Math.min(...pageRows.map(r=>r.y));
+    const extra = all.filter(a=>a.l.page===p && !a.r && a.l.x > left+60 && a.l.y < top+30 && a.l.y > bottom-40
+      && !/\d{2}\.\d{2}\.\d{2}|[+\-−–]\s*\d[\d\s]*[.,]\d{2}|^\d+\s*(\/|из)\s*\d+$/.test(a.l.text)).map(a=>a.l);
+    if(!extra.length) return;
+    // Бір кесте қатарының ішіндегі жолдар бір-біріне жақын (жол биіктігі h), қатарлар арасы — үлкенірек.
+    // Осы бос орын бойынша топтаймыз: ұяшық жоғарыдан да, ортадан да тураланса, дұрыс жиналады.
+    const seq = [...pageRows.map(r=>({y:r.y, row:r})), ...extra.map(l=>({y:l.y, line:l}))].sort((a,b)=>b.y-a.y);
+    const h = seq.slice(1).map((s,i)=>seq[i].y - s.y).filter(d=>d>2).sort((a,b)=>a-b)[0] || 12;
+    let group = [];
+    const flush = ()=>{
+      const rs = group.filter(g=>g.row);
+      group.filter(g=>g.line).forEach(g=>{
+        // Топта бір операция болса — соған; бірнеше болса (қатар арасы жоқ кесте) — үстіндегі ең жақынына
+        const owner = rs.length===1 ? rs[0] : (rs.filter(x=>x.y>g.y).pop() || rs[0]);
+        if(owner) owner.row.parts.push(g.line);
+      });
+      group = [];
+    };
+    seq.forEach((s,i)=>{ if(i && seq[i-1].y - s.y > h*1.3) flush(); group.push(s); });
+    flush();
+  });
+  return rows.map(r=>{
+    const byY = (a,b)=>b.y-a.y;
+    const desc = [...r.parts.filter(l=>l.y>r.y).sort(byY).map(l=>l.text), r.desc, ...r.parts.filter(l=>l.y<r.y).sort(byY).map(l=>l.text)].filter(Boolean).join(' ');
+    return {date:r.date, type:r.type, amount:r.amount, currency:r.currency, op:r.op, desc: walletClean(desc).slice(0,120)};
+  });
+}
+function stmtKey(r, n){
+  const s = `${r.date}|${r.type}|${r.amount}|${r.desc.toLowerCase()}|${n}`;
+  let h1 = 0, h2 = 7;
+  for(let i=0;i<s.length;i++){ const c = s.charCodeAt(i); h1 = (h1*31 + c)|0; h2 = (h2*131 + c)|0; }
+  return 's'+(h1>>>0).toString(36)+(h2>>>0).toString(36);
+}
+function guessIncomeCat(desc){
+  const key = (desc||'').toLowerCase();
+  for(let i=txs.length-1;i>=0;i--){ const x=txs[i]; if(x.type==='in' && key && (x.desc||'').toLowerCase()===key) return x.cat; }
+  const cats = finCats('in');
+  return /зарплат|заработн|salary/i.test(key) ? cats[0] : cats[cats.length-1];
+}
+function buildStmtRows(parsed){
+  const seen = {}, used = new Set();
+  stmtRows = parsed.map(r=>{
+    const base = `${r.date}|${r.type}|${r.amount}|${r.desc.toLowerCase()}`;
+    seen[base] = (seen[base]||0) + 1;
+    const key = stmtKey(r, seen[base]);
+    let dup = '';
+    if(txs.some(x=>x.id===key)) dup = 'imported';
+    else {
+      // Apple Pay арқылы немесе қолмен бұрын жазылған: сол күн, сол сома, сол түр (біреуіне бір рет)
+      const twin = txs.find(x=>!used.has(x.id) && x.src!=='statement' && x.type===r.type && x.date===r.date && Math.abs(x.amount-r.amount)<0.01);
+      if(twin){ used.add(twin.id); dup = twin.src==='wallet' ? 'wallet' : 'manual'; }
+    }
+    const self = STMT_SELF.test(r.desc+' '+r.op);
+    const cat = r.type==='out' ? (/^сняти/i.test(r.op) ? finCats('out').slice(-1)[0] : guessExpenseCat(r.desc)) : guessIncomeCat(r.desc);
+    return Object.assign({}, r, {key, dup, self, cat, on: !dup && !self && r.type==='out'});
+  }).sort((a,b)=>b.date.localeCompare(a.date));
+}
+async function onStmtFile(input){
+  const file = input.files[0];
+  input.value = '';
+  if(!file) return;
+  if(file.size > 15*1024*1024){ toast(L('Файл тым үлкен (15 MB-тан аз болсын)','Файл слишком большой (до 15 MB)')); return; }
+  toast(L('Выписка оқылып жатыр…','Читаю выписку…'));
+  try{
+    stmtLines = await pdfLines(file);
+  }catch(e){
+    toast(L('PDF-ті оқи алмадым — Kaspi-ден қайта жүктеп көр','Не удалось прочитать PDF — скачай выписку заново'));
+    return;
+  }
+  buildStmtRows(parseStatementLines(stmtLines));
+  document.getElementById('stmtTitle').innerHTML = `${ic('clipboard')} ${L('Выпискадан жүктеу','Загрузка выписки')}`;
+  renderStmtModal();
+  document.getElementById('toast').classList.remove('show');  // «оқылып жатыр» батырманы жаппасын
+  document.getElementById('stmtModal').classList.add('open');
+}
+function closeStmtModal(){ document.getElementById('stmtModal').classList.remove('open'); }
+function stmtSummary(){
+  const sel = stmtRows.filter(r=>r.on);
+  const out = sel.filter(r=>r.type==='out').reduce((s,r)=>s+(r.currency?0:r.amount),0);
+  const inc = sel.filter(r=>r.type==='in').reduce((s,r)=>s+(r.currency?0:r.amount),0);
+  document.getElementById('stmtSum').innerHTML = L(`Таңдалды: <b>${sel.length}</b> / ${stmtRows.length}`, `Выбрано: <b>${sel.length}</b> / ${stmtRows.length}`)
+    + (out ? ` · <span class="amt out">−${fmt(out)}</span>` : '') + (inc ? ` · <span class="amt in">+${fmt(inc)}</span>` : '');
+  document.getElementById('stmtImportBtn').textContent = L(`Қосу (${sel.length})`, `Добавить (${sel.length})`);
+  document.getElementById('stmtImportBtn').disabled = !sel.length;
+}
+function renderStmtModal(){
+  const body = document.getElementById('stmtBody');
+  const prevList = body.querySelector('.stmt-list'), scroll = prevList ? prevList.scrollTop : 0;
+  document.getElementById('stmtImportBtn').style.display = stmtRows.length ? '' : 'none';
+  if(!stmtRows.length){
+    body.innerHTML = `<p style="color:var(--muted);line-height:1.55">${L(
+      'Бұл PDF-тен бірде-бір операция таба алмадым. Kaspi Gold выпискасы екенін тексер (Kaspi → Kaspi Gold → Выписка). Басқа банктікі болса, файлды бізге жібер — соны да қосып береміз.',
+      'Не нашёл в этом PDF ни одной операции. Проверь, что это выписка Kaspi Gold (Kaspi → Kaspi Gold → Выписка). Если это другой банк — пришли нам файл, добавим.')}</p>`;
+    return;
+  }
+  const n = {out: stmtRows.filter(r=>r.type==='out').length, in: stmtRows.filter(r=>r.type==='in').length, dup: stmtRows.filter(r=>r.dup).length};
+  const dupText = {imported: L('бұрын жүктелген','уже загружено'), wallet: L('Apple Pay-ден бар','уже есть из Apple Pay'), manual: L('қолмен жазылған сияқты','похоже, уже записано')};
+  const catOptions = (type, cur)=>[...new Set([cur, ...finCats(type), ...txs.filter(x=>x.type===type).map(x=>x.cat)])]
+    .map(c=>`<option ${c===cur?'selected':''}>${c}</option>`).join('');
+  body.innerHTML = `
+    <p style="color:var(--muted);margin:0 0 4px;line-height:1.5">${L(
+      `Табылды: <b>${n.out}</b> шығын, <b>${n.in}</b> кіріс${n.dup?`, оның <b>${n.dup}</b>-і бұрыннан бар`:''}. Категориясын тексер, керек емесінің белгісін алып таста. Кірістер мен өз шоттарың арасындағы аударымдар әдепкіде белгіленбеген.`,
+      `Найдено: <b>${n.out}</b> расходов, <b>${n.in}</b> доходов${n.dup?`, из них <b>${n.dup}</b> уже есть`:''}. Проверь категории и сними галочки с лишнего. Доходы и переводы между своими счетами по умолчанию не отмечены.`)}</p>
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:13.5px;margin:10px 0 2px">
+      <span id="stmtSum" style="flex:1"></span>
+      <a href="#" onclick="stmtSetAll(true);return false" style="color:var(--muted)">${L('Бәрін белгілеу','Отметить все')}</a>
+      <a href="#" onclick="stmtSetAll(false);return false" style="color:var(--muted)">${L('Бәрін алу','Снять все')}</a>
+    </div>
+    <div class="stmt-list">${stmtRows.map((r,i)=>`
+      <div class="stmt-row ${r.on?'':'off'}" id="stmtRow${i}">
+        <label class="stmt-main">
+          <input type="checkbox" ${r.on?'checked':''} ${r.dup==='imported'?'disabled':''} onchange="stmtToggle(${i},this.checked)">
+          <span style="min-width:0">
+            <span class="stmt-desc">${r.desc || r.op || '—'}</span>
+            <span class="stmt-meta">${fmtDate(r.date)}${r.op?' · '+r.op:''}${r.dup?' · '+dupText[r.dup]:''}${r.self&&!r.dup?' · '+L('өз шотың','свой счёт'):''}</span>
+          </span>
+        </label>
+        <select class="mini-cat" onchange="stmtSetCat(${i},this.value)">${catOptions(r.type, r.cat)}</select>
+        <span class="amt ${r.type}">${r.type==='in'?'+':'−'}${r.currency ? r.amount.toLocaleString('ru-RU')+' '+r.currency : fmt(r.amount)}</span>
+      </div>`).join('')}
+    </div>`;
+  body.querySelector('.stmt-list').scrollTop = scroll;
+  stmtSummary();
+}
+function stmtToggle(i, on){
+  stmtRows[i].on = on;
+  document.getElementById('stmtRow'+i).classList.toggle('off', !on);
+  stmtSummary();
+}
+function stmtSetAll(on){
+  stmtRows.forEach(r=>{ if(r.dup!=='imported') r.on = on; });
+  renderStmtModal();
+}
+// Бір дүкеннің категориясын ауыстырсаң — выпискадағы сол дүкеннің барлық жолына қолданамыз
+function stmtSetCat(i, cat){
+  const r = stmtRows[i], key = r.desc.toLowerCase();
+  stmtRows.forEach(x=>{ if(x.type===r.type && (x===r || (key && x.desc.toLowerCase()===key))) x.cat = cat; });
+  if(key && stmtRows.filter(x=>x.type===r.type && x.desc.toLowerCase()===key).length > 1) renderStmtModal();
+}
+function importStmtRows(){
+  const sel = stmtRows.filter(r=>r.on && !txs.some(x=>x.id===r.key));
+  if(!sel.length) return;
+  sel.forEach(r=>{
+    const tx = {id:r.key, type:r.type, cat:r.cat, amount:r.amount, date:r.date, desc:r.desc || r.op, src:'statement'};
+    if(r.currency) tx.currency = r.currency;
+    txs.push(tx);
+  });
+  saveTx();
+  closeStmtModal();
+  if(FIN_RENDERERS[finTab]) FIN_RENDERERS[finTab]();
+  toast(L(`Выпискадан ${sel.length} жазба қосылды`, `Из выписки добавлено записей: ${sel.length}`));
 }
 
 /* ---------- DASHBOARD ---------- */

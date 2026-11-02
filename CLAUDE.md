@@ -92,7 +92,7 @@
   `users.renew_stage`). Бір өтуде ≤20 хат, Resend 429 болса тоқтайды. Әр хатта `List-Unsubscribe` +
   «Хаттардан бас тарту» (`GET /api/verify-email?unsub=<uid>.<hmac>` → `mail_optout`). Мәтіндерді
   өзгерту — `SALES`/`RENEW` массивтері.
-- **Apple Pay → шығын автожазу (2026-11-02)**: iPhone «Команды» қосымшасының **«Транзакция»** автоматизациясы
+- **Apple Pay → шығын автожазу (2026-11-02)**: iPhone «Команды» қосымшасының **«Wallet»** автоматизациясы (ағылш. Transaction; орысша iOS-та тізімде «Wallet» деп тұр)
   (iOS 17+, Wallet-тегі кез келген карта, тек дүкенде NFC-мен тигізіп төлеу — Kaspi QR/аударым емес, Android-та жоқ)
   әр төлемнен кейін жеке сілтемеге `POST https://www.ozgeris.asia/w/<token>` JSON/форма `{amount, merchant, cat?, card?}`
   жібереді (`vercel.json` rewrite → `/api/data?wallet=<token>`, жаңа функция ЕМЕС — `api/data.js` → `api/_wallet.js`).
@@ -110,6 +110,18 @@
   UI: Қаржы → Шығыстар басындағы `#walletBox` жолы → `#walletModal` (`renderWalletModal()` — сілтеме + қадамдық
   нұсқаулық + «соңғы сигнал» статусы). `WALLET_SHORTCUT_URL` толтырылса (iCloud-та бөлісілген дайын команда,
   import question = жеке сілтеме), нұсқаулық 3 қадамға қысқарады. Кестелер `ensureWalletSchema()`-мен өзі құрылады.
+- **Выпискадан жүктеу (Kaspi Gold PDF, 2026-11-03)**: Қаржы → Шығыстар → `#walletBox`-тағы екінші жол →
+  жасырын `#stmtFile` → `onStmtFile()`. PDF **браузерде** оқылады — pdf.js (`PDFJS_URL`, jsDelivr `pdfjs-dist@4.10.38`,
+  `loadPdfJs()` тек осы батырмада dynamic `import()`), серверге выписка жіберілмейді. `pdfLines()` — мәтін
+  элементтерін y бойынша жолға жинайды; `parseStmtRow()` — `ДД.ММ.ЖЖ ±сома ₸ Операция Детали` (`STMT_ROW`,
+  `STMT_OPS`; JS-тің `\b`-сы кириллицада жұмыс істемейді — `(?=\s|$)` қолдан); `parseStatementLines()` — ұзын
+  атау бірнеше жолға бөлінсе, кесте қатарлары арасындағы бос орын бойынша топтап жалғайды (ұяшық жоғарыдан да,
+  ортадан да тураланса жұмыс істейді). `buildStmtRows()`: id = `stmtKey()` хэші (қайта жүктесе `dup:'imported'`,
+  checkbox өшік), сол күн+сома+түрдегі Apple Pay/қолмен жазылған жазба → `dup:'wallet'|'manual'` (белгісіз),
+  өз шоттар арасы (`STMT_SELF` — депозит т.б.) және кірістер әдепкіде белгісіз. Категория — `guessExpenseCat()`/
+  `guessIncomeCat()`; терезеде бір дүкеннің категориясын ауыстырса, сол дүкеннің барлық жолына (`stmtSetCat`).
+  `importStmtRows()` → `txs`-ке `src:'statement'`. Нақты Kaspi PDF-пен әлі тексерілмеген (синтетикалық PDF-пен
+  тестіленген) — формат сәйкес келмесе, `stmtLines` (соңғы PDF жолдары) арқылы қарап, `STMT_ROW`-ды түзет.
 - **Сатып алу (WhatsApp)**: `buyClick()` — `wa.me/77473608356` (email қосылған дайын хабарлама).
   Енді тек қосымша жол: Kaspi қосылмаған кезде немесе paywall-дағы «Сұрақ бар ма?» сілтемесі.
 - **Дерек**: `api/data.js` — бір адамға бір жол (`user_data(user_id uuid pk, data jsonb, updated_at)`),
