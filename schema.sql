@@ -48,3 +48,26 @@ create table if not exists push_subscriptions (
 -- үстінен жазылып тұрады, сол жерде сақтасақ, келесі синхронда клиент ескі мәнмен қайта басып
 -- кетер еді (race condition). Бұл баған тек users кестесінде, клиент оны ешқашан жазбайды.
 alter table users add column if not exists last_reminder_sent_at timestamptz;
+
+-- ---------- Жазылым (Kaspi Pay → xpayment.kz) + email-воронка ----------
+-- Қолмен орындау МІНДЕТТІ ЕМЕС: api/_billing.js-тегі ensureBillingSchema() бұл бағандар/кестені
+-- бірінші сұраныста өзі қосады. Мұнда тек құжат ретінде тұр.
+alter table users add column if not exists paid_until     timestamptz;                 -- ақылы жазылым осы уақытқа дейін (users.active = мәңгілік доступ)
+alter table users add column if not exists funnel_stage   int not null default 0;      -- төлемегендерге қай сату хатына дейін жіберілді (0..4)
+alter table users add column if not exists funnel_sent_at timestamptz;
+alter table users add column if not exists renew_stage    int not null default 0;      -- ұзарту еске салғышы (0..3), әр төлемде 0-ге түседі
+alter table users add column if not exists mail_optout    boolean not null default false; -- хаттан бас тартқан
+
+create table if not exists payments (
+  id         uuid primary key default gen_random_uuid(),   -- xpayment-ке merchant_order_id ретінде кетеді
+  user_id    uuid not null references users(id) on delete cascade,
+  phone      text not null,
+  amount     int  not null,
+  days       int  not null,
+  status     text not null default 'NEW',                  -- NEW | PENDING | COMPLETED | CANCELLED | FAILED | EXPIRED
+  xp_id      text,                                         -- xpayment payment id
+  created_at timestamptz not null default now(),
+  paid_at    timestamptz
+);
+create index if not exists payments_user_idx on payments (user_id, created_at desc);
+create index if not exists payments_xp_idx on payments (xp_id);

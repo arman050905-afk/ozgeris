@@ -1,6 +1,10 @@
 {
   "rewrites": [
     { "source": "/trial", "destination": "/trial.html" },
-    { "source": "/3d", "destination": "/world.html" }
-  ]
+    { "source": "/3d", "destination": "/world.html" },
+    { "source": "/w/:token", "destination": "/api/data?wallet=:token" }
+  ],
+  "functions": {
+    "api/cron/check-alerts.js": { "maxDuration": 60 }
+  }
 }

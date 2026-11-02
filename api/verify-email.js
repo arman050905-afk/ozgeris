@@ -1,12 +1,34 @@
 const { sql } = require('./_db');
 const { sign } = require('./_auth');
 const { sendVerificationEmail } = require('./_email');
+const { checkUnsubToken, ensureBillingSchema } = require('./_billing');
 
 function genCode() {
   return String(Math.floor(100000 + Math.random() * 900000));
 }
 
+// Сату хаттарының астындағы «Хаттардан бас тарту» сілтемесі — GET ?unsub=<uid>.<hmac>
+async function unsubscribe(req, res) {
+  const uid = checkUnsubToken(req.query.unsub);
+  let ok = false;
+  if (uid) {
+    try {
+      await ensureBillingSchema();
+      await sql`update users set mail_optout = true where id::text = ${uid}`;
+      ok = true;
+    } catch (e) { console.error('unsub failed:', e); }
+  }
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.status(ok ? 200 : 400).send(`<!doctype html><html lang="kk"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>ÖZGERIS</title></head>
+<body style="margin:0;background:#0a0a14;color:#eceaf5;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;display:flex;min-height:100vh;align-items:center;justify-content:center;padding:16px;box-sizing:border-box">
+<div style="max-width:420px;text-align:center"><div style="font-weight:900;font-size:22px;color:#a48bff;margin-bottom:14px">ÖZGERIS</div>
+<p style="font-size:16px;line-height:1.6">${ok ? 'Болды, енді саған хат жібермейміз.' : 'Сілтеме жарамсыз.'}</p>
+<a href="/" style="color:#a48bff">ozgeris.asia</a></div></body></html>`);
+}
+
 module.exports = async (req, res) => {
+  if (req.method === 'GET' && req.query && req.query.unsub) return unsubscribe(req, res);
   if (req.method !== 'POST') return res.status(405).json({ error: 'method not allowed' });
 
   const { action, email, code } = req.body || {};

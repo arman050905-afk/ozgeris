@@ -51,24 +51,67 @@
   (Vercel DNS-те тұр) қосу керек. `RESEND_FROM` (қосымша, міндетті емес) — жіберуші адрес,
   әдепкісі `ÖZGERIS <onboarding@resend.dev>` (домен расталмаса соны қолдан, бірақ сол кезде де
   тек Resend аккаунт иесінің email-іне ғана жетеді).
-- **Access control (ақылы SaaS моделі)**: `users.active` — аккаунтқа толық доступ бар ма (жаңа
-  тіркелген адамда әдепкі `false`). `users.is_admin` — админ құқығы. JWT-де сақталмайды, әр сезімтал
+- **Access control (ақылы SaaS моделі)**: доступ = `users.active` (мәңгілік, админ қолмен береді —
+  ескі төлегендер осында) **НЕМЕСЕ** `users.paid_until > now()` (айлық жазылым, Kaspi арқылы —
+  төмендегі «Жазылым» бөлімі). Серверде `hasAccess()` (`api/_billing.js`), `/api/me` клиентке
+  `active` (= доступ бар ма), `lifetime`, `paid_until` қайтарады. `users.is_admin` — админ құқығы. JWT-де сақталмайды, әр сезімтал
   сұраныста DB-ден тексеріледі (`api/_admin.js`-тегі `requireAdmin`, `api/data.js`-тегі `active` тексеру).
   Логин/тіркелуден кейін клиент `/api/me` шақырып ағымдағы статусты алады (`loginAs()`):
-  - `active=false` → `#pendingScreen` көрсетіледі (негізгі UI жабық, тек «Сатып алу» / «Шығу»).
+  - `active=false` → `openPaywall('new'|'expired')` — `#pendingScreen` ішіндегі төлем экраны (негізгі UI жабық).
   - `is_admin=true` → навигацияда `#adminNavLink` көрінеді, `#admin` view қолжетімді болады.
   Бірінші admin қолмен тағайындалады (`schema.sql` соңындағы SQL комментарийі немесе Neon SQL Editor-де
   `update users set is_admin=true, active=true where email=...`).
-- **Admin панель**: `#admin` view, `renderAdmin()` — `GET /api/admin/users` арқылы барлық
-  пайдаланушыны кесте етіп көрсетеді. Әрекеттер: «Доступ беру/алу» (`toggleAccess` →
-  `POST /api/admin/grant`), «Пароль ысыру» (`resetPassPrompt` → `POST /api/admin/reset-password`,
-  админ жаңа парольді қолмен енгізеді, bcrypt-пен қайта хэшталады). Барлық admin route
-  `requireAdmin()`-мен қорғалған — тек `is_admin=true` жол ғана шақыра алады.
-- **Сатып алу (WhatsApp)**: nav-дағы «🛒 Сатып алу» батырмасы және pending экрандағы батырма
-  `buyClick()`-ті шақырады — ол `https://wa.me/77473608356?text=...` сілтемесін жаңа бетте ашады
-  (пайдаланушының email-і хабарламаға қосылады). Бұл нағыз автоматты жіберу емес — WhatsApp
-  ашылады, хабарлама дайын тұрады, адам өзі «Жіберу» басуы керек (браузерден серверсіз толық
-  автоматты WhatsApp жіберу мүмкін емес, ол үшін WhatsApp Business API/Meta тіркелуі керек).
+- **Admin панель**: `#admin` view, `renderAdmin()` — бір ғана `api/admin.js` (бұрынғы
+  `admin/users|grant|reset-password.js` 12-функция шегі үшін біріктірілді): `GET /api/admin` →
+  `{users, stats, payments, billingEnabled}` (жоғарыда `#adminPayStats`: осы айғы төлем саны/сомасы,
+  белсенді жазылым, барлық табыс, Kaspi қосулы ма, соңғы 5 төлем). `POST /api/admin` `{userId, active}`
+  — мәңгілік доступ (`toggleAccess`), `{action:'extend', days}` — жазылымға +30 күн (`extendSub`,
+  WhatsApp/қолма-қол төлегендерге), `{action:'resetPassword', newPass}`, `{action:'delete'}`.
+  Бәрі `requireAdmin()`-мен қорғалған.
+- **Жазылым — Kaspi Pay арқылы автоматты төлем (2026-10-27)**: айына **1 990 ₸** (`PRICE_KZT`/`PLAN_DAYS`
+  env, әдепкі 1990/30). Kaspi-дің ашық webhook API-і жоқ, сондықтан делдал **xpayment.kz** (Kaspi Pay
+  кассасын API-ге айналдырады, «Старт» тарифі 10 000 ₸/ай ≤250 төлем). Ағын: paywall-да адам Kaspi
+  нөмірін жазады → `POST /api/pay {phone}` → xpayment `POST /v1/payments` (payer_phone, amount,
+  `merchant_order_id` = `payments.id`) → Kaspi қосымшасына шот келеді → адам «Оплатить» басады →
+  xpayment webhook (`POST /api/pay`, `X-xPayment-Signature` = hex HMAC-SHA256(secret, raw body))
+  → `markPaid()` бір SQL-мен `paid_until = greatest(paid_until, now()) + 30 күн` (қайталанған webhook
+  күнді екі рет қоспайды). Webhook келмей қалса да: клиент `GET /api/pay?order=` әр 4 с сайын сұрайды
+  (Kaspi-ден бетке оралғанда бірден), сервер `syncPayment()` арқылы xpayment `GET /v1/payments/{id}`-ден
+  нақты күйді тексереді. Автосписание ЖОҚ (Kaspi оны бермейді) — әр ай қайта төлейді, ұзарту бар
+  мерзімнің үстіне қосылады. Клиент: `openPaywall(mode)`/`renderPaywall()`/`startKaspiPay()`/
+  `pollPayNow()`/`onPaid()`, `pay` state, Профильде «Жазылым» жолы (`renderSubRow()`), бітуге ≤3 күн
+  қалса кіргенде toast (`remindRenewal()`). `?pay=1` (хаттағы батырма) кіргеннен кейін ұзарту
+  paywall-ын ашады; `?signup=1&name=&phone=` (/trial-дан) тіркелу формасын толтырып ашады.
+  **Env (Vercel)**: `XPAYMENT_API_KEY` (`xdev_...`, xpayment кабинеті → құрылғы), `XPAYMENT_WEBHOOK_SECRET`
+  (xpayment → Вебхуки → URL `https://www.ozgeris.asia/api/pay`, оқиғалардың бәрі). Кілт жоқ болса
+  paywall бұрынғыдай WhatsApp батырмасын көрсетеді (`buyClick()`), email-воронка жүрмейді.
+  Жаңа бағандар/`payments` кестесі `ensureBillingSchema()` арқылы өзі құрылады (қолмен ALTER керек емес).
+- **Email-воронка** (`api/_funnel.js`, cron-job.org-тың 15-минуттық `check-alerts` шақыруында, push-тан
+  бұрын, `maxDuration: 60`): тіркеліп/растап, бірақ төлемегендерге 4 хат (1 сағ / 1 / 3 / 6 күн, арасы
+  ≥20 сағ, `users.funnel_stage`), жазылымы бітіп жатқандарға 3 хат (3 күн қалғанда / біткенде / +5 күн,
+  `users.renew_stage`). Бір өтуде ≤20 хат, Resend 429 болса тоқтайды. Әр хатта `List-Unsubscribe` +
+  «Хаттардан бас тарту» (`GET /api/verify-email?unsub=<uid>.<hmac>` → `mail_optout`). Мәтіндерді
+  өзгерту — `SALES`/`RENEW` массивтері.
+- **Apple Pay → шығын автожазу (2026-11-02)**: iPhone «Команды» қосымшасының **«Транзакция»** автоматизациясы
+  (iOS 17+, Wallet-тегі кез келген карта, тек дүкенде NFC-мен тигізіп төлеу — Kaspi QR/аударым емес, Android-та жоқ)
+  әр төлемнен кейін жеке сілтемеге `POST https://www.ozgeris.asia/w/<token>` JSON/форма `{amount, merchant, cat?, card?}`
+  жібереді (`vercel.json` rewrite → `/api/data?wallet=<token>`, жаңа функция ЕМЕС — `api/data.js` → `api/_wallet.js`).
+  `amount` — Shortcuts-тың тілге тәуелді мәтіні («₸1 990,00», «KZT 1,990.00», «$12.99») → `parseAmount()`;
+  сомасыз шақыру = ping (тек `users.wallet_last_at`). Төлем `wallet_inbox` кестесіне түседі — `user_data`-ға
+  сервер ӨЗІ ЖАЗБАЙДЫ (клиенттің толық PUT синхроны оны ескі күйімен басып кетер еді). Клиент `pullWalletInbox()`
+  (кіргенде, қосымшаға оралғанда `visibilitychange`, Қаржы ашылғанда; 15 с throttle) `GET /api/data?inbox=1`-ден
+  алып, `txs`-ке `{id:'w'+inboxId, src:'wallet', desc:merchant, currency?}` етіп қосады (id бойынша қайталанбайды),
+  `syncToCloud()` сәтті болса ғана `POST /api/data?inbox=1 {action:'ack', ids}` → кезектен өшеді. Категория:
+  командадан `cat` келсе сол, әйтпесе `guessExpenseCat()` — осы дүкеннің соңғы шығынының категориясы (тізімде
+  `select.mini-cat` арқылы ауыстырса, келесі жолы соны қояды), болмаса `WALLET_CAT_RULES` кілт сөздері, болмаса
+  «Басқа шығын». Токен: `{action:'link'}` жаңасын береді (ескісі бірден өледі), `{action:'unlink'}`; базада тек
+  sha256 хэші (`users.wallet_token_hash`), шикі токен тек сол құрылғының `Store('walletToken')`-ында (DATA_KEYS-те
+  қасақана жоқ). Кезек ≤300 жазба. Сырттан келген мәтін `walletClean()`-мен `<>"'\``-сыз сақталады (innerHTML XSS).
+  UI: Қаржы → Шығыстар басындағы `#walletBox` жолы → `#walletModal` (`renderWalletModal()` — сілтеме + қадамдық
+  нұсқаулық + «соңғы сигнал» статусы). `WALLET_SHORTCUT_URL` толтырылса (iCloud-та бөлісілген дайын команда,
+  import question = жеке сілтеме), нұсқаулық 3 қадамға қысқарады. Кестелер `ensureWalletSchema()`-мен өзі құрылады.
+- **Сатып алу (WhatsApp)**: `buyClick()` — `wa.me/77473608356` (email қосылған дайын хабарлама).
+  Енді тек қосымша жол: Kaspi қосылмаған кезде немесе paywall-дағы «Сұрақ бар ма?» сілтемесі.
 - **Дерек**: `api/data.js` — бір адамға бір жол (`user_data(user_id uuid pk, data jsonb, updated_at)`),
   GET/PUT арқылы. Клиент жағында:
   - `fetchCloud()` — кіргенде базадан тартып, `DATA_KEYS` тізіміндегі әр кілтті localStorage-қа құяды.
@@ -324,12 +367,14 @@ subscription-дарына бірден push жібереді. Жаңа файл 
 - Логотип пен қаріп қосымшамен бірдей болуы керек: белгі — `index.html`-дағы `.logo .mark` көрсеткісі
   (`MARK_LINES`, 24×24), иконка — favicon/`icons/` геометриясы (`ICON_LINES`, 64×64, фонтандағы текше),
   атауы — Montserrat 800. Логотип өзгерсе, `drawMark/drawAppIcon/drawNeon` мен хедердегі SVG-ді жаңарт.
-- Баға (4 990 ₸ / 9 990 ₸) `trial.html`-дан алынған — баға өзгерсе `world.html`-да да жаңарт
-  (`drawPaper2`, `openPrice`, `CHAT.*.price`). Сатып алу — сол `wa.me/77473608356` сілтемесі.
+- Баға — `PRICE` тұрақтысы (`1 990 ₸`, `/ ай` = `price.per`) + `CHAT.*.price` мәтіні; баға өзгерсе
+  `api/_billing.js` (`PRICE_KZT`), `index.html` (`payPrice()` fallback), `trial.html` (offer-price,
+  `initOfferBanner`), `_funnel.js` хаттарымен бірге жаңарт. Сатып алу — `BUY_URL` (`/?signup=1`).
 
 ## Не істеуге болады (келесі қадамдар)
-- Төлем жүйесі (Stripe/Kaspi) — қазір WhatsApp-қа қолмен хабарласу + admin панельден қолмен
-  доступ беру арқылы жұмыс істейді; толық автоматтандыру үшін төлем provider керек.
+- Kaspi төлемі коды дайын (жоғарыдағы «Жазылым») — іске қосу үшін xpayment.kz-те тіркеліп,
+  `XPAYMENT_API_KEY`/`XPAYMENT_WEBHOOK_SECRET` қою керек. Instagram DM воронкасындағы (ChatPlace)
+  «9 990→4 990 ₸ WhatsApp» оффер мәтіні әлі ескі — 1 990 ₸/ай + `/?signup=1`-ге ауыстыру керек.
 - Міндетті төлем «Төледім» деп белгіленгенде автоматты `txs`-ке шығын жазбасы қосылмайды әзірге
   (қасақана, жеке шешім) — қаласаң қосуға болады.
 - cron-job.org да толық секундтық дәлдік кепілдемейді (кез келген сыртқы cron сервисі секілді),

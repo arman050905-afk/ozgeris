@@ -1,5 +1,6 @@
 const { sql } = require('../_db');
 const webpush = require('web-push');
+const { runEmailFunnel } = require('../_funnel');
 
 // Vercel Cron жіберетін сұраныстарда `Authorization: Bearer $CRON_SECRET` автоматты
 // түрде қосылады (env var атын дәл осылай қойсаң) — сырттан шақыруды осылай бөгейміз.
@@ -72,8 +73,13 @@ function isGenericDue(intervalMin, lastSentAt) {
 module.exports = async (req, res) => {
   if (!isAuthorizedCron(req)) return res.status(401).json({ error: 'unauthorized' });
 
+  // Сату хаттары push-тан бөлек: біреуі құласа, екіншісі жұмысын жалғастырады
+  let funnel;
+  try { funnel = await runEmailFunnel(); }
+  catch (e) { console.error('email funnel failed:', e); funnel = { error: e.message }; }
+
   if (!process.env.VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) {
-    return res.status(200).json({ ok: true, skipped: 'vapid keys not set' });
+    return res.status(200).json({ ok: true, funnel, skipped: 'vapid keys not set' });
   }
   try {
     // Дұрыс емес VAPID баптауы (мыс. subject `mailto:`/`https:` емес) осы жерде синхронды
@@ -84,11 +90,11 @@ module.exports = async (req, res) => {
       process.env.VAPID_PRIVATE_KEY
     );
   } catch (e) {
-    return res.status(200).json({ ok: false, skipped: 'vapid config invalid: ' + e.message });
+    return res.status(200).json({ ok: false, funnel, skipped: 'vapid config invalid: ' + e.message });
   }
 
   try {
-    const users = await sql`select id, last_reminder_sent_at from users where active = true`;
+    const users = await sql`select id, last_reminder_sent_at from users where active = true or paid_until > now()`;
     const now = new Date();
     const hourUTC = now.getUTCHours();
     const minuteUTC = now.getUTCMinutes();
@@ -147,7 +153,7 @@ module.exports = async (req, res) => {
       }
     }
 
-    return res.status(200).json({ ok: true, sent });
+    return res.status(200).json({ ok: true, sent, funnel });
   } catch (e) {
     console.error('check-alerts failed:', e);
     return res.status(500).json({ error: 'Сервер қатесі: ' + e.message });

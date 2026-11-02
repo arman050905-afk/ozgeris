@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const { sql } = require('./_db');
 const { verify } = require('./_auth');
+const { ensureBillingSchema, hasAccess } = require('./_billing');
 
 module.exports = async (req, res) => {
   const payload = verify(req);
@@ -8,9 +9,12 @@ module.exports = async (req, res) => {
 
   if (req.method === 'GET') {
     try {
-      const rows = await sql`select name, email, is_admin, active from users where id = ${payload.uid}`;
-      const user = rows[0];
-      if (!user) return res.status(404).json({ error: 'not found' });
+      await ensureBillingSchema();
+      const rows = await sql`select name, email, is_admin, active, paid_until from users where id = ${payload.uid}`;
+      const u = rows[0];
+      if (!u) return res.status(404).json({ error: 'not found' });
+      // active — клиент үшін «доступ бар ма» (мәңгілік НЕМЕСЕ жазылым), lifetime — тек мәңгілік
+      const user = { name: u.name, email: u.email, is_admin: u.is_admin, active: hasAccess(u), lifetime: !!u.active, paid_until: u.paid_until };
       return res.status(200).json({ user });
     } catch (e) {
       return res.status(500).json({ error: 'Сервер қатесі, кейінірек көр' });

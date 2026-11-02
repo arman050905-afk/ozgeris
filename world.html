@@ -216,6 +216,7 @@ body[data-stop=board] .board-bar{transform:translateX(-50%)!important}
 .price{display:flex;align-items:baseline;gap:14px;margin:18px 0 6px;flex-wrap:wrap}
 .price b{font-family:var(--f-display);font-weight:800;font-size:46px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 .price s{color:var(--quiet);font-size:18px}
+.price span{color:var(--quiet);font-size:18px;font-weight:700}
 .price em{font-style:normal;font-family:var(--f-mono);font-size:12px;font-weight:700;padding:5px 9px;border-radius:8px;background:var(--grad);color:#fff}
 .quote{font-family:var(--f-display);font-weight:600;font-size:18px;line-height:1.45;padding:16px 18px;border-left:3px solid var(--grad-2);background:var(--tint);border-radius:0 12px 12px 0;margin:22px 0}
 
@@ -603,9 +604,9 @@ const I18N = {
     'help.touch':'Жерді бассаң — сол жерге барасың, саусақпен сүйресең — камера бұрылады. Ғимаратты не гидті бассаң — ішіне кіресің.',
     'info.inside':'Ішінде не бар','info.open':'Қосымшада ашу','info.price':'Бағасы',
     'price.eyebrow':'Толық доступ','price.title':'Барлық бөлім — бір бағамен',
-    'price.lead':'Бір рет төлейсің — барлық трекер, қаржы модулі және AI кеңесші ашылады.',
+    'price.lead':'Айлық жазылым — барлық трекер, қаржы модулі және AI кеңесші ашылады. Ақша өзінен-өзі шешілмейді: келесі айды өзің шешесің.','price.per':'/ ай',
     'price.f':['7 бөлім: денсаулық, білім, мақсат, қаржы, спорт, шүкіршілік, өз әдеттерің','Қаржы: кіріс, шығын, міндетті төлемдер, қарыздар, Cash Flow','Деректер серверде сақталады — кез келген құрылғыдан кіресің','Қазақ және орыс тілдері, түнгі және күндізгі тақырып'],
-    'price.buy':'WhatsApp арқылы сатып алу','price.trial':'Тегін байқап көру','price.note':'WhatsApp ашылады, хабарлама дайын тұрады — жіберу өз қолыңда.',
+    'price.buy':'Kaspi арқылы сатып алу','price.trial':'Тегін байқап көру','price.note':'Тіркеліп, Kaspi арқылы 1 минутта төлейсің — доступ бірден ашылады.',
     'wa.text':'Сәлем! ÖZGERIS қосымшасына доступ сатып алғым келеді.',
     'read.eyebrow':'Манифест','read.title':'Өміріңнің жаңа беті',
     'paper1.k':'Манифест · 2026','paper1.sec':'Басты ой','paper1.foot':'ÖZGERIS · манифест · 1 / 2',
@@ -636,9 +637,9 @@ const I18N = {
     'help.touch':'Нажми на землю — пойдёшь туда, потяни пальцем — повернёшь камеру. Нажми на здание или гида — войдёшь.',
     'info.inside':'Что внутри','info.open':'Открыть в приложении','info.price':'Стоимость',
     'price.eyebrow':'Полный доступ','price.title':'Все разделы — одна цена',
-    'price.lead':'Платишь один раз — открываются все трекеры, финансовый модуль и AI-советник.',
+    'price.lead':'Месячная подписка — открываются все трекеры, финансовый модуль и AI-советник. Без автосписаний: следующий месяц решаешь сам.','price.per':'/ мес',
     'price.f':['7 разделов: здоровье, обучение, цели, финансы, спорт, благодарность, свои привычки','Финансы: доходы, расходы, обязательные платежи, долги, Cash Flow','Данные хранятся на сервере — заходи с любого устройства','Казахский и русский языки, тёмная и светлая тема'],
-    'price.buy':'Купить через WhatsApp','price.trial':'Попробовать бесплатно','price.note':'Откроется WhatsApp с готовым сообщением — отправка в твоих руках.',
+    'price.buy':'Купить через Kaspi','price.trial':'Попробовать бесплатно','price.note':'Зарегистрируйся и оплати через Kaspi за 1 минуту — доступ откроется сразу.',
     'wa.text':'Привет! Хочу купить доступ к приложению ÖZGERIS.',
     'read.eyebrow':'Манифест','read.title':'Новая страница твоей жизни',
     'paper1.k':'Манифест · 2026','paper1.sec':'Главная мысль','paper1.foot':'ÖZGERIS · манифест · 1 / 2',
@@ -740,6 +741,8 @@ const icon = id => `<svg class="i"><use href="#${id}"/></svg>`;
 const APP_URL = '/';
 const TOUCH = matchMedia('(pointer:coarse)').matches;
 const TRIAL_URL = '/trial';
+const BUY_URL = '/?signup=1';   // тіркелу → Kaspi арқылы төлем (index.html paywall)
+const PRICE = '1 990 ₸';         // айлық жазылым — index.html/api/_billing.js PRICE_KZT-пен бірдей ұста
 const waLink = () => `https://wa.me/77473608356?text=${encodeURIComponent(t('wa.text'))}`;
 
 /* =========================================================
@@ -1198,12 +1201,9 @@ function drawPaper2(x,W,H){
   x.fillStyle = '#7d7891'; x.font = '600 19px "JetBrains Mono"'; x.fillText(t('paper2.price').toUpperCase().split('').join(' '), 80, y);
   y += 84;
   const g = x.createLinearGradient(80,0,480,0); g.addColorStop(0,'#7c5cff'); g.addColorStop(1,'#ff5da2');
-  x.fillStyle = g; x.font = '800 72px Montserrat'; x.fillText('4 990 ₸', 80, y);
-  const pw = x.measureText('4 990 ₸').width;
-  x.fillStyle = '#8d87a3'; x.font = '600 30px Manrope'; x.fillText('9 990 ₸', 110+pw, y-6);
-  const sw = x.measureText('9 990 ₸').width; x.fillRect(110+pw, y-17, sw, 3);
-  rr(x, 130+pw+sw, y-46, 96, 44, 10); x.fill();
-  x.fillStyle = '#fff'; x.font = '700 22px "JetBrains Mono"'; x.fillText('−50%', 144+pw+sw, y-16);
+  x.fillStyle = g; x.font = '800 72px Montserrat'; x.fillText(PRICE, 80, y);
+  const pw = x.measureText(PRICE).width;
+  x.fillStyle = '#8d87a3'; x.font = '700 34px Manrope'; x.fillText(t('price.per'), 100+pw, y-4);
   x.fillStyle = '#16131f'; x.fillRect(80,H-110,W-160,2);
   x.fillStyle = '#7d7891'; x.font = '500 18px "JetBrains Mono"'; x.fillText(t('paper2.foot').toUpperCase(), 80, H-70);
 }
@@ -2769,10 +2769,10 @@ function openPrice(){
   $('#priceCard').innerHTML = `<button class="x" data-close aria-label="×">${icon('i-x')}</button>
     <div class="eyebrow">${esc(t('price.eyebrow'))}</div>
     <h2>${esc(t('price.title'))}</h2>
-    <div class="price"><b>4 990 ₸</b><s>9 990 ₸</s><em>−50%</em></div>
+    <div class="price"><b>${PRICE}</b><span>${esc(t('price.per'))}</span></div>
     <p class="lead">${esc(t('price.lead'))}</p>
     <ul>${t('price.f').map(f=>`<li>${icon('i-check')}<span>${esc(f)}</span></li>`).join('')}</ul>
-    <div class="acts"><a class="btn grad" href="${waLink()}" target="_blank" rel="noopener">${icon('i-wa')}${esc(t('price.buy'))}</a><a class="btn" href="${TRIAL_URL}">${esc(t('price.trial'))}${icon('i-r')}</a></div>
+    <div class="acts"><a class="btn grad" href="${BUY_URL}">${icon('i-tag')}${esc(t('price.buy'))}</a><a class="btn" href="${TRIAL_URL}">${esc(t('price.trial'))}${icon('i-r')}</a></div>
     <p class="lead" style="font-size:13px;margin:16px 0 0">${esc(t('price.note'))}</p>`;
   openModal('mPrice');
 }
@@ -2788,7 +2788,7 @@ const CHAT = {
   kk:{
     chips:[['what','ÖZGERIS деген не?'],['price','Бағасы қанша?'],['start','Қалай бастаймын?'],['safe','Деректерім қауіпсіз бе?'],['tour','Қалада не бар?']],
     what:'ÖZGERIS — әдет, мақсат, денсаулық және қаржы трекері. Күн сайын бірнеше минут белгі қойып, өміріңді жүйеге келтіресің. Бұл қаладағы әр ғимарат — қосымшаның бір бөлімі.',
-    price:'Қазір жеңілдікпен 4 990 ₸ (әдетте 9 990 ₸). Сатып алу WhatsApp арқылы: батырманы бассаң, хабарлама дайын тұрады.',
+    price:'Айына 1 990 ₸ (күніне ~66 ₸). Тіркеліп, Kaspi арқылы 1 минутта төлейсің — доступ бірден ашылады. Ақша өзінен-өзі шешілмейді.',
     start:'Үш қадам: 1) email мен парольмен тіркел. 2) Поштаңа келген 6 таңбалы кодпен раста. 3) Бөлімді таңдап, алғашқы трекеріңді аш. Барлығы бір-екі минут.',
     safe:'Иә. Пароль bcrypt-пен хэштеледі, байланыс HTTPS арқылы жүреді, деректерің жарнамаға сатылмайды және үшінші тарапқа берілмейді. Аккаунтыңды кез келген уақытта толық өшіруді сұрай аласың.',
     trial:'Иә, тегін сынама нұсқасы бар — тіркелмей-ақ қосымшаны көріп шығасың.',
@@ -2797,7 +2797,7 @@ const CHAT = {
   ru:{
     chips:[['what','Что такое ÖZGERIS?'],['price','Сколько стоит?'],['start','Как начать?'],['safe','Мои данные в безопасности?'],['tour','Что есть в городе?']],
     what:'ÖZGERIS — трекер привычек, целей, здоровья и финансов. Пара минут в день — и жизнь становится системной. Каждое здание в этом городе — раздел приложения.',
-    price:'Сейчас со скидкой 4 990 ₸ (обычно 9 990 ₸). Покупка через WhatsApp: нажми кнопку — сообщение уже готово.',
+    price:'1 990 ₸ в месяц (~66 ₸ в день). Зарегистрируйся и оплати через Kaspi за 1 минуту — доступ откроется сразу. Без автосписаний.',
     start:'Три шага: 1) зарегистрируйся по email и паролю. 2) Подтверди 6-значным кодом из почты. 3) Выбери раздел и создай первый трекер. Всё займёт пару минут.',
     safe:'Да. Пароль хэшируется bcrypt, соединение идёт по HTTPS, данные не продаются для рекламы и не передаются третьим лицам. Аккаунт можно полностью удалить в любой момент.',
     trial:'Да, есть бесплатная пробная версия — можно посмотреть приложение без регистрации.',
@@ -2815,7 +2815,7 @@ const KW = {
 let chatStarted = false;
 function bubble(cls, html){ const d = document.createElement('div'); d.className = 'msg '+cls; d.innerHTML = html; $('#chatLog').append(d); $('#chatLog').scrollTop = 1e6; return d; }
 function actsHtml(intent){
-  if(intent==='price') return `<div class="acts"><a href="${waLink()}" target="_blank" rel="noopener">${esc(t('price.buy'))}</a><button data-chat-act="price">${esc(t('board.price'))}</button></div>`;
+  if(intent==='price') return `<div class="acts"><a href="${BUY_URL}">${esc(t('price.buy'))}</a><button data-chat-act="price">${esc(t('board.price'))}</button></div>`;
   if(intent==='start') return `<div class="acts"><a href="${APP_URL}">${esc(t('cta.start'))}</a></div>`;
   if(intent==='trial') return `<div class="acts"><a href="${TRIAL_URL}">${esc(t('price.trial'))}</a></div>`;
   if(intent==='tour') return `<div class="acts">${MODS.map((m,i)=>`<button data-chat-go="${i}">${esc(L(m.name))}</button>`).join('')}</div>`;

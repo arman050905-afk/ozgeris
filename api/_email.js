@@ -12,15 +12,21 @@ async function sendVerificationEmail(to, code) {
       <div style="font-size:32px;font-weight:800;letter-spacing:10px;margin:18px 0;color:#1a1a2e">${code}</div>
       <p style="color:#888;font-size:13px;line-height:1.6">Код 15 минут бойы жарамды. Бұл сұранысты өзің жасамаған болсаң, хатты елемей-ақ қой.</p>
     </div>`;
+  await sendEmail(to, `ÖZGERIS — растау коды: ${code}`, html);
+}
+
+async function sendEmail(to, subject, html, headers) {
   const r = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { 'Authorization': 'Bearer ' + RESEND_API_KEY, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: FROM, to: [to], subject: `ÖZGERIS — растау коды: ${code}`, html }),
+    body: JSON.stringify({ from: FROM, to: [to], subject, html, headers }),
   });
   if (!r.ok) {
     const t = await r.text().catch(() => '');
-    throw new Error('Email жіберілмеді: ' + t);
+    const err = new Error('Email жіберілмеді: ' + t);
+    err.status = r.status;
+    throw err;
   }
 }
 
-module.exports = { sendVerificationEmail };
+module.exports = { sendVerificationEmail, sendEmail };

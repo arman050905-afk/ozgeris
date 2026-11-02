@@ -852,6 +852,7 @@
   .offer-price{display:flex;align-items:baseline;justify-content:center;gap:10px;margin:2px 0 6px;flex-wrap:wrap}
   .offer-price .old{font-size:16px;font-weight:700;color:var(--muted);text-decoration:line-through;text-decoration-color:var(--crit);text-decoration-thickness:2px}
   .offer-price .new{font-size:28px;font-weight:800;color:var(--text)}
+  .offer-price .per{font-size:15px;font-weight:700;color:var(--muted)}
   .offer-price .off{font-size:12px;font-weight:800;color:#fff;background:var(--crit);padding:3px 8px;border-radius:20px;align-self:center}
   .wa-btn{display:flex;align-items:center;justify-content:center;gap:8px;background:#25D366;color:#fff;border:none;
     border-radius:13px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;width:100%;font-family:inherit;transition:.15s}
@@ -1026,13 +1027,9 @@
     </div>
     <div class="offer-box" id="offerBanner" style="display:none">
       <div class="offer-title" id="offerTitle"></div>
-      <div class="offer-price"><span class="old">9 990 ₸</span><span class="new">4 990 ₸</span><span class="off">−50%</span></div>
       <div class="offer-timer" id="offerTimer"></div>
       <div class="offer-sub" id="offerSub"></div>
-      <button class="wa-btn" style="margin-top:12px" onclick="openWhatsappOffer()">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.6.1-.2.3-.7.9-.9 1-.2.2-.3.2-.6.1-.9-.4-1.9-1-2.7-1.9-.8-.8-1.3-1.7-1.6-2.3-.1-.2 0-.4.1-.5.2-.2.4-.4.5-.6.1-.2.1-.4 0-.5-.1-.2-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.3-.9 1-.9 2.3s1 2.7 1.1 2.9c.1.2 2 3.1 4.9 4.2 2.9 1.1 2.9.7 3.4.7.5 0 1.6-.6 1.8-1.2.2-.6.2-1.1.1-1.2-.1-.1-.3-.2-.5-.3z"/></svg>
-        <span data-i18n="trial.offerWaBtn">WhatsApp арқылы жеңілдік алу</span>
-      </button>
+      <button class="btn" style="margin-top:12px" onclick="goFullVersion()"><span data-i18n="trial.fullBtn">Толық нұсқаны ашу</span></button>
     </div>
     <div class="home-hero" id="homeHero">
       <div class="home-hero-top">
@@ -1117,8 +1114,9 @@
     <div class="pe"><svg viewBox='0 0 24 24' width='1em' height='1em' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-0.125em;flex-shrink:0'><rect x='5' y='11' width='14' height='10' rx='2'/><path d='M8,11 V7 a4,4 0 0 1 8,0 V11'/></svg></div>
     <h2 data-i18n="trial.expiredTitle">Сынама доступ жабылды</h2>
     <p data-i18n="trial.expiredDesc">1 күндік тегін кезең аяқталды. ÖZGERIS-ті әрі қарай қолдану үшін толық нұсқаны ал — WhatsApp-қа жаз, доступ жылдам беріледі.</p>
-    <div class="offer-price"><span class="old">9 990 ₸</span><span class="new">4 990 ₸</span><span class="off">−50%</span></div>
-    <button class="wa-btn" style="margin:12px 0 10px" onclick="openWhatsappOffer()">
+    <div class="offer-price"><span class="new">1 990 ₸</span><span class="per" data-i18n="trial.offerPer">/ ай</span></div>
+    <button class="btn" style="margin:12px 0 10px" onclick="goFullVersion()"><span data-i18n="trial.fullBtn">Толық нұсқаны ашу</span></button>
+    <button class="wa-btn" style="margin:0 0 10px" onclick="openWhatsappOffer()">
       <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.6.1-.2.3-.7.9-.9 1-.2.2-.3.2-.6.1-.9-.4-1.9-1-2.7-1.9-.8-.8-1.3-1.7-1.6-2.3-.1-.2 0-.4.1-.5.2-.2.4-.4.5-.6.1-.2.1-.4 0-.5-.1-.2-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.3-.9 1-.9 2.3s1 2.7 1.1 2.9c.1.2 2 3.1 4.9 4.2 2.9 1.1 2.9.7 3.4.7.5 0 1.6-.6 1.8-1.2.2-.6.2-1.1.1-1.2-.1-.1-.3-.2-.5-.3z"/></svg>
       <span data-i18n="trial.offerWaBtn">WhatsApp арқылы жеңілдік алу</span>
     </button>
@@ -1727,7 +1725,8 @@ const I18N = {
     'trial.promoTitle':'Бұл — сынама нұсқа',
     'trial.promoDesc':'Барлық бөлім, қаржы да, 1 күнге ашық. Мерзім біткен соң доступ жабылады — толық нұсқаны WhatsApp арқылы аласың.',
     'trial.expiredTitle':'Сынама доступ жабылды',
-    'trial.expiredDesc':'1 күндік тегін кезең аяқталды. ÖZGERIS-ті әрі қарай қолдану үшін толық нұсқаны ал — WhatsApp-қа жаз, доступ жылдам беріледі.',
+    'trial.expiredDesc':'1 күндік тегін кезең аяқталды. Толық нұсқада бәрі ашық: тіркеліп, Kaspi арқылы 1 минутта төлейсің — доступ бірден ашылады.',
+    'trial.fullBtn':'Толық нұсқаны ашу', 'trial.offerPer':'/ ай',
     'trial.getFull':'Толық нұсқаны алу',
     'trial.finLockedTitle':'Қаржы басқару толық нұсқада ашылады',
     'trial.finLockedDesc':'Кіріс-шығын, міндетті төлемдер, қарыздар, қаржылық мақсаттар және сауаттылық материалдары — бәрі толық нұсқада қолжетімді. Бұл сынама нұсқада тек әдет трекерлерін көре аласың.',
@@ -1739,7 +1738,7 @@ const I18N = {
     'trial.ciSub':'Тұрақты жүйемен өзгеру мүмкіндігінің бағасы — скриншот жасап сақтап қой',
     'trial.plan30Title':'Сенің 30 күндік жолың', 'trial.plan30Open':'ашық',
     'trial.plan30Locked':'Келесі 27 күн толық нұсқада ашылады — WhatsApp арқылы алуға болады',
-    'trial.offerWaBtn':'WhatsApp арқылы жеңілдік алу',
+    'trial.offerWaBtn':'Сұрағың болса — WhatsApp',
   },
   ru: {
     'nav.create':'Создать трекер', 'nav.mine':'Мои трекеры', 'nav.task':'Задание',
@@ -1862,7 +1861,8 @@ const I18N = {
     'trial.promoTitle':'Это пробная версия',
     'trial.promoDesc':'Все разделы, включая финансы, открыты на 1 день. Потом доступ закроется — полную версию можно получить через WhatsApp.',
     'trial.expiredTitle':'Пробный доступ закрыт',
-    'trial.expiredDesc':'Бесплатный период на 1 день закончился. Чтобы пользоваться ÖZGERIS дальше, получи полную версию — напиши в WhatsApp, доступ откроем быстро.',
+    'trial.expiredDesc':'Бесплатный период на 1 день закончился. В полной версии открыто всё: зарегистрируйся и оплати через Kaspi за 1 минуту — доступ откроется сразу.',
+    'trial.fullBtn':'Открыть полную версию', 'trial.offerPer':'/ мес',
     'trial.getFull':'Получить полную версию',
     'trial.finLockedTitle':'Управление финансами открывается в полной версии',
     'trial.finLockedDesc':'Доходы-расходы, обязательные платежи, долги, финансовые цели и материалы по грамотности — всё доступно в полной версии. В этой пробной версии можно смотреть только трекеры привычек.',
@@ -1874,7 +1874,7 @@ const I18N = {
     'trial.ciSub':'Оценка возможности измениться при стабильной системе — сделай скриншот и сохрани',
     'trial.plan30Title':'Твой путь на 30 дней', 'trial.plan30Open':'открыто',
     'trial.plan30Locked':'Следующие 27 дней открываются в полной версии — можно получить через WhatsApp',
-    'trial.offerWaBtn':'Получить скидку через WhatsApp',
+    'trial.offerWaBtn':'Есть вопросы — WhatsApp',
 
     'tpl.sugar.name':'30 дней без сахара', 'tpl.sugar.desc':'Меньше сладкого — больше энергии и контроль питания.',
     'tpl.water.name':'Питьё воды (8 стаканов)', 'tpl.water.desc':'Держи дневную норму воды — нажми на ячейку +1 стакан.',
@@ -2130,6 +2130,7 @@ async function quizStep1Submit(){
   btn.disabled = true; btn.textContent = LANG==='ru' ? 'Жіберілуде…' : 'Жіберілуде…';
   try{
     const r = await apiCall('POST', {action:'login', name, phone});
+    Store.setGlobal('trial_phone', phone);
     Store.setGlobal('app_token', r.token);
     Store.setGlobal('app_name', r.user.name);
     Store.setGlobal('trial_access_until', r.accessUntil || null);
@@ -2347,44 +2348,37 @@ document.addEventListener('visibilitychange', ()=>{
 });
 let _offerTimerInt = null;
 function initOfferBanner(){
-  const deadline = Store.getGlobal('trial_offer_deadline', null);
+  // Сынаманың нақты бітетін уақыты (сервер: created_at + 24 сағ) — сол сәтте showTrialExpired() ашылады
+  const deadline = Store.getGlobal('trial_access_until', null);
   const banner = document.getElementById('offerBanner');
   if(!banner) return;
   if(!deadline){ banner.style.display='none'; return; }
-  const waClicked = Store.getGlobal('trial_wa_clicked', false);
   banner.style.display='block';
-  document.getElementById('offerTitle').textContent = LANG==='ru' ? 'Ограниченное предложение — скидка на полную версию' : 'Шектеулі ұсыныс — толық нұсқаға жеңілдік';
-  document.getElementById('offerSub').textContent = waClicked
-    ? (LANG==='ru' ? 'Мы уже получили твоё сообщение, скоро ответим в WhatsApp' : 'Хабарламаңды алдық, жақын арада WhatsApp-та жауап береміз')
-    : (LANG==='ru' ? 'Нажми, чтобы получить скидку до окончания времени' : 'Уақыт бітпей тұрып жеңілдікті алу үшін бас');
+  document.getElementById('offerTitle').textContent = LANG==='ru' ? 'Пробный доступ закончится через' : 'Сынама доступ бітуіне қалды';
+  document.getElementById('offerSub').textContent = LANG==='ru'
+    ? 'Полная версия — 1 990 ₸ в месяц, оплата через Kaspi за 1 минуту'
+    : 'Толық нұсқа — айына 1 990 ₸, Kaspi арқылы 1 минутта';
   clearInterval(_offerTimerInt);
   _offerTimerInt = setInterval(()=>tickOfferTimer(deadline), 1000);
   tickOfferTimer(deadline);
 }
-// Мерзім өтіп кетсе — ұсыныс тағы 24 сағатқа жаңарады (әрқашан ≤ 1 күн қалады)
-function rollOfferDeadline(deadline){
-  const DAY = 86400000;
-  let t = new Date(deadline).getTime();
-  if(!isFinite(t)) return Date.now() + DAY;
-  const now = Date.now();
-  if(t <= now) t += Math.ceil((now - t + 1) / DAY) * DAY;
-  return t;
-}
 function tickOfferTimer(deadline){
   const timerEl = document.getElementById('offerTimer');
-  const banner = document.getElementById('offerBanner');
-  if(!timerEl || !banner) return;
-  const ms = rollOfferDeadline(deadline) - Date.now();
-  if(ms <= 0){
-    clearInterval(_offerTimerInt);
-    banner.classList.add('expired');
-    timerEl.textContent = LANG==='ru' ? 'Время истекло' : 'Уақыт бітті';
-    document.getElementById('offerSub').textContent = LANG==='ru' ? 'Это предложение больше не действует' : 'Бұл ұсыныс енді жарамсыз';
-    banner.querySelector('.wa-btn').style.display = 'none';
-    return;
-  }
+  if(!timerEl) return;
+  const ms = new Date(deadline).getTime() - Date.now();
+  if(!(ms > 0)){ clearInterval(_offerTimerInt); timerEl.textContent = '00:00:00'; return; }
   const h = Math.floor(ms/3600000), m = Math.floor((ms%3600000)/60000), s = Math.floor((ms%60000)/1000);
   timerEl.textContent = [h,m,s].map(x=>String(x).padStart(2,'0')).join(':');
+}
+// Толық нұсқаға: тіркелу формасы атымен ашылады, Kaspi нөмірі алдын ала толтырылады (?signup=1 — index.html INIT)
+function goFullVersion(){
+  apiCall('POST', {action:'whatsapp-click'}).catch(()=>{}); // админдегі «жылылық» — сатып алуға ниет белгісі
+  Store.setGlobal('trial_wa_clicked', true);
+  const name = (quizState && quizState.name) || Store.getGlobal('app_name','') || '';
+  const phone = Store.getGlobal('trial_phone','') || '';
+  // localStorage кілттері index.html-мен ортақ — сынама токені негізгі сайтқа «кіріп» кетпеуі үшін
+  ['app_session','app_token','app_name','app_active','app_admin'].forEach(k=>Store.setGlobal(k, null));
+  location.href = '/?signup=1&name=' + encodeURIComponent(name) + '&phone=' + encodeURIComponent(phone);
 }
 function openWhatsappOffer(){
   const firstName = (quizState && quizState.name ? quizState.name : currentUser || '').trim().split(/\s+/)[0] || '';
@@ -2393,7 +2387,7 @@ function openWhatsappOffer(){
   let msg = `Сәлем! Мен ÖZGERIS сынама нұсқасында${firstName?` ( ${firstName} )`:''} тестілеп көрдім`;
   if(dir) msg += `, бағыт: ${dir}`;
   if(dream) msg += `. Арманым: ${dream}`;
-  msg += `. Толық нұсқаны жеңілдікпен алғым келеді.`;
+  msg += `. Толық нұсқа туралы сұрағым бар.`;
   window.open('https://wa.me/77473608356?text=' + encodeURIComponent(msg), '_blank');
   apiCall('POST', {action:'whatsapp-click'}).catch(()=>{});
   Store.setGlobal('trial_wa_clicked', true);
