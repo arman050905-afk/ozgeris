@@ -567,6 +567,36 @@
   .stmt-row .amt,#stmtSum .amt{font-weight:700;white-space:nowrap}
   .stmt-row .amt.in,#stmtSum .amt.in{color:var(--good)}
   .stmt-row .amt.out,#stmtSum .amt.out{color:#f0a5a5}
+  .stmt-progress{height:5px;background:var(--line);border-radius:5px;overflow:hidden;margin:2px 0 8px}
+  .stmt-progress div{height:100%;background:var(--grad);border-radius:5px;transition:width .25s}
+  .stmt-count{display:flex;justify-content:space-between;font-size:13px;color:var(--faint)}
+  .stmt-count a{color:var(--muted)}
+  .stmt-card{background:var(--panel-2);border:1px solid var(--line);border-radius:18px;padding:24px 18px;text-align:center;margin:10px 0 16px;animation:stmtIn .22s cubic-bezier(.2,.8,.2,1)}
+  @keyframes stmtIn{from{opacity:0;transform:translateX(18px)}}
+  .stmt-card-amt{font-family:var(--font-display);font-size:32px;font-weight:800;color:#f0a5a5;letter-spacing:-.5px}
+  .stmt-card-name{font-size:17px;font-weight:700;margin-top:6px;word-break:break-word;line-height:1.35}
+  .stmt-card-meta{font-size:13px;color:var(--faint);margin-top:5px}
+  .stmt-q{font-weight:700;margin:0 0 10px;font-size:14.5px}
+  .stmt-chips{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  @media(min-width:620px){.stmt-chips{grid-template-columns:repeat(3,1fr)}}
+  .stmt-chip{display:flex;align-items:center;gap:9px;padding:13px 12px;border-radius:13px;border:1.5px solid var(--line);background:var(--bg);color:var(--text);font:inherit;font-size:14.5px;font-weight:600;cursor:pointer;text-align:left;touch-action:manipulation;transition:.15s;min-width:0}
+  .stmt-chip span{flex:1;min-width:0;line-height:1.2;overflow-wrap:anywhere}
+  .stmt-chip i{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+  .stmt-chip kbd{font:inherit;font-size:11px;color:var(--faint);border:1px solid var(--line);border-radius:5px;padding:0 5px}
+  .stmt-chip:hover{border-color:var(--s7)}
+  .stmt-chip:active{transform:scale(.97)}
+  .stmt-chip.guess{border-color:var(--s7);background:rgba(var(--accent-rgb),.14);box-shadow:0 0 0 3px rgba(var(--accent-rgb),.12)}
+  @media(hover:none){.stmt-chip kbd{display:none}}
+  .stmt-card-actions{display:flex;gap:8px;margin-top:12px}
+  .stmt-card-actions .btn{flex:1;width:auto}
+  .stmt-card-actions .btn:disabled{opacity:.4;cursor:default}
+  .stmt-done-head{text-align:center;font-family:var(--font-display);font-size:22px;font-weight:800;margin:14px 0 4px;color:var(--good)}
+  .stmt-bar{margin:0 0 10px}
+  .stmt-bar-top{display:flex;justify-content:space-between;font-size:14px;margin-bottom:4px}
+  .stmt-bar-top span{display:flex;align-items:center;gap:8px}
+  .stmt-bar-top i{width:9px;height:9px;border-radius:50%}
+  .stmt-bar-track{height:7px;background:var(--line);border-radius:7px;overflow:hidden}
+  .stmt-bar-track div{height:100%;border-radius:7px}
   @media(max-width:520px){.stmt-row{flex-wrap:wrap;row-gap:2px}.stmt-main{flex-basis:calc(100% - 110px)}.stmt-row .mini-cat{order:3;margin-left:28px;max-width:60%}}
   .balance{font-size:34px;margin:4px 0 2px}
   .goal-line{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:6px}
@@ -5106,6 +5136,7 @@ const PDFJS_URL = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/';
 let pdfjsLib = null;
 let stmtRows = [];   // [{key,date,type,amount,currency,op,desc,cat,on,dup}]
 let stmtLines = [];  // соңғы PDF-тің жолдары (формат танылмаса тексеруге)
+let stmtMode = 'cards', stmtQueue = [], stmtPos = 0, stmtHist = [], stmtCatsCur = [];  // бір-бірлеп белгілеу
 const STMT_OPS = /^(Покупк[аи]|Переводы?|Пополнени[ея]|Сняти[ея]|Разное|Платеж[и]?|Платёж|Оплата|Погашение|Возврат|Комиссия|Бонусы?|Зарплата)(?=\s|$)\s*/i;  // \b кириллицада жұмыс істемейді
 const STMT_IN_OPS = /^(Пополнени|Возврат|Зарплата|Бонус)/i;
 // Өз шоттарыңның арасындағы ауыстыру — шығын/кіріс емес, әдепкіде белгіленбейді
@@ -5235,6 +5266,7 @@ async function onStmtFile(input){
     return;
   }
   buildStmtRows(parseStatementLines(stmtLines));
+  stmtStartCards();
   document.getElementById('stmtTitle').innerHTML = `${ic('clipboard')} ${L('Выпискадан жүктеу','Загрузка выписки')}`;
   renderStmtModal();
   document.getElementById('toast').classList.remove('show');  // «оқылып жатыр» батырманы жаппасын
@@ -5245,15 +5277,145 @@ function stmtSummary(){
   const sel = stmtRows.filter(r=>r.on);
   const out = sel.filter(r=>r.type==='out').reduce((s,r)=>s+(r.currency?0:r.amount),0);
   const inc = sel.filter(r=>r.type==='in').reduce((s,r)=>s+(r.currency?0:r.amount),0);
+  if(!document.getElementById('stmtSum')) return;
   document.getElementById('stmtSum').innerHTML = L(`Таңдалды: <b>${sel.length}</b> / ${stmtRows.length}`, `Выбрано: <b>${sel.length}</b> / ${stmtRows.length}`)
     + (out ? ` · <span class="amt out">−${fmt(out)}</span>` : '') + (inc ? ` · <span class="amt in">+${fmt(inc)}</span>` : '');
   document.getElementById('stmtImportBtn').textContent = L(`Қосу (${sel.length})`, `Добавить (${sel.length})`);
   document.getElementById('stmtImportBtn').disabled = !sel.length;
 }
+/* Бір-бірлеп белгілеу (әдепкі режим): әр шығын жеке карточка болып шығады, категорияны басқанда келесісі
+   өзі ашылады. Сол дүкеннің қалған төлемдері бірден сол шешімді алады (кезектен түседі). Кірістер, өз
+   шоттар арасы, бұрыннан бар жазбалар кезекке кірмейді — оларды «Тізіммен көру» арқылы қосуға болады. */
+function stmtStartCards(){
+  stmtQueue = stmtRows.map((r,i)=>i).filter(i=>{ const r = stmtRows[i]; return r.type==='out' && !r.dup && !r.self; });
+  stmtRows.forEach(r=>{ r.done = false; });
+  stmtPos = 0; stmtHist = [];
+  stmtMode = stmtQueue.length ? 'cards' : 'list';
+}
 function renderStmtModal(){
+  const btn = document.getElementById('stmtImportBtn');
+  if(stmtMode==='cards'){
+    while(stmtPos < stmtQueue.length && stmtRows[stmtQueue[stmtPos]].done) stmtPos++;
+    const finished = stmtPos >= stmtQueue.length;
+    btn.style.display = finished ? '' : 'none';
+    if(finished) renderStmtDone(); else renderStmtCard();
+  } else {
+    btn.style.display = stmtRows.length ? '' : 'none';
+    renderStmtList();
+  }
+}
+function stmtCatColor(cat, type){
+  const i = finCats(type).indexOf(cat);
+  return i>=0 ? `var(--s${i%8+1})` : 'var(--muted)';
+}
+function renderStmtCard(){
+  const r = stmtRows[stmtQueue[stmtPos]];
+  const left = stmtQueue.slice(stmtPos).filter(j=>!stmtRows[j].done).length;
+  const doneN = stmtQueue.length - left;
+  const key = r.desc.toLowerCase();
+  const same = key ? stmtQueue.slice(stmtPos+1).filter(j=>!stmtRows[j].done && stmtRows[j].desc.toLowerCase()===key).length : 0;
+  // Әдепкі категориялар + өзің жасағандары (ең көп қолданылған 4-еуі)
+  const used = {};
+  txs.filter(x=>x.type==='out' && !finCats('out').includes(x.cat)).forEach(x=>{ used[x.cat] = (used[x.cat]||0)+1; });
+  stmtCatsCur = [...new Set([...finCats('out'), ...Object.keys(used).sort((a,b)=>used[b]-used[a]).slice(0,4), r.cat])];
+  document.getElementById('stmtBody').innerHTML = `
+    <div class="stmt-progress"><div style="width:${Math.round(doneN/stmtQueue.length*100)}%"></div></div>
+    <div class="stmt-count">
+      <span>${L(`${doneN+1}-сі / ${stmtQueue.length}`, `${doneN+1} из ${stmtQueue.length}`)}</span>
+      <a href="#" onclick="stmtToList();return false">${L('Тізіммен көру','Показать списком')}</a>
+    </div>
+    <div class="stmt-card">
+      <div class="stmt-card-amt">−${r.currency ? r.amount.toLocaleString('ru-RU')+' '+r.currency : fmt(r.amount)}</div>
+      <div class="stmt-card-name">${r.desc || r.op || '—'}</div>
+      <div class="stmt-card-meta">${fmtDate(r.date)}${r.op?' · '+r.op:''}${same?' · '+L(`тағы ${same} рет бар`,`ещё ${same} раз`):''}</div>
+    </div>
+    <div class="stmt-q">${L('Қай категорияға жатады?','К какой категории относится?')}</div>
+    <div class="stmt-chips">${stmtCatsCur.map((c,k)=>`
+      <button class="stmt-chip ${c===r.cat?'guess':''}" onclick="stmtPick(${k})"><i style="background:${stmtCatColor(c,'out')}"></i><span>${c}</span>${k<9?`<kbd>${k+1}</kbd>`:''}</button>`).join('')}
+      <button class="stmt-chip" onclick="stmtNewCat()"><i style="background:var(--line)"></i><span>${L('+ Басқа…','+ Другая…')}</span></button>
+    </div>
+    <div class="stmt-card-actions">
+      <button class="btn ghost sm" onclick="stmtBack()" ${stmtHist.length?'':'disabled'}>${ic('arrowLeft')} ${L('Артқа','Назад')}</button>
+      <button class="btn ghost sm" onclick="stmtSkip()">${L('Қоспау','Не добавлять')}</button>
+    </div>
+    <div class="wallet-note" style="text-align:center">${L(
+      `Белгіленгені — болжам, дұрыс болса соны бас. <a href="#" onclick="stmtAutoRest();return false">Қалған ${left}-ін болжаммен қосу</a>`,
+      `Выделенная — догадка, если верно — нажми её. <a href="#" onclick="stmtAutoRest();return false">Остальные ${left} — по догадке</a>`)}</div>`;
+}
+function stmtDecide(cat, on){
+  const i = stmtQueue[stmtPos], r = stmtRows[i], key = r.desc.toLowerCase();
+  const same = key ? stmtQueue.slice(stmtPos+1).filter(j=>!stmtRows[j].done && stmtRows[j].desc.toLowerCase()===key) : [];
+  const touched = [i, ...same];
+  stmtHist.push({pos: stmtPos, prev: touched.map(j=>({j, cat: stmtRows[j].cat, on: stmtRows[j].on, done: stmtRows[j].done}))});
+  touched.forEach(j=>{ if(cat) stmtRows[j].cat = cat; stmtRows[j].on = on; stmtRows[j].done = true; });
+  if(same.length) toast(on ? L(`${r.desc}: тағы ${same.length} төлем де «${cat}»`, `${r.desc}: ещё ${same.length} — тоже «${cat}»`)
+                           : L(`${r.desc}: тағы ${same.length} төлем де қосылмайды`, `${r.desc}: ещё ${same.length} тоже не добавятся`));
+  stmtPos++;
+  renderStmtModal();
+}
+function stmtPick(k){ stmtDecide(stmtCatsCur[k], true); }
+function stmtSkip(){ stmtDecide(null, false); }
+function stmtNewCat(){
+  const c = walletClean(prompt(L('Жаңа категория атауы:','Название новой категории:')) || '').slice(0,40);
+  if(c) stmtDecide(c, true);
+}
+function stmtBack(){
+  const h = stmtHist.pop();
+  if(!h) return;
+  h.prev.forEach(p=>Object.assign(stmtRows[p.j], {cat:p.cat, on:p.on, done:p.done}));
+  stmtPos = h.pos;
+  stmtMode = 'cards';
+  renderStmtModal();
+}
+function stmtAutoRest(){
+  const rest = stmtQueue.slice(stmtPos).filter(j=>!stmtRows[j].done);
+  stmtHist.push({pos: stmtPos, prev: rest.map(j=>({j, cat: stmtRows[j].cat, on: stmtRows[j].on, done: false}))});
+  rest.forEach(j=>{ stmtRows[j].on = true; stmtRows[j].done = true; });
+  stmtPos = stmtQueue.length;
+  renderStmtModal();
+}
+function renderStmtDone(){
+  const outs = stmtRows.filter(r=>r.on && r.type==='out');
+  const sel = outs.filter(r=>!r.currency);  // шетел валютасы теңге сомасына қосылмайды
+  const byCat = {};
+  sel.forEach(r=>{ byCat[r.cat] = (byCat[r.cat]||0) + r.amount; });
+  const total = sel.reduce((s,r)=>s+r.amount,0);
+  const cats = Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
+  const skipped = stmtQueue.filter(j=>!stmtRows[j].on).length;
+  const hidden = stmtRows.length - stmtQueue.length;
+  document.getElementById('stmtBody').innerHTML = `
+    <div class="stmt-progress"><div style="width:100%"></div></div>
+    <div class="stmt-done-head">${ic('checkCircle')} ${L('Дайын!','Готово!')}</div>
+    <div class="stmt-card-meta" style="text-align:center;margin-bottom:14px">${L(
+      `${outs.length} шығын қосылады · <b style="color:#f0a5a5">−${fmt(total)}</b>`, `Добавится расходов: ${outs.length} · <b style="color:#f0a5a5">−${fmt(total)}</b>`)}</div>
+    ${cats.map(([c,v])=>`<div class="stmt-bar">
+      <div class="stmt-bar-top"><span><i style="background:${stmtCatColor(c,'out')}"></i>${c}</span><b>${fmt(v)}</b></div>
+      <div class="stmt-bar-track"><div style="width:${Math.max(3,Math.round(v/(cats[0][1]||1)*100))}%;background:${stmtCatColor(c,'out')}"></div></div>
+    </div>`).join('')}
+    <div class="wallet-note" style="text-align:center;margin-top:14px">
+      ${skipped?L(`Қосылмайтыны: ${skipped}. `,`Не добавятся: ${skipped}. `):''}${hidden?L(`Кірістер, өз шоттар арасы мен бұрыннан бар ${hidden} жазба кезекте болмады. `,`Доходы, переводы между своими счетами и уже записанные (${hidden}) в очередь не попали. `):''}
+      <a href="#" onclick="stmtBack();return false">${L('Артқа','Назад')}</a> ·
+      <a href="#" onclick="stmtToList();return false">${L('Тізіммен тексеру','Проверить списком')}</a>
+    </div>`;
+  const all = stmtRows.filter(r=>r.on).length;
+  const btn = document.getElementById('stmtImportBtn');
+  btn.textContent = L(`Қосу (${all})`, `Добавить (${all})`);
+  btn.disabled = !all;
+}
+function stmtToList(){ stmtMode = 'list'; renderStmtModal(); }
+function stmtToCards(){ stmtMode = 'cards'; renderStmtModal(); }
+// Компьютерде: 1–9 — категория, ← / Backspace — артқа, 0 — қоспау
+document.addEventListener('keydown', e=>{
+  if(stmtMode!=='cards' || !document.getElementById('stmtModal').classList.contains('open')) return;
+  if(/^(INPUT|SELECT|TEXTAREA)$/.test((e.target.tagName||''))) return;
+  if(stmtPos >= stmtQueue.length) return;
+  if(/^[1-9]$/.test(e.key) && stmtCatsCur[+e.key-1]){ e.preventDefault(); stmtPick(+e.key-1); }
+  else if(e.key==='0'){ e.preventDefault(); stmtSkip(); }
+  else if(e.key==='ArrowLeft' || e.key==='Backspace'){ e.preventDefault(); stmtBack(); }
+});
+function renderStmtList(){
   const body = document.getElementById('stmtBody');
   const prevList = body.querySelector('.stmt-list'), scroll = prevList ? prevList.scrollTop : 0;
-  document.getElementById('stmtImportBtn').style.display = stmtRows.length ? '' : 'none';
   if(!stmtRows.length){
     body.innerHTML = `<p style="color:var(--muted);line-height:1.55">${L(
       'Бұл PDF-тен бірде-бір операция таба алмадым. Kaspi Gold выпискасы екенін тексер (Kaspi → Kaspi Gold → Выписка). Басқа банктікі болса, файлды бізге жібер — соны да қосып береміз.',
@@ -5270,6 +5432,7 @@ function renderStmtModal(){
       `Найдено: <b>${n.out}</b> расходов, <b>${n.in}</b> доходов${n.dup?`, из них <b>${n.dup}</b> уже есть`:''}. Проверь категории и сними галочки с лишнего. Доходы и переводы между своими счетами по умолчанию не отмечены.`)}</p>
     <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:13.5px;margin:10px 0 2px">
       <span id="stmtSum" style="flex:1"></span>
+      ${stmtQueue.length?`<a href="#" onclick="stmtToCards();return false" style="color:var(--muted)">${L('Бір-бірлеп белгілеу','По одному')}</a>`:''}
       <a href="#" onclick="stmtSetAll(true);return false" style="color:var(--muted)">${L('Бәрін белгілеу','Отметить все')}</a>
       <a href="#" onclick="stmtSetAll(false);return false" style="color:var(--muted)">${L('Бәрін алу','Снять все')}</a>
     </div>
